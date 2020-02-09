@@ -11,7 +11,7 @@ def hello():
 
 
 @app.route('/login')
-#@app.route('/login/<name>')
+@app.route('/login/<name>')
 def login(name=None):
     return render_template('index.html', name=name)
 
