@@ -24,7 +24,7 @@ def login():
 
 @app.route("/login_manager", methods=["POST"])  #追加
 def login_manager():
-    return "ようこそ、" + request.form["userid"] + "さん"
+    return "ようこそ、" + request.form["username"] + "さん"
 
 
 @app.route('/home')

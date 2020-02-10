@@ -13,18 +13,13 @@ db = MySQL(**dns)
 app = Flask(__name__)
 
 
-@app.route('/')  #, methods=["GET", "POST"])
+@app.route('/', methods=["POST"])
 def login():
-    # if request.method == "POST":
-    #     name = request.form["text"]
-    # else:
-    #     name = "no name."
-    return render_template('index.html')  #, title='flask test', name=name)
-
-
-@app.route("/login_manager", methods=["POST"])  #追加
-def login_manager():
-    return "ようこそ、" + request.form["userid"] + "さん"
+    if request.method == "POST":
+        name = request.form["name"]
+    else:
+        name = "no name."
+    return render_template('index.html', title='flask test', name=name)
 
 
 @app.route('/home')
