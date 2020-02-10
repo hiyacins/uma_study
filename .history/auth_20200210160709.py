@@ -22,9 +22,17 @@ def login():
     return render_template('index.html')  #, title='flask test', name=name)
 
 
-@app.route("/home", methods=["GET", "POST"])
+@app.route("/home", methods=["GET", "POST"])  #追加
 def login_manager():
+    #name = "ようこそ、" + request.form["userid"] + "さん"
+    #return "ようこそ、" + request.form["userid"] + "さん"
     return render_template('top.html')
+
+
+@app.route('/home')
+def home(name=None):
+    name = "Hello World"
+    return name
 
 
 ## おまじない
