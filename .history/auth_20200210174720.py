@@ -1,27 +1,20 @@
-from flask import Flask, jsonify
+from flask import Flask
 from flask import render_template
 from flask import request
-import mysql.connector
-
-config = {
+from db import MySQL
+dns = {
     'user': 'root',
-    'password': 'hiya1023',
     'host': 'localhost',
-    'port': 3306,
+    'password': 'hiya1023',
     'database': 'site_master'
 }
+db = MySQL(**dns)
+
 app = Flask(__name__)
 
 
 @app.route('/')
 def login():
-    con = mysql.connector.connect(**config)
-    cursor = con.cursor(buffered=True)
-
-    stmt = "select * from site_master_login_tb"
-    cursor.execute(stmt)
-    results = cursor.fetchall()
-    print(results)
     return render_template('index.html')
 
 

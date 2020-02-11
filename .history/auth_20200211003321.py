@@ -15,19 +15,19 @@ app = Flask(__name__)
 
 @app.route('/')
 def login():
+    return render_template('index.html')
+
+
+@app.route("/home", methods=["POST"])
+def home():
     con = mysql.connector.connect(**config)
     cursor = con.cursor(buffered=True)
 
     stmt = "select * from site_master_login_tb"
     cursor.execute(stmt)
     results = cursor.fetchall()
-    print(results)
-    return render_template('index.html')
 
-
-@app.route("/home", methods=["POST"])
-def home():
-    return render_template('top.html')
+    return results  #jsonify(results)  #render_template('top.html')
 
 
 ## おまじない

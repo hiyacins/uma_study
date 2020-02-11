@@ -15,10 +15,11 @@ app = Flask(__name__)
 
 @app.route('/')
 def login():
+    server.start()
     con = mysql.connector.connect(**config)
     cursor = con.cursor(buffered=True)
 
-    stmt = "select * from site_master_login_tb"
+    stmt = "select id, id_name, password from site_master_login_tb"
     cursor.execute(stmt)
     results = cursor.fetchall()
     print(results)

@@ -21,13 +21,25 @@ def login():
     stmt = "select * from site_master_login_tb"
     cursor.execute(stmt)
     results = cursor.fetchall()
-    print(results)
-    return render_template('index.html')
+   Print(results)
+
+    return results
 
 
-@app.route("/home", methods=["POST"])
+# def login():
+#     return render_template('index.html')
+
+
+#@app.route("/home", methods=["POST"])
+@app.route('/home')
 def home():
-    return render_template('top.html')
+    con = mysql.connector.connect(**config)
+    cursor = con.cursor(buffered=True)
+
+    stmt = "select * from site_master_login_tb"
+    cursor.execute(stmt)
+    results = cursor.fetchall()
+     return results  #jsonify(results)  #render_template('top.html')
 
 
 ## おまじない

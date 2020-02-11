@@ -18,7 +18,7 @@ def login():
     con = mysql.connector.connect(**config)
     cursor = con.cursor(buffered=True)
 
-    stmt = "select * from site_master_login_tb"
+    stmt = "select id, id_name, password from site_master_login_tb"
     cursor.execute(stmt)
     results = cursor.fetchall()
     print(results)

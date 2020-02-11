@@ -3,31 +3,39 @@ from flask import render_template
 from flask import request
 import mysql.connector
 
+app = Flask(__name__)
+
 config = {
     'user': 'root',
     'password': 'hiya1023',
     'host': 'localhost',
-    'port': 3306,
     'database': 'site_master'
 }
-app = Flask(__name__)
+
+# def ExecuteQuery(sql):
+#     con = mysql.connector.connect(**config)
+#     cursor = con.cursor(buffered=True)
+
+#     stmt = "select * from site_master"
+#     cursor.execute(stmt)
+#     results = cursor.fetchall()
 
 
 @app.route('/')
 def login():
-    con = mysql.connector.connect(**config)
-    cursor = con.cursor(buffered=True)
-
-    stmt = "select * from site_master_login_tb"
-    cursor.execute(stmt)
-    results = cursor.fetchall()
-    print(results)
     return render_template('index.html')
 
 
 @app.route("/home", methods=["POST"])
 def home():
-    return render_template('top.html')
+    con = mysql.connector.connect(**config)
+    cursor = con.cursor(buffered=True)
+
+    stmt = "select * from site_master"
+    cursor.execute(stmt)
+    results = cursor.fetchall()
+
+    return results  #jsonify(results)  #render_template('top.html')
 
 
 ## おまじない
