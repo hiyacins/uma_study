@@ -70,7 +70,7 @@ def login():
         return home()
 
 
-@app.route("/home", methods=["GET"])
+@app.route("/home")
 def home():
     return render_template('top.html')
 

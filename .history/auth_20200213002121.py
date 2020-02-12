@@ -63,14 +63,14 @@ def login():
         print("NG_pass")
         return render_template('index.html')
     else:
-        #flash("ログインを成功しました＼(^o^)／", category="success")
+        flash("ログインを成功しました＼(^o^)／", category="success")
         cursor.close()
         con.close()
         print("OK")
-        return home()
+        home()
 
 
-@app.route("/home", methods=["GET"])
+@app.route("/home")
 def home():
     return render_template('top.html')
 

@@ -63,14 +63,22 @@ def login():
         print("NG_pass")
         return render_template('index.html')
     else:
-        #flash("ログインを成功しました＼(^o^)／", category="success")
-        cursor.close()
-        con.close()
-        print("OK")
-        return home()
+
+        @app.route("/home")
+        def home():
+            flash("ログインを成功しました＼(^o^)／", category="success")
+            cursor.close()
+            con.close()
+            print("OK")
+            return render_template('top.html')
+
+    # elif not check_password_hash(results['password'], password):
+    #     error_message = 'パスワードが正しくありません'
+    #     return redirect(url_for('home'))
+    print("END")
 
 
-@app.route("/home", methods=["GET"])
+@app.route("/home")
 def home():
     return render_template('top.html')
 

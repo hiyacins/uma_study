@@ -67,11 +67,12 @@ def login():
         cursor.close()
         con.close()
         print("OK")
-        return home()
+        return redirect(url_for('home'))
 
 
-@app.route("/home", methods=["GET"])
+@app.route("/home")
 def home():
+    id_name = request.form['id_name']
     return render_template('top.html')
 
 
