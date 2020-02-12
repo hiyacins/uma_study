@@ -42,13 +42,13 @@ def login():
     results = cursor.fetchone()
     print(results)
     if results:
-        cursor.execute('select * from site_master_login_tb where id_name = %s',
-                       (id_name, ))
+        cursor.execute('select * from site_master_login_tb')
         for row in cursor.fetchall():
             print(row[2])
-
+    # # rlt_pass = cursor.fetchall()
+    # # print(rlt_pass)
+    # #print(check_password_hash(rlt_pass, password))
     # #passsalt = 'pbkdf2:sha256:150000$wPgnYJj9$571d6740d6d6f42db4af4c01648a146a0f15aaa039befcc3e48c5800974adb68'
-
     if results is None:
         #message = 'ユーザー名が正しくありません'
         flash("ログイン失敗", category="failed")
@@ -56,6 +56,7 @@ def login():
         con.close()
         print("NG_use")
         return render_template('index.html')
+    #elif not check_password_hash(results['password'], password):
     elif not check_password_hash(row[2], password):
         flash("ログイン失敗", category="failed")
         cursor.close()
