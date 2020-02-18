@@ -4,11 +4,12 @@ import mysql.connector
 import string
 
 app = Flask(__name__)
+# シークレットキーの設定
 
 
 # DB接続・切断に関するクラス
 class MySQLConnector:
-    # 初期化
+
     def __init__(self):
         self.db_connect = ""
         self.cursor = ""
@@ -29,17 +30,18 @@ class MySQLConnector:
 
     # DB接断
     def disconnect(self):
-        self.cursor.close()
-        self.db_connect.close()
+        cursor.close()
+        db_connect.close()
 
     # クエリ実行
-    def execute(self, sql, param=None):
-        self.cursor.execute(sql, (param, ))
+    def execute(self, sql):  # , param=None):
+        self.cursor.execute(sql)  # , (param, ))
         # fetchone()で1件ずつ取り出し
         return self.cursor.fetchone()
+        # debug_print(results)
+        # return results
 
 
-# シークレットキーの設定
 app.config["SECRET_KEY"] = "b't\xd7.\xedOa\xd8\x88\x18\xc51H\xf5\x0b\xb1\x10\x99\xde\x11\xa9\x12\xe3\xd3S'"
 
 
@@ -63,9 +65,10 @@ def login():
 
     # ユーザー名とパスワードのチェック
     #message = None
-    # results = db.execute("SELECT * FROM site_users")
-    results = db.execute(
-        "SELECT * FROM site_users WHERE id_name = ?", id_name)
+    results = db.execute("SELECT * FROM site_users")
+    # results = db.execute(
+    #     "SELECT * FROM site_users WHERE id_name = ?")  # , id_name)
+    #results = db.fetchone()
     debug_print(results)
 
     # table = str.maketrans("", "", "bytearray(b'')")
@@ -80,13 +83,15 @@ def login():
         return render_template('index.html')
 
     #
-    if not check_password_hash("pbkdf2:sha256:150000$rtNJvHvC$37feec29a8f8fbaff527a1a8f5ea51cc144f5a9d2ffb3455a9b31f36e38f6bb9", password):
+    if not check_password_hash(results, password):
         flash("ログイン失敗", category="failed")
+        debug_print(results)
         debug_print("NG_pass")
         return render_template('index.html')
 
     #flash("ログインを成功しました＼(^o^)／", category="success")
-    db.disconnect()
+    # db.close()
+    # dbconnect.close()
     # session.clear()
     # session['id_name'] = user['id']
     debug_print("OK")

@@ -29,8 +29,8 @@ class MySQLConnector:
 
     # DB接断
     def disconnect(self):
-        self.cursor.close()
-        self.db_connect.close()
+        cursor.close()
+        db_connect.close()
 
     # クエリ実行
     def execute(self, sql, param=None):

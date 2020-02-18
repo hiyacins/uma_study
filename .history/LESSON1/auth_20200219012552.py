@@ -29,13 +29,14 @@ class MySQLConnector:
 
     # DB接断
     def disconnect(self):
-        self.cursor.close()
-        self.db_connect.close()
+        cursor.close()
+        db_connect.close()
 
     # クエリ実行
     def execute(self, sql, param=None):
         self.cursor.execute(sql, (param, ))
         # fetchone()で1件ずつ取り出し
+        debug_print("1")
         return self.cursor.fetchone()
 
 
@@ -66,7 +67,7 @@ def login():
     # results = db.execute("SELECT * FROM site_users")
     results = db.execute(
         "SELECT * FROM site_users WHERE id_name = ?", id_name)
-    debug_print(results)
+    # debug_print(results)
 
     # table = str.maketrans("", "", "bytearray(b'')")
     # results2 = results.translate(str.maketrans("", "", string.punctuation))
@@ -80,8 +81,9 @@ def login():
         return render_template('index.html')
 
     #
-    if not check_password_hash("pbkdf2:sha256:150000$rtNJvHvC$37feec29a8f8fbaff527a1a8f5ea51cc144f5a9d2ffb3455a9b31f36e38f6bb9", password):
+    if not check_password_hash(results, password):
         flash("ログイン失敗", category="failed")
+        debug_print(results)
         debug_print("NG_pass")
         return render_template('index.html')
 
