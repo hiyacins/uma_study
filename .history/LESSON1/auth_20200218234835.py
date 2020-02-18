@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 
 # DB接続・切断に関するクラス
-class MySQLConnector:
+class MySQLConnector(object):
 
     def __init__(self):
         self.connect = ""
@@ -24,8 +24,10 @@ class MySQLConnector:
             'port': 3306,
             'database': 'site_users'
         }
+        debug_print("sss")
         self.db_connect = mysql.connector.connect(**db_config)
         #cursor = con.cursor(buffered=True)
+        debug_print("222222")
         self.cursor = self.db_connect.cursor(prepared=True)
 
     # DB接断
@@ -58,7 +60,7 @@ def login():
 
     # DB接続
     db = MySQLConnector()
-    debug_print(type(db.connect()))
+    debug_print(type(db))
     db.connect()
     debug_print("DB接続")
 

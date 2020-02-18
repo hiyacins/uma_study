@@ -24,14 +24,18 @@ class MySQLConnector:
             'port': 3306,
             'database': 'site_users'
         }
+        debug_print("sss")
+
+    def connect(self):
         self.db_connect = mysql.connector.connect(**db_config)
         #cursor = con.cursor(buffered=True)
+        debug_print("222222")
         self.cursor = self.db_connect.cursor(prepared=True)
 
     # DB接断
     def disconnect(self):
         cursor.close()
-        db_connect.close()
+        connector.close()
 
     # クエリ実行
     def execute(sql, param):
@@ -58,7 +62,6 @@ def login():
 
     # DB接続
     db = MySQLConnector()
-    debug_print(type(db.connect()))
     db.connect()
     debug_print("DB接続")
 

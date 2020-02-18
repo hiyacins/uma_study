@@ -17,21 +17,23 @@ class MySQLConnector:
     # DB接続
     def connect(self):
         # DB接続情報
-        db_config = {
+        config = {
             'user': 'root',
             'password': 'hiya1023',
             'host': 'localhost',
             'port': 3306,
             'database': 'site_users'
         }
-        self.db_connect = mysql.connector.connect(**db_config)
+        debug_print("sss")
+        db_connect = mysql.connector.connect(**config)
         #cursor = con.cursor(buffered=True)
-        self.cursor = self.db_connect.cursor(prepared=True)
+        debug_print("222222")
+        return db_connect.cursor(prepared=True)
 
     # DB接断
     def disconnect(self):
         cursor.close()
-        db_connect.close()
+        connector.close()
 
     # クエリ実行
     def execute(sql, param):
@@ -58,7 +60,6 @@ def login():
 
     # DB接続
     db = MySQLConnector()
-    debug_print(type(db.connect()))
     db.connect()
     debug_print("DB接続")
 
