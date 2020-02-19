@@ -1,12 +1,13 @@
 from flask import Flask, redirect, render_template, request, session, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
+import string
+import struct
 
 app = Flask(__name__)
 
+
 # DB接続・切断に関するクラス
-
-
 class MySQLConnector:
     # 初期化
     def __init__(self):
@@ -24,21 +25,18 @@ class MySQLConnector:
             'database': 'site_users'
         }
         self.db_connect = mysql.connector.connect(**db_config)
+        # cursor = con.cursor(buffered=True), prepared=True
         self.cursor = self.db_connect.cursor(prepared=True)
 
-    # DB切断
+    # DB接断
     def disconnect(self):
-        # カーソルとコネクトの切断
         self.cursor.close()
         self.db_connect.close()
 
-    #
-    # SQL実行してDBにparamが存在すればtrueを返す。
-    # sql:sql文を入れる
-    # param：照合したいテーブルのフィールド名
+    # クエリ実行
     def execute(self, sql, param=None):
         self.cursor.execute(sql, (param, ))
-        # fetchone()で1件取り出し
+        # fetchone()で1件ずつ取り出し
         return self.cursor.fetchone()
 
 
@@ -64,57 +62,51 @@ def login():
     db.connect()
     debug_print("DB接続")
 
-    # ユーザー名とパスワードのチェックはここに書く
-    #
-    message = None
-    # DBからユーザーIDを抽出する
+    # ユーザー名とパスワードのチェック
+    #message = None
+    # results = db.execute("SELECT * FROM site_users")
     results = db.execute(
         "SELECT * FROM site_users WHERE id_name = ?", id_name)
-    # デバッグ出力：bytearray(b'pbkdf2:sha256:150000$rtNJvHvC$37feec29a8f8fbaff527a1a8f5ea51cc144f5a9d2ffb3455a9b31f36e38f6bb9')
-    # debug_print(results[2])
+    debug_print(results[1])
+    #results = struct.unpack('bxhl', results)
+    for row in results:
+        debug_print(row)
 
-    # ToDo: SQLで抽出した結果をresultsに格納しているが、bytearrayで出力してしまうので、データの成形が必要
-    # results2 = results.translate(str.maketrans("", "", "bytearray(b'')"))
+    #table = str.maketrans("", "", "bytearray(b'')")
+    results = list(results)
+    results2 = results.translate(str.maketrans("", "", "bytearray(b'')"))
     # debug_print(results2)
 
-    # ユーザーIDがDB内になければ、ログイン失敗する
+    #
     if results is None:
-        message = 'ログイン失敗：ユーザー名が正しくありません'
+        #message = 'ユーザー名が正しくありません'
+        flash("ログイン失敗", category="failed")
         debug_print("NG_use")
-        return render_template('index.html', message=message)
+        return render_template('index.html')
 
-    # ここでpasswordの照合して合わなければログイン失敗
-    if not check_password_hash("pbkdf2:sha256:150000$rtNJvHvC$37feec29a8f8fbaff527a1a8f5ea51cc144f5a9d2ffb3455a9b31f36e38f6bb9", password):
-        # if not check_password_hash(results[2], password):
-        message = 'ログイン失敗：パスワードが正しくありません'
+    #
+    # if not check_password_hash("pbkdf2:sha256:150000$rtNJvHvC$37feec29a8f8fbaff527a1a8f5ea51cc144f5a9d2ffb3455a9b31f36e38f6bb9", password):
+    if not check_password_hash(row[2], password):
+        flash("ログイン失敗", category="failed")
         debug_print("NG_pass")
-        return render_template('index.html', message=message)
+        return render_template('index.html')
 
-    # DB切断する
+    #flash("ログインを成功しました＼(^o^)／", category="success")
     db.disconnect()
-
-    # セッション初期化
-    session.clear()
-    # ToDo: result[1]の処理
-    # セッションにログインIDを追加する
-    #session['id_name'] = results[1]
-
-    # debug_print(session['id_name'])
+    # session.clear()
+    # session['id_name'] = user['id']
     debug_print("OK")
-    # ログイン後のページへリダイレクト
     return redirect(url_for('home'))
 
 
 @app.route("/home", methods=["GET"])
 # ログイン成功後の画面
 def home():
-    message = 'ログインを成功しました＼(^o^)／'
-    # debug_print(session['id_name'])
-    return render_template('top.html', message=message)
+    return render_template('top.html')
 
 
 @app.route("/signout", methods=["GET"])
-# ToDo:ログアウト処理
+# ログアウト処理
 def signout():
     # セッションをカラにする
     session.clear()

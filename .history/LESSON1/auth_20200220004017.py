@@ -95,11 +95,10 @@ def login():
 
     # セッション初期化
     session.clear()
-    # ToDo: result[1]の処理
     # セッションにログインIDを追加する
-    #session['id_name'] = results[1]
+    session['id_name'] = results[1]
 
-    # debug_print(session['id_name'])
+    debug_print(session['id_name'])
     debug_print("OK")
     # ログイン後のページへリダイレクト
     return redirect(url_for('home'))

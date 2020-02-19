@@ -95,11 +95,9 @@ def login():
 
     # セッション初期化
     session.clear()
-    # ToDo: result[1]の処理
-    # セッションにログインIDを追加する
-    #session['id_name'] = results[1]
+    ログインIDにIDを付与する
+    session['id_name'] = results[0]
 
-    # debug_print(session['id_name'])
     debug_print("OK")
     # ログイン後のページへリダイレクト
     return redirect(url_for('home'))
@@ -109,7 +107,6 @@ def login():
 # ログイン成功後の画面
 def home():
     message = 'ログインを成功しました＼(^o^)／'
-    # debug_print(session['id_name'])
     return render_template('top.html', message=message)
 
 

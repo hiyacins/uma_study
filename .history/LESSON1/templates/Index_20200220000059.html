@@ -1,4 +1,9 @@
 {% extends "layout.html" %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+<div class="{{ category }}">{{ message }}</div>
+{% endwith %}
+
 {% block content %}
 <div>{{ message }}</div>
 <div class="container login-container">

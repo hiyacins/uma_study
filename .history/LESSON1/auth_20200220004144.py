@@ -95,7 +95,6 @@ def login():
 
     # セッション初期化
     session.clear()
-    # ToDo: result[1]の処理
     # セッションにログインIDを追加する
     #session['id_name'] = results[1]
 
