@@ -82,7 +82,7 @@ def login():
     results = db.mysql_cursor.fetchone()
     debug_print(results)
 
-    # ユーザーIDがDB内にあれば、それぞれ変数に代入する
+    # フォームから入力対策
     if results is not None:
         # 抽出したレコードのid
         result_id = results[0]
@@ -92,8 +92,12 @@ def login():
         result_password = results[2]
     else:
         message = 'ログイン失敗：ユーザーIDとパスワードが正しくありません'
-        # DB切断する
-        db.disconnect()
+        return render_template('index.html', message=message)
+
+    # ユーザーIDがDB内になければ、ログイン失敗する
+    if results is None:
+        message = 'ログイン失敗：ユーザー名が正しくありません'
+        debug_print("NG_use")
         return render_template('index.html', message=message)
 
     debug_print(result_password)
@@ -102,12 +106,9 @@ def login():
     if not check_password_hash(result_password, password):
         message = 'ログイン失敗：パスワードが正しくありません'
         debug_print("NG_pass")
-        # DB切断する
-        db.disconnect()
         return render_template('index.html', message=message)
 
     # DB切断する
-    db.disconnect()
     db.disconnect()
 
     # セッション初期化

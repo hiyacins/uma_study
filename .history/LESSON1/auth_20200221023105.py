@@ -108,7 +108,6 @@ def login():
 
     # DB切断する
     db.disconnect()
-    db.disconnect()
 
     # セッション初期化
     session.clear()
