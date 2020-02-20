@@ -14,7 +14,7 @@ class MySQLConnector:
 
     # DB接続
     # config: DB接続情報
-    def connect(self, **mysql_config: dict):
+    def connect(self, **mysql_config):
         # 二重接続回避
         self.disconnect()
         # SQLに接続します

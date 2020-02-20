@@ -34,9 +34,9 @@ mysql.connectorのバージョンが古いと起こる。pipでupdateしまし�
 
 【覚書】
 ・mysql_connection型
-<class 'mysql.connector.connection.MySQLConnection'>
+<mysql.connector.connection.MySQLConnection object at 0x000001FEC0FE22B0>
 ・mysql_cursor
-<class 'mysql.connector.cursor.MySQLCursorPrepared'>
+MySQLCursorPrepared: (Nothing executed yet)
 
 
 【参考】

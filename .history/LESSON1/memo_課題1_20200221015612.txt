@@ -28,15 +28,16 @@ https://jp.vuejs.org/
 https://dev.mysql.com/doc/relnotes/connector-python/en/news-2-0-0.html
 参考質問
 https://stackoverflow.com/questions/38288862/why-mysql-connecter-python-prepared-statement-returns-string-in-bytearray
+
 https://www.takasay.com/entry/2015/07/11/220709
-【解決】
-mysql.connectorのバージョンが古いと起こる。pipでupdateしましょう。
+
+
 
 【覚書】
 ・mysql_connection型
-<class 'mysql.connector.connection.MySQLConnection'>
+<mysql.connector.connection.MySQLConnection object at 0x000001FEC0FE22B0>
 ・mysql_cursor
-<class 'mysql.connector.cursor.MySQLCursorPrepared'>
+MySQLCursorPrepared: (Nothing executed yet)
 
 
 【参考】

@@ -14,7 +14,7 @@ class MySQLConnector:
 
     # DB接続
     # config: DB接続情報
-    def connect(self, **mysql_config: dict):
+    def connect(self, **mysql_config):
         # 二重接続回避
         self.disconnect()
         # SQLに接続します
@@ -36,8 +36,8 @@ class MySQLConnector:
 
     # SQL実行してDBにparamが存在すればtrueを返す。
     # sql:sql文を入れる
-    # param：照合したいテーブルのフィールド名(tuple)
-    def execute(self, sql: str, param=None):
+    # param：照合したいテーブルのフィールド名
+    def execute(self, sql: str, (param: tuple)=None):
         self.mysql_cursor.execute(sql, param)
 
 

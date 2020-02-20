@@ -7,38 +7,40 @@ app = Flask(__name__)
 
 # DB接続・切断に関するクラス
 class MySQLConnector:
-    # コネクタとカーソルを初期化
+    # 初期化
     def __init__(self):
         self.mysql_connection = None
         self.mysql_cursor = None
 
     # DB接続
-    # config: DB接続情報
-    def connect(self, **mysql_config: dict):
-        # 二重接続回避
+    def connect(self):
+        # DB接続情報
+        db_config = {
+            'user': 'root',
+            'password': 'hiya1023',
+            'host': 'localhost',
+            'port': 3306,
+            'database': 'site_users'
+        }
         self.disconnect()
-        # SQLに接続します
-        self.mysql_connection = mysql.connector.connect(**mysql_config)
-        # カーソルを定義する
-        # オプションは今後必要なら引数化してもいいかも？
+        self.mysql_connection = mysql.connector.connect(**db_config)
         self.mysql_cursor = self.mysql_connection.cursor(prepared=True)
-        debug_print(type(self.mysql_connection))
-        debug_print(type(self.mysql_cursor))
 
     # DB切断
     def disconnect(self):
         # カーソルとコネクトの切断
-        # mysql_cursor mysql_connectionがNoneの時はclose出来ない（型エラーになる）
-        if self.mysql_cursor is not None:
-            self.mysql_cursor.close()
-        if self.mysql_connection is not None:
-            self.mysql_connection.close()
+        # self.mysql_cursor.close()
+        # self.mysql_connection.close()
+        pass
 
-    # SQL実行してDBにparamが存在すればtrueを返す。
-    # sql:sql文を入れる
-    # param：照合したいテーブルのフィールド名(tuple)
-    def execute(self, sql: str, param=None):
+        #
+        # SQL実行してDBにparamが存在すればtrueを返す。
+        # sql:sql文を入れる
+        # param：照合したいテーブルのフィールド名
+    def execute(self, sql, param=None):
         self.mysql_cursor.execute(sql, param)
+        # fetchone()で1件取り出し
+        return self.mysql_cursor.fetchone()
 
 
 # シークレットキーの設定
@@ -59,31 +61,17 @@ def login():
     debug_print(password)
 
     # DB接続
-    mysql_config = {
-        'user': 'root',
-        'password': 'hiya1023',
-        'host': 'localhost',
-        'port': 3306,
-        'database': 'site_users'
-    }
-
-    # クラスをインスタンス化する
     db = MySQLConnector()
-    # DB接続
-    db.connect(**mysql_config)
+    db.connect()
     debug_print("DB接続")
 
-    # -- ユーザー名とパスワードのチェックはここに書く
+    # --　ｓユーザー名とパスワードのチェックはここに書く
     # メッセージ初期化
     message = None
 
-    # DBからID、ユーザーID、passwordを抽出する
-    # フォームに入力されたIDはDBに存在するのか？
-    # results =
-    db.execute(
+    # DBからユーザーIDを抽出する
+    results = db.execute(
         "SELECT id,id_name,password FROM site_users WHERE id_name = ?", (id_name,))
-    # fetchone()で1件取り出し
-    results = db.mysql_cursor.fetchone()
     debug_print(results)
 
     # 抽出したレコードのid
@@ -99,8 +87,13 @@ def login():
         debug_print("NG_use")
         return render_template('index.html', message=message)
 
+    debug_print("いくよ")
     debug_print(result_password)
 
+    # DBからユーザーIDを抽出する
+    # result_password = db.execute(
+    #     "SELECT password FROM site_users WHERE password = ?", (password,))
+    # debug_print(result_password)
     # ここでpasswordの照合して合わなければログイン失敗
     if not check_password_hash(result_password, password):
         message = 'ログイン失敗：パスワードが正しくありません'
@@ -112,9 +105,9 @@ def login():
 
     # セッション初期化
     session.clear()
-    # ToDo: result_idの処理
+    # ToDo: result[1]の処理
     # セッションにログインIDを追加する
-    #session['id_name'] = result_id
+    #session['id_name'] = results[1]
 
     # debug_print(session['id_name'])
     debug_print("OK")
