@@ -51,11 +51,10 @@ app.config["SECRET_KEY"] = "b't\xd7.\xedOa\xd8\x88\x18\xc51H\xf5\x0b\xb1\x10\x99
 @app.route("/")
 # ログイン成功後の画面(ホーム画面)
 def top():
+    flash('ログインを成功しました＼(^o^)／')
     # セッション情報がなければログイン画面にリダイレクトする
     if not session.get('logged_in'):
         return redirect('/login')
-
-    flash('ログインを成功しました＼(^o^)／')
     return render_template('index.html')
 
 

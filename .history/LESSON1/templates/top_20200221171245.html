@@ -1,11 +1,7 @@
 {% extends "layout.html" %}
 
 {% block content %}
-{% for message in get_flashed_messages() %}
-<div class="alert-info" role="alert">
-      {{ message }}
-</div>
-{% endfor %}
+<div>{{ message }}</div>
 <form action="/logout">
       <input type="submit" value="ログアウト" />
 </form>

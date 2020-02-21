@@ -1,8 +1,9 @@
 {% extends "layout.html" %}
 
 {% block content %}
+{{"ようこそ、" + request.form['id_name'] + "さん"}}
 <div>{{ message }}</div>
-<form action="/">
+<form action="/logout">
       <input type="submit" value="ログアウト" />
 </form>
 

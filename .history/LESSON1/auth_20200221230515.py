@@ -51,12 +51,11 @@ app.config["SECRET_KEY"] = "b't\xd7.\xedOa\xd8\x88\x18\xc51H\xf5\x0b\xb1\x10\x99
 @app.route("/")
 # ログイン成功後の画面(ホーム画面)
 def top():
+    message = 'ログインを成功しました＼(^o^)／'
     # セッション情報がなければログイン画面にリダイレクトする
     if not session.get('logged_in'):
         return redirect('/login')
-
-    flash('ログインを成功しました＼(^o^)／')
-    return render_template('index.html')
+    return render_template('index.html', message=message)
 
 
 @app.route('/login', methods=["GET", "POST"])
@@ -102,7 +101,7 @@ def login():
         # 抽出したレコードのpassword
         result_password = results[0]
     else:
-        flash('ログイン失敗：ユーザーIDとパスワードが正しくありません')
+        message = 'ログイン失敗：ユーザーIDとパスワードが正しくありません'
         # DB切断する
         db.disconnect()
         return render_template('login.html', message=message)
@@ -111,7 +110,7 @@ def login():
 
     # ここでpasswordの照合して合わなければログイン失敗
     if not check_password_hash(result_password, password):
-        flash('ログイン失敗：パスワードが正しくありません')
+        message = 'ログイン失敗：パスワードが正しくありません'
         debug_print("NG_pass")
         # DB切断する
         db.disconnect()
@@ -122,19 +121,20 @@ def login():
 
     # セッション初期化
     session.clear()
+    # ToDo: result_idの処理
+    # セッションにログインIDを追加する
+    session['id_name'] = result_id
 
-    # セッションに登録する
-    session['logged_in'] = True
-
+    debug_print(type(session['id_name']))
+    debug_print("OK")
     # ログイン後のページへリダイレクト
-    # return redirect(url_for('top'))
-    return render_template('index.html', id_name=id_name)
+    return redirect(url_for('top'))
 
 
 @app.route("/logout", methods=["GET"])
-# ログアウト処理
+# ToDo:ログアウト処理
 def logout():
-    # セッション情報をカラにする
+    # セッションをカラにする
     session.clear()
     return redirect(url_for('login'))
 

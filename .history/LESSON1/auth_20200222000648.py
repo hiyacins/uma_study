@@ -54,7 +54,6 @@ def top():
     # セッション情報がなければログイン画面にリダイレクトする
     if not session.get('logged_in'):
         return redirect('/login')
-
     flash('ログインを成功しました＼(^o^)／')
     return render_template('index.html')
 
