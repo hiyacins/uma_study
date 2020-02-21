@@ -53,7 +53,7 @@ app.config["SECRET_KEY"] = "b't\xd7.\xedOa\xd8\x88\x18\xc51H\xf5\x0b\xb1\x10\x99
 def top():
     # セッション情報がなければログイン画面にリダイレクトする
     if not session.get('logged_in'):
-        return redirect(url_for('login'))
+        return redirect('/login')
 
     flash('ログインを成功しました＼(^o^)／')
     return render_template('index.html')
@@ -69,6 +69,8 @@ def login():
     # ログインフォームに入力されたユーザーIDとパスワードの取得
     id_name = request.form['id_name']
     password = request.form['password']
+    debug_print(id_name)
+    debug_print(password)
 
     # DB接続のための情報入力
     mysql_config = {
@@ -101,22 +103,28 @@ def login():
         db.disconnect()
         return redirect(url_for('login'))
 
+    debug_print(result_password)
+
     # ここでpasswordの照合して合わなければログイン失敗
     if not check_password_hash(result_password, password):
         flash('ログイン失敗：パスワードが正しくありません')
+        debug_print("NG_pass")
         # DB切断する
         db.disconnect()
         return redirect(url_for('login'))
 
     # DB切断する
     db.disconnect()
+
     # セッション初期化
     session.clear()
+
     # セッションに登録する
     session['logged_in'] = True
 
     # ログイン後のページへリダイレクト
-    return redirect(url_for('top'))
+    # return redirect(url_for('top'))
+    return render_template('index.html', id_name=id_name)
 
 
 @app.route("/logout", methods=["GET"])

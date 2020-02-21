@@ -53,7 +53,7 @@ app.config["SECRET_KEY"] = "b't\xd7.\xedOa\xd8\x88\x18\xc51H\xf5\x0b\xb1\x10\x99
 def top():
     # セッション情報がなければログイン画面にリダイレクトする
     if not session.get('logged_in'):
-        return redirect(url_for('login'))
+        return redirect('/login')
 
     flash('ログインを成功しました＼(^o^)／')
     return render_template('index.html')
@@ -101,6 +101,8 @@ def login():
         db.disconnect()
         return redirect(url_for('login'))
 
+    debug_print(result_password)
+
     # ここでpasswordの照合して合わなければログイン失敗
     if not check_password_hash(result_password, password):
         flash('ログイン失敗：パスワードが正しくありません')
@@ -110,8 +112,10 @@ def login():
 
     # DB切断する
     db.disconnect()
+
     # セッション初期化
     session.clear()
+
     # セッションに登録する
     session['logged_in'] = True
 
