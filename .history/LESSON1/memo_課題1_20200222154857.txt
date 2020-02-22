@@ -26,7 +26,6 @@ https://jp.vuejs.org/
 【困ってしまった】
 ■ ubntsuへのデプロイ問題(vue.js)
 ブラウザ確認できない。
-
 ●やったこと
 ・IDCFでファイアウォールとポートフォワード追加
 ・Node.jsとvue.jsの最新バージョン確認

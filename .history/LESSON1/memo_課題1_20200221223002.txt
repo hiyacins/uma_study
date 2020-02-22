@@ -24,26 +24,6 @@ https://jp.vuejs.org/
 
 
 【困ってしまった】
-■ ubntsuへのデプロイ問題(vue.js)
-ブラウザ確認できない。
-
-●やったこと
-・IDCFでファイアウォールとポートフォワード追加
-・Node.jsとvue.jsの最新バージョン確認
-→　node -v：v12.16.0　｜　vue --version：@vue/cli 4.2.2
-・8080と8081と5000番ポートのallow化
-・10.22.0.27/21のallow
-
-参考サイト：
-https://qiita.com/hoto17296/items/845850c8854dd18f6fff
-https://cli.vuejs.org/guide/installation.html
-https://cli.vuejs.org/guide/cli-service.html#using-the-binary
-https://qiita.com/siida36/items/be21d361cf80d664859c
-https://qiita.com/shell/items/68ed71a7f018e5688f73
-
-【解決】
-調査中
-
 ■ cursorオプションがpreparedの時、bytearrayで出力される仕様
 https://dev.mysql.com/doc/relnotes/connector-python/en/news-2-0-0.html
 参考質問
