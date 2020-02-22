@@ -17,13 +17,12 @@ class MySQLConnector:
     def connect(self, connect_config: dict):
         debug_print("connectです")
         # 二重接続回避
-        self.disconnect()
+        # self.disconnect()
         # SQLに接続します
         self.__mysql_connection = mysql.connector.connect(**connect_config)
         # カーソルを取得する
         # オプションは今後必要なら引数化してもいいかも？
         self.mysql_cursor = self.__mysql_connection.cursor(prepared=True)
-        debug_print("connect抜けます")
 
     # DB切断
     def disconnect(self):
@@ -68,9 +67,9 @@ class MyConnector(MySQLConnector):
     #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
     #     （例）db.execute_fetchone("SELECT id,password FROM site_users WHERE id_name = ?",("hoge"))
-    def execute_fetchone(sql: str, param: tuple = None) -> tuple:
+    def execute_fetchone(sql, param: tuple = None) -> tuple:
         debug_print("execute_fetchoneです")
-        self.execute(sql, param)
+        self.mysql_cursor.execute(sql, param)
         return self.mysql_cursor.fetchone()
 
 
@@ -109,9 +108,10 @@ def login():
         password = request.form['password']
         debug_print(password)
         # DBからヒットしたid_nameからpasswordを抽出する
-        result = db.execute_fetchone(
-            "SELECT password FROM site_users WHERE id_name = ?", (id_name,))
+        # result = db.execute_fetchone(
+        #     "SELECT password FROM site_users WHERE id_name = ?", (id_name,))
         debug_print('---------------')
+        result = '111'
         debug_print(result)
         # ユーザーIDがDB内にあれば、それぞれ変数に代入する
         if result is None:

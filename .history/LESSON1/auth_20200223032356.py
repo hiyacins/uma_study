@@ -70,8 +70,12 @@ class MyConnector(MySQLConnector):
     #     （例）db.execute_fetchone("SELECT id,password FROM site_users WHERE id_name = ?",("hoge"))
     def execute_fetchone(sql: str, param: tuple = None) -> tuple:
         debug_print("execute_fetchoneです")
-        self.execute(sql, param)
+        self.mysql_cursor.execute(sql, param)
         return self.mysql_cursor.fetchone()
+
+    def execute(sql: str, param: tuple = None):
+        debug_print("executeです")
+        return self.mysql_cursor.execute(sql, param)
 
 
 app = Flask(__name__)

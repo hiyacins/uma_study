@@ -23,7 +23,6 @@ class MySQLConnector:
         # カーソルを取得する
         # オプションは今後必要なら引数化してもいいかも？
         self.mysql_cursor = self.__mysql_connection.cursor(prepared=True)
-        debug_print("connect抜けます")
 
     # DB切断
     def disconnect(self):
@@ -68,9 +67,9 @@ class MyConnector(MySQLConnector):
     #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
     #     （例）db.execute_fetchone("SELECT id,password FROM site_users WHERE id_name = ?",("hoge"))
-    def execute_fetchone(sql: str, param: tuple = None) -> tuple:
+    def execute_fetchone(sql, param: tuple = None) -> tuple:
         debug_print("execute_fetchoneです")
-        self.execute(sql, param)
+        self.mysql_cursor.execute(sql, param)
         return self.mysql_cursor.fetchone()
 
 

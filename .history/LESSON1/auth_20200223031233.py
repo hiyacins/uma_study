@@ -17,13 +17,12 @@ class MySQLConnector:
     def connect(self, connect_config: dict):
         debug_print("connectです")
         # 二重接続回避
-        self.disconnect()
+        # self.disconnect()
         # SQLに接続します
         self.__mysql_connection = mysql.connector.connect(**connect_config)
         # カーソルを取得する
         # オプションは今後必要なら引数化してもいいかも？
         self.mysql_cursor = self.__mysql_connection.cursor(prepared=True)
-        debug_print("connect抜けます")
 
     # DB切断
     def disconnect(self):
@@ -57,7 +56,7 @@ class MyConnector(MySQLConnector):
             'port': 3306,
             'database': 'site_users'
         }
-        self.connect(connect_config)
+        super().connect(connect_config)
 
     def __exit__(self, ex_type, ex_value, tb):
         debug_print("exitです")
@@ -68,9 +67,9 @@ class MyConnector(MySQLConnector):
     #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
     #     （例）db.execute_fetchone("SELECT id,password FROM site_users WHERE id_name = ?",("hoge"))
-    def execute_fetchone(sql: str, param: tuple = None) -> tuple:
+    def execute_fetchone(sql, param: tuple = None) -> tuple:
         debug_print("execute_fetchoneです")
-        self.execute(sql, param)
+        super().execute(sql, param)
         return self.mysql_cursor.fetchone()
 
 
