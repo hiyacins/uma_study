@@ -4,56 +4,52 @@ import mysql.connector
 from functools import wraps
 
 
-# MySQLに接続・切断を行うクラス
+# DB接続・切断に関するクラス
 class MySQLConnector:
     def __init__(self):
-        # MySQLのコネクタ
+        debug_print("initです")
+        # コネクタの初期化
         self.__mysql_connection = None
-        # MySQLのカーソル
+        # カーソルの初期化
         self.mysql_cursor = None
 
-    # DBに接続する。
+    # DB接続
     # config: DB接続情報
-    # 例
-    # config = {
-    #    'user': 'root',
-    #    'password': 'hiya1023',
-    #    'host': 'localhost',
-    #    'port': 3306,
-    #    'database': 'site_users'
-    # }
     def connect(self, connect_config: dict):
+        debug_print("connectです")
         # 二重接続回避
         self.disconnect()
-        # SQLに接続します。
+        # SQLに接続します
         self.__mysql_connection = mysql.connector.connect(**connect_config)
-        # カーソルを取得する。
+        # カーソルを取得する
         # オプションは今後必要なら引数化してもいいかも？
         self.mysql_cursor = self.__mysql_connection.cursor(prepared=True)
+        debug_print("connect抜けます")
 
-    # DB切断する。
+    # DB切断
     def disconnect(self):
-        # MySQLのカーソル切断
+        debug_print("disconnectです")
+        # カーソルとコネクトの切断
         if self.mysql_cursor is not None:
             self.mysql_cursor.close()
             self.mysql_cursor = None
-        # MySQLのコネクトの切断
         if self.__mysql_connection is not None:
             self.__mysql_connection.close()
             self.__mysql_connection = None
 
     # SQL実行
-    # sql:sql文を入れる。
+    # sql:sql文を入れる
     #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
     #     （例）db.execute("SELECT id,password FROM site_users WHERE id_name = ?",("hoge"))
-    def execute(self, sql: str, param: tuple = None):
+    def execute(sql: str, param: tuple = None):
+        debug_print("executeです")
         return self.mysql_cursor.execute(sql, param)
 
 
-# MySQLConnectorのadaptor
-class MySQLAdapter(MySQLConnector):
+class MyConnector(MySQLConnector):
     def __enter__(self):
+        debug_print("enterです")
         # DB接続のための情報入力
         connect_config = {
             'user': 'root',
@@ -63,18 +59,18 @@ class MySQLAdapter(MySQLConnector):
             'database': 'site_users'
         }
         self.connect(connect_config)
-        return self
 
     def __exit__(self, ex_type, ex_value, tb):
+        debug_print("exitです")
         self.disconnect()
 
-    # SQLを実行してfetchone()した結果であるtupleが返る。
-    # 該当レコードがない場合はNoneが返る。
-    # sql:sql文を入れる。
+    # executeしたものをfetchoneする
+    # sql:sql文を入れる
     #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
     #     （例）db.execute_fetchone("SELECT id,password FROM site_users WHERE id_name = ?",("hoge"))
-    def execute_fetchone(self, sql: str, param: tuple = None) -> tuple:
+    def execute_fetchone(sql: str, param: tuple = None) -> tuple:
+        debug_print("execute_fetchoneです")
         self.execute(sql, param)
         return self.mysql_cursor.fetchone()
 
@@ -89,7 +85,7 @@ app.config["SECRET_KEY"] = "b't\xd7.\xedOa\xd8\x88\x18\xc51H\xf5\x0b\xb1\x10\x99
 def login_required(view):
     @wraps(view)
     def inner(*args, **kwargs):
-        # セッション情報がなければログイン画面にリダイレクトする。
+        # セッション情報がなければログイン画面にリダイレクトする
         if not session.get('logged_in'):
             return redirect(url_for('login'))
         return view(*args, **kwargs)
@@ -107,7 +103,7 @@ def top():
 @app.route('/login', methods=['GET'])
 # ログイン前画面表示
 def login_view():
-    # ログイン画面に表示している。
+    # ログイン画面に表示している
     return render_template('login.html')
 
 
@@ -115,32 +111,49 @@ def login_view():
 # ログイン処理
 def login():
     with MyConnector() as db:
+        debug_print("With実行です")
         # ログインフォームに入力されたユーザーID取得
         id_name = request.form['id_name']
+        debug_print(id_name)
         # ログインフォームに入力されたパスワードの取得
         password = request.form['password']
-
-        # DBからヒットしたid_nameからpasswordを抽出する。
+        debug_print(password)
+        # DBからヒットしたid_nameからpasswordを抽出する
         result = db.execute_fetchone(
             "SELECT password FROM site_users WHERE id_name = ?", (id_name,))
-
-        # ユーザーIDがDB内にあれば、それぞれ変数に代入する。
-        LoginOk = result is None or not check_password_hash(result[0], password):
-        session['logged_in'] = LoginOk
-
-        if not LoginOk:
-            flash('ログイン失敗：ユーザーIDもしくはパスワードが正しくありません。')
-
-        # ログイン後のページへリダイレクトする。
-        return redirect(url_for('top' if LoginOk else 'login'))
+        debug_print('---------------')
+        debug_print(result)
+        # ユーザーIDがDB内にあれば、それぞれ変数に代入する
+        if result is None:
+            flash('ログイン失敗：ユーザーIDとパスワードが正しくありません')
+            return redirect(url_for('login'))
+        # 抽出したレコードのpassword
+        result_password = result[0]
+        # ここでpasswordの照合して合わなければログイン失敗
+        if not check_password_hash(result_password, password):
+            flash('ログイン失敗：パスワードが正しくありません')
+            return redirect(url_for('login'))
+        # セッション初期化
+        session.clear()
+        # セッションに登録する
+        session['logged_in'] = True
+        # ログイン後のページへリダイレクト
+        return redirect(url_for('top'))
 
 
 @app.route("/logout", methods=["GET"])
 # ログアウト処理
 def logout():
-    # セッション情報をクリアにする。
+    # セッション情報をカラにする
     session.clear()
     return redirect(url_for('login'))
+
+
+# デバッグ用の文字を出力する
+# s:文字列
+def debug_print(s):
+    if True:
+        print(s)
 
 
 if __name__ == "__main__":

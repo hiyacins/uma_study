@@ -33,11 +33,10 @@ class MySQLConnector:
 
     # DB切断する。
     def disconnect(self):
-        # MySQLのカーソル切断
+        # カーソルとコネクトの切断
         if self.mysql_cursor is not None:
             self.mysql_cursor.close()
             self.mysql_cursor = None
-        # MySQLのコネクトの切断
         if self.__mysql_connection is not None:
             self.__mysql_connection.close()
             self.__mysql_connection = None

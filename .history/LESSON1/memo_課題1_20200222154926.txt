@@ -69,59 +69,12 @@ def execute(self, sql: str, param: tuple = None) ->tuple:
 関数の（）のあとに->を付ける
 　関数（）：ｰ>型
 
-■ __enter__メソッドについて
-db = None で返しているため、NoneTypeエラーが出る。
-【解決】
-return self
 
-■ attribute について
-AttributeError: 'NoneType' object has no attribute 'execute_fetchone'
-【解決】
-OOPにおいて、attributeはメッセージに値する。
-つまり、pythonで表現するならメソッドになる。
-上記を訳するなら
-「Noneの入っている変数は、execute_fetchoneをメソッドとして持っていません。」
 
-●分かりやすいOOP
-オブジェクト＝山口
-メッセージ＝禿、デブ　←attribute
 
---クラスで説明するなら
-class 山口
- def 禿(self):
-  pass
- def デブ(self):
-  pass
 
-■ デコレート について
-ログイン処理において、ページごとに同じ記述をするのは良くないが関数化してもコード量が
-増えるため現実的ではない。どうすればよいか？
 
-考え方①：
-def login_required():
-  if not session.get('logged_in'):
-    return redirect(url_for('login'))
-  return None
-→この関数を表示すると以下のようになる。
-def top():
-  x = login_required()
-  if x is not None:
-    return x
-  ...
-→ソースが簡略化されていないのは、return None のため
 
-考え方②：
-def login_required(view):
-  if not session.get('logged_in'):
-    return redirect(url_for('login'))
-  return view()
-→この関数を表示すると以下のようになる。
-def top():
-  def top_view():
-    flash("ログイン成功しました")
-  return login_required(top_view)
-
-これがデコレートの考え方のもとになる。
 
 【覚書】
 ・mysql_connection型
