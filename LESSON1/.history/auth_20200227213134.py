@@ -131,11 +131,14 @@ def login():
         # DBからid_nameに対応するpasswordを取得する。
         result = db.execute_fetchone(
             "SELECT password FROM site_users WHERE id_name = ?", (id_name, ))
-
+        print('*-----------------------------------------------*')
+        print(result)
+        print('*-----------------------------------------------*')
         # ユーザーIDがDB内に存在し、フォームから入力されたパスワードがDB内のものと一致すれば
         # セッションを登録する
         LoginOk = result is not None and check_password_hash(
             result[0], password)
+        print(LoginOk)
         session['logged_in'] = LoginOk
 
         if not LoginOk:

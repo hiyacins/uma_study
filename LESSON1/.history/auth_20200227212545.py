@@ -116,26 +116,25 @@ def login_view():
 @app.route('/login', methods=['POST'])
 # ログイン処理
 def login():
-    # ユーザーID取得のための変数初期化
-    id_name = ""
-    # パスワード取得のための変数初期化
-    password = ""
-
     with MySQLAdapter() as db:
         # ログインフォームに入力されたユーザーID取得
-        id_name = request.form['id_name']
-
+        str(id_name) = request.form['id_name']
+        #print(type(id_name))
         # ログインフォームに入力されたパスワードの取得
         password = request.form['password']
+        print(password)
 
         # DBからid_nameに対応するpasswordを取得する。
         result = db.execute_fetchone(
             "SELECT password FROM site_users WHERE id_name = ?", (id_name, ))
-
+        print('*-----------------------------------------------*')
+        print(result)
+        print('*-----------------------------------------------*')
         # ユーザーIDがDB内に存在し、フォームから入力されたパスワードがDB内のものと一致すれば
         # セッションを登録する
         LoginOk = result is not None and check_password_hash(
             result[0], password)
+        print(LoginOk)
         session['logged_in'] = LoginOk
 
         if not LoginOk:

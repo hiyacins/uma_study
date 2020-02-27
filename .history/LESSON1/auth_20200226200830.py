@@ -50,6 +50,16 @@ class MySQLConnector:
     def execute(self, sql: str, param: tuple = None):
         return self.mysql_cursor.execute(sql, param)
 
+    # SQLを実行してfetchone()した結果であるtupleが返る。
+    # 該当レコードがない場合はNoneが返る。
+    # sql:sql文を入れる。
+    #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
+    # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
+    #     （例）db.execute_fetchone("SELECT id,password FROM site_users WHERE id_name = ?",("hoge"))
+    def execute_fetchone(self, sql: str, param: tuple = None) -> tuple:
+        self.execute(sql, param)
+        return self.mysql_cursor.fetchone()
+
 
 # MySQLConnectorのadaptor
 class MySQLAdapter(MySQLConnector):
@@ -67,16 +77,6 @@ class MySQLAdapter(MySQLConnector):
 
     def __exit__(self, ex_type, ex_value, tb):
         self.disconnect()
-
-    # SQLを実行してfetchone()した結果であるtupleが返る。
-    # 該当レコードがない場合はNoneが返る。
-    # sql:sql文を入れる。
-    #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
-    # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
-    #     （例）db.execute_fetchone("SELECT id,password FROM site_users WHERE id_name = ?",("hoge"))
-    def execute_fetchone(self, sql: str, param: tuple = None) -> tuple:
-        self.execute(sql, param)
-        return self.mysql_cursor.fetchone()
 
 
 app = Flask(__name__)
@@ -114,18 +114,19 @@ def login_view():
 @app.route('/login', methods=['POST'])
 # ログイン処理
 def login():
-    with MyConnector() as db:
+    with MySQLAdapter() as db:
         # ログインフォームに入力されたユーザーID取得
         id_name = request.form['id_name']
         # ログインフォームに入力されたパスワードの取得
         password = request.form['password']
 
-        # DBからヒットしたid_nameからpasswordを抽出する。
+        # DBからid_nameに対応するpasswordを取得する。
         result = db.execute_fetchone(
             "SELECT password FROM site_users WHERE id_name = ?", (id_name,))
 
         # ユーザーIDがDB内にあれば、それぞれ変数に代入する。
-        LoginOk = result is None or not check_password_hash(result[0], password):
+        LoginOk = result is not None or not check_password_hash(
+            result[0], password)
         session['logged_in'] = LoginOk
 
         if not LoginOk:

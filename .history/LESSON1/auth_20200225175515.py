@@ -50,16 +50,6 @@ class MySQLConnector:
     def execute(self, sql: str, param: tuple = None):
         return self.mysql_cursor.execute(sql, param)
 
-    # SQLを実行してfetchone()した結果であるtupleが返る。
-    # 該当レコードがない場合はNoneが返る。
-    # sql:sql文を入れる。
-    #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
-    # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
-    #     （例）db.execute_fetchone("SELECT id,password FROM site_users WHERE id_name = ?",("hoge"))
-    def execute_fetchone(self, sql: str, param: tuple = None) -> tuple:
-        self.execute(sql, param)
-        return self.mysql_cursor.fetchone()
-
 
 # MySQLConnectorのadaptor
 class MySQLAdapter(MySQLConnector):
@@ -78,12 +68,21 @@ class MySQLAdapter(MySQLConnector):
     def __exit__(self, ex_type, ex_value, tb):
         self.disconnect()
 
+    # SQLを実行してfetchone()した結果であるtupleが返る。
+    # 該当レコードがない場合はNoneが返る。
+    # sql:sql文を入れる。
+    #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
+    # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
+    #     （例）db.execute_fetchone("SELECT id,password FROM site_users WHERE id_name = ?",("hoge"))
+    def execute_fetchone(self, sql: str, param: tuple = None) -> tuple:
+        self.execute(sql, param)
+        return self.mysql_cursor.fetchone()
+
 
 app = Flask(__name__)
 
 # シークレットキーの設定
-app.config[
-    "SECRET_KEY"] = "b't\xd7.\xedOa\xd8\x88\x18\xc51H\xf5\x0b\xb1\x10\x99\xde\x11\xa9\x12\xe3\xd3S'"
+app.config["SECRET_KEY"] = "b't\xd7.\xedOa\xd8\x88\x18\xc51H\xf5\x0b\xb1\x10\x99\xde\x11\xa9\x12\xe3\xd3S'"
 
 
 # ログインチェック関数
@@ -94,7 +93,6 @@ def login_required(view):
         if not session.get('logged_in'):
             return redirect(url_for('login'))
         return view(*args, **kwargs)
-
     return inner
 
 
@@ -116,33 +114,25 @@ def login_view():
 @app.route('/login', methods=['POST'])
 # ログイン処理
 def login():
-    # ユーザーID取得のための変数初期化
-    id_name = ""
-    # パスワード取得のための変数初期化
-    password = ""
-
-    with MySQLAdapter() as db:
+    with MyConnector() as db:
         # ログインフォームに入力されたユーザーID取得
         id_name = request.form['id_name']
-
         # ログインフォームに入力されたパスワードの取得
         password = request.form['password']
 
         # DBからid_nameに対応するpasswordを取得する。
         result = db.execute_fetchone(
-            "SELECT password FROM site_users WHERE id_name = ?", (id_name, ))
+            "SELECT password FROM site_users WHERE id_name = ?", (id_name,))
 
-        # ユーザーIDがDB内に存在し、フォームから入力されたパスワードがDB内のものと一致すれば
-        # セッションを登録する
-        LoginOk = result is not None and check_password_hash(
+        # ユーザーIDがDB内にあれば、それぞれ変数に代入する。
+        LoginOk = result is None or not check_password_hash(
             result[0], password)
         session['logged_in'] = LoginOk
 
         if not LoginOk:
             flash('ログイン失敗：ユーザーIDもしくはパスワードが正しくありません。')
 
-        # セッションがTrueであれば、ログイン後のページへリダイレクトする。
-        # セッションがFalseであれば、ログイン前のページにリダイレクトする。
+        # ログイン後のページへリダイレクトする。
         return redirect(url_for('top' if LoginOk else 'login'))
 
 
