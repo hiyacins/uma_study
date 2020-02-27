@@ -16,11 +16,11 @@ class MySQLConnector:
     # config: DB接続情報
     # 例
     # config = {
-    #    'user': 'root',
-    #    'password': 'hiya1023',
+    #    'user': 'sitekanri',
+    #    'password': 'cat',
     #    'host': 'localhost',
     #    'port': 3306,
-    #    'database': 'site_users'
+    #    'database': 'tables'
     # }
     def connect(self, connect_config: dict):
         # 二重接続回避
@@ -66,11 +66,11 @@ class MySQLAdapter(MySQLConnector):
     def __enter__(self):
         # DB接続のための情報入力
         connect_config = {
-            'user': 'root',
-            'password': 'hiya1023',
+            'user': 'sitekanri',
+            'password': 'cat',
             'host': 'localhost',
             'port': 3306,
-            'database': 'site_users'
+            'database': 'tables'
         }
         self.connect(connect_config)
         return self
@@ -82,7 +82,8 @@ class MySQLAdapter(MySQLConnector):
 app = Flask(__name__)
 
 # シークレットキーの設定
-app.config["SECRET_KEY"] = "b't\xd7.\xedOa\xd8\x88\x18\xc51H\xf5\x0b\xb1\x10\x99\xde\x11\xa9\x12\xe3\xd3S'"
+app.config[
+    "SECRET_KEY"] = "b't\xd7.\xedOa\xd8\x88\x18\xc51H\xf5\x0b\xb1\x10\x99\xde\x11\xa9\x12\xe3\xd3S'"
 
 
 # ログインチェック関数
@@ -93,6 +94,7 @@ def login_required(view):
         if not session.get('logged_in'):
             return redirect(url_for('login'))
         return view(*args, **kwargs)
+
     return inner
 
 
@@ -114,25 +116,33 @@ def login_view():
 @app.route('/login', methods=['POST'])
 # ログイン処理
 def login():
+    # ユーザーID取得のための変数初期化
+    id_name = ""
+    # パスワード取得のための変数初期化
+    password = ""
+
     with MySQLAdapter() as db:
         # ログインフォームに入力されたユーザーID取得
         id_name = request.form['id_name']
+
         # ログインフォームに入力されたパスワードの取得
         password = request.form['password']
 
         # DBからid_nameに対応するpasswordを取得する。
         result = db.execute_fetchone(
-            "SELECT password FROM site_users WHERE id_name = ?", (id_name,))
+            "SELECT password FROM site_users WHERE id_name = ?", (id_name, ))
 
-        # ユーザーIDがDB内にあれば、それぞれ変数に代入する。
-        LoginOk = result is not None or not check_password_hash(
+        # ユーザーIDがDB内に存在し、フォームから入力されたパスワードがDB内のものと一致すれば
+        # セッションを登録する
+        LoginOk = result is not None and check_password_hash(
             result[0], password)
         session['logged_in'] = LoginOk
 
         if not LoginOk:
             flash('ログイン失敗：ユーザーIDもしくはパスワードが正しくありません。')
 
-        # ログイン後のページへリダイレクトする。
+        # セッションがTrueであれば、ログイン後のページへリダイレクトする。
+        # セッションがFalseであれば、ログイン前のページにリダイレクトする。
         return redirect(url_for('top' if LoginOk else 'login'))
 
 

@@ -16,11 +16,11 @@ class MySQLConnector:
     # config: DB接続情報
     # 例
     # config = {
-    #    'user': 'root',
-    #    'password': 'hiya1023',
+    #    'user': 'sitekanri',
+    #    'password': 'cat',
     #    'host': 'localhost',
     #    'port': 3306,
-    #    'database': 'site_users'
+    #    'database': 'tables'
     # }
     def connect(self, connect_config: dict):
         # 二重接続回避
@@ -66,11 +66,11 @@ class MySQLAdapter(MySQLConnector):
     def __enter__(self):
         # DB接続のための情報入力
         connect_config = {
-            'user': 'root',
-            'password': 'hiya1023',
+            'user': 'sitekanri',
+            'password': 'cat',
             'host': 'localhost',
             'port': 3306,
-            'database': 'site_users'
+            'database': 'tables'
         }
         self.connect(connect_config)
         return self
@@ -155,4 +155,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="153.127.26.40", port=5000, debug=True)
