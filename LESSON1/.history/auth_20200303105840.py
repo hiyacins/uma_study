@@ -16,11 +16,10 @@ class MySQLConnector:
     # config: DB接続情報
     # 例
     # config = {
-    #    'user': 'root',
-    #    'password': 'hiya1023',
+    #    'user': 'sitekanri',
+    #    'password': 'cat',
     #    'host': 'localhost',
     #    'port': 3306,
-    #    'charset': 'utf8',
     #    'database': 'tables'
     # }
     def connect(self, connect_config: dict):
@@ -71,8 +70,7 @@ class MySQLAdapter(MySQLConnector):
             'password': 'hiya1023',
             'host': 'localhost',
             'port': 3306,
-            'charset': 'utf8',
-            'database': 'tables'
+            'database': 'site_users'
         }
         self.connect(connect_config)
         return self
@@ -119,9 +117,9 @@ def login_view():
 # ログイン処理
 def login():
     # ユーザーID取得のための変数初期化
-    #id_name = ""
+    id_name = ""
     # パスワード取得のための変数初期化
-    #password = ""
+    password = ""
 
     with MySQLAdapter() as db:
         # ログインフォームに入力されたユーザーID取得
@@ -157,4 +155,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    app.run(host="10.22.0.47", port=80, debug=True)
+    app.run(host="153.127.26.40", port=5000, debug=True)
