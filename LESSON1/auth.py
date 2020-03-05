@@ -118,10 +118,6 @@ def login_view():
 @app.route('/login', methods=['POST'])
 # ログイン処理
 def login():
-    # ユーザーID取得のための変数初期化
-    id_name = ""
-    # パスワード取得のための変数初期化
-    password = ""
 
     with MySQLAdapter() as db:
         # ログインフォームに入力されたユーザーID取得
@@ -129,6 +125,7 @@ def login():
 
         # ログインフォームに入力されたパスワードの取得
         password = request.form['password']
+
 
         # DBからid_nameに対応するpasswordを取得する。
         result = db.execute_fetchone(
@@ -143,8 +140,8 @@ def login():
         if not LoginOk:
             flash('ログイン失敗：ユーザーIDもしくはパスワードが正しくありません。')
 
-        # セッションがTrueであれば、ログイン後のページへリダイレクトする。
-        # セッションがFalseであれば、ログイン前のページにリダイレクトする。
+        # session['logged_in']がTrueであれば、(ログインに成功しているので)ログイン後のページへリダイレクトする。
+        # session['logged_in']がFalseであれば、(ログインに失敗しているので)ログインページにリダイレクトする。(再度表示する)
         return redirect(url_for('top' if LoginOk else 'login'))
 
 
@@ -157,4 +154,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    app.run(host="10.22.0.47", port=80, debug=True)
+    app.run(host="0.0.0.0", port=80, debug=False)
