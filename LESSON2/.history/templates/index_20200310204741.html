@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert-info" role="alert">
+      {{ message }}
+</div>
+{% endfor %}
+<form action="{{url_for('logout')}}">
+      <input type="submit" value="ログアウト" />
+</form>
+
+<h3>TOP画面</h3>
+
+<div id='#todoapp'>
+      <!--ここにテンプレートを書く-->
+</div>
+
+
+
+{% endblock %}
