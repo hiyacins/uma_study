@@ -1,5 +1,11 @@
 {% extends "layout.html" %}
 
+{% block script %}
+<!-- Vue.jsのJS読み込み -->
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!--<script src="https://unpkg.com/vue/dist/vue.js"></script>-->
+{% endblock %}
+
 {% block content %}
 {% for message in get_flashed_messages() %}
 <div class="alert-info" role="alert">
@@ -10,12 +16,47 @@
       <input type="submit" value="ログアウト" />
 </form>
 
-<h3>TOP画面</h3>
+<h3>ToDoリスト</h3>
 
-<div id='#todoapp'>
+<div id='todoapp'>
       <!--ここにテンプレートを書く-->
+      <table>
+            <!-- テーブルヘッダー -->
+            <thead>
+                  <tr>
+                        <th class="id">ID</th>
+                        <th class="comment">コメント</th>
+                        <th class="button">-</th>
+                  </tr>
+            </thead>
+            <tbody>
+                  <!-- ここに<tr>でToDoの要素を1行ずつ繰り返し表示したい-->
+                  <tr v-for="item in todos" v-bind:key="item.id">
+                        <!-- 要素の情報 -->
+                        <th>[[ item.id ]]</th>
+                        <td>[[ item.comment ]]</td>
+                        <td class="button">
+                              <!-- 削除ボタンのモック -->
+                              <button>削除</button>
+                        </td>
+                  </tr>
+
+            </tbody>
+      </table>
+      <p>※削除ボタンはコントロールキーを押しながらクリックして下さい</p>
+
+      <h2>新しい作業の追加</h2>
+      <form class="add-form" v-on:submit.prevent="doAdd">
+            <!-- コメント入力フォーム -->
+            コメント <input type="text" ref="comment">
+            <!-- 追加ボタンのモック -->
+            <button type="submit">追加</button>
+      </form>
+      <br>
+      <div>[[count_number]]回</div><br>
+      <button v-on:click="click_count_up">Click me</button>
+
 </div>
-
-
-
+<!-- 自作のJS読み込み -->
+<script src="/static/js/todo.js"></script>
 {% endblock %}

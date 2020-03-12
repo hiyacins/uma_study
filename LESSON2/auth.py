@@ -126,7 +126,6 @@ def login():
         # ログインフォームに入力されたパスワードの取得
         password = request.form['password']
 
-
         # DBからid_nameに対応するpasswordを取得する。
         result = db.execute_fetchone(
             "SELECT password FROM site_users WHERE id_name = ?", (id_name, ))
@@ -154,4 +153,5 @@ def logout():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=80, debug=False)
+    app.run(port=5002, debug=True)
+#    app.run(host="0.0.0.0", port=80, debug=False)

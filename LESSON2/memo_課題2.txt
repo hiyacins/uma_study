@@ -9,9 +9,11 @@
 Q. Promise とは
 A. Promise とは、非同期処理の状態をあわらすオブジェクトです。
 https://rightcode.co.jp/blog/information-technology/javascript-promise
+
+
 【参考】
-
-
+TodoMVC の例
+https://jp.vuejs.org/v2/examples/todomvc.html
 
 【使用言語など】
 ■Python 公式サイト
