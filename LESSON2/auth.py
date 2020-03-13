@@ -84,8 +84,8 @@ class MySQLAdapter(MySQLConnector):
 app = Flask(__name__)
 
 # シークレットキーの設定
-app.config[
-    "SECRET_KEY"] = "b't\xd7.\xedOa\xd8\x88\x18\xc51H\xf5\x0b\xb1\x10\x99\xde\x11\xa9\x12\xe3\xd3S'"
+with open('skey.cfg', 'r') as secret_key_file:
+    app.config["SECRET_KEY"] = str(secret_key_file)
 
 
 # ログインチェック関数
