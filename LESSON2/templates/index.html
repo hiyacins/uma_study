@@ -36,25 +36,21 @@
                         <th>[[ item.id ]]</th>
                         <td>[[ item.comment ]]</td>
                         <td class="button">
-                              <!-- 削除ボタンのモック -->
-                              <button>削除</button>
+                              <!-- 削除ボタン -->
+                              <button v-on:click="doRemove">削除</button>
                         </td>
                   </tr>
 
             </tbody>
       </table>
-      <p>※削除ボタンはコントロールキーを押しながらクリックして下さい</p>
 
       <h2>新しい作業の追加</h2>
       <form class="add-form" v-on:submit.prevent="doAdd">
             <!-- コメント入力フォーム -->
             コメント <input type="text" ref="comment">
-            <!-- 追加ボタンのモック -->
+            <!-- 追加ボタン -->
             <button type="submit">追加</button>
       </form>
-      <br>
-      <div>[[count_number]]回</div><br>
-      <button v-on:click="click_count_up">Click me</button>
 
 </div>
 <!-- 自作のJS読み込み -->

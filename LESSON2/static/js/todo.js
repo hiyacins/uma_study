@@ -5,12 +5,12 @@ const app = new Vue({
         // -- 使用するデータを書く
         // ToDoリストデータ用のカラ配列をdataオプションに登録する。
         todos: [],
-        message: "Hello V-on!",
-        count_number: 1
+        // ToDoリストのid初期化
+        id: 1
     },
     methods: {
-        // -- 使用するメソッド
-        // ToDo 追加の処理
+        // -- 使用するメソッドはここへ
+        // ToDoリスト追加の処理
         doAdd: function (event, value) {
             // ref で名前を付けておいた要素を参照
             var comment = this.$refs.comment
@@ -18,17 +18,19 @@ const app = new Vue({
             if (!comment.value.length) {
                 return
             }
-            // { 新しいID, コメント, 作業状態 }
-            // というオブジェクトを現在の todos リストへ push
+            // todos リストへ pushする。
+            // 例：{ 新しいID, コメント }
             this.todos.push({
-                id: uid++,
+                id: this.id++,
                 comment: comment.value
             })
             // フォーム要素を空にする
             comment.value = ''
         },
-        click_count_up: function () {
-            this.count_number++;
+        // ToDoリスト削除の処理
+        doRemove: function (item) {
+            var index = this.todos.indexOf(item)
+            this.todos.splice(index, 1)
         }
     }
 })
