@@ -115,7 +115,7 @@ def todo_items_save():
 
         # コメントをDBに登録する。
         db.execute(
-            "INSERT INTO tables.todo_items (comment) VALUES (?)", (comment,))
+            "INSERT INTO todo_items (comment) VALUES (?)", (comment,))
         db.commit()
 
     return redirect(url_for('top'))
