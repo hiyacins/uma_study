@@ -61,6 +61,11 @@ class MySQLConnector:
         self.execute(sql, param)
         return self.mysql_cursor.fetchone()
 
+    # SQLをコミットする。
+    def commit(self):
+        # SQLをコミットする。
+        self.__mysql_connection.commit()
+
 
 # MySQLConnectorのadaptor
 class MySQLAdapter(MySQLConnector):
@@ -101,18 +106,19 @@ def login_required(view):
 
 
 # ToDoリストで追加されたコメントをDBに登録する。
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['POST'])
 @login_required
 def todo_items_save():
     with MySQLAdapter() as db:
         # ToDoフォームに入力されたコメント取得
-        comment = request.form.get('comment')
+        comment = request.form['comment']
 
         # コメントをDBに登録する。
         db.execute(
-            "INSERT INTO todo_items (comment) VALUES (?)", (comment))
+            "INSERT INTO tables.todo_items (comment) VALUES (?)", (comment,))
+        db.commit()
 
-    return render_template('index.html')
+    return redirect(url_for('top'))
 
 
 @app.route('/')
