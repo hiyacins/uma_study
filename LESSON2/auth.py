@@ -100,7 +100,22 @@ def login_required(view):
     return inner
 
 
-@app.route("/")
+# ToDoリストで追加されたコメントをDBに登録する。
+@app.route('/', methods=['GET'])
+@login_required
+def todo_items_save():
+    with MySQLAdapter() as db:
+        # ToDoフォームに入力されたコメント取得
+        comment = request.form.get('comment')
+
+        # コメントをDBに登録する。
+        db.execute(
+            "INSERT INTO todo_items (comment) VALUES (?)", (comment))
+
+    return render_template('index.html')
+
+
+@app.route('/')
 @login_required
 # ログイン成功後の画面(ホーム画面)
 def top():
