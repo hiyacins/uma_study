@@ -45,7 +45,8 @@
       </table>
 
       <h2>新しい作業の追加</h2>
-      <form class="add-form" v-on:submit="doAdd">
+      <form class="add-form" v-on:submit.prevent="doAdd" action="[[url_for('def todo_items_save():
+')]]" method="POST">
             <!-- コメント入力フォーム -->
             コメント <input type="text" name="comment" ref="comment">
             <!-- 追加ボタン -->
