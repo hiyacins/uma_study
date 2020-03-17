@@ -31,23 +31,24 @@
             </thead>
             <tbody>
                   <!-- ここに<tr>でToDoの要素を1行ずつ繰り返し表示したい-->
-                  <tr v-for="item in todos" v-bind:key="item.id">
+                  {% for todos in entries %}
+                  <tr>
                         <!-- 要素の情報 -->
-                        <th>[[ item.id ]]</th>
-                        <td>[[ item.comment ]]</td>
+                        <th>{{todos[0]}} </th>
+                        <td>{{todos[1]}}</td>
                         <td class="button">
                               <!-- 削除ボタン -->
                               <button v-on:click="doRemove">削除</button>
                         </td>
                   </tr>
-
+                  {% endfor %}
             </tbody>
       </table>
 
       <h2>新しい作業の追加</h2>
-      <form class="add-form" v-on:submit="doAdd" action="{{url_for('todo_items_save')}}" method="POST">
+      <form class="add-form" action="{{url_for('add_todo_items')}}" method="POST">
             <!-- コメント入力フォーム -->
-            コメント <input type="text" name="comment" ref="comment">
+            コメント <input type="text" name="comment" ref="comment" value="">
             <!-- 追加ボタン -->
             <button type="submit">追加</button>
       </form>

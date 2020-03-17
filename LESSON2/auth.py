@@ -26,8 +26,13 @@ class MySQLConnector:
     def connect(self, connect_config: dict):
         # 二重接続回避
         self.disconnect()
+
         # SQLに接続します。
         self.__mysql_connection = mysql.connector.connect(**connect_config)
+
+        # MySQLConnectorはデフォルトでは更新系のSQL文の発行後にcommit()が必要になるのでAutoCommitをTrueに変更しておく。
+        self.__mysql_connection.autocommit = True
+
         # カーソルを取得する。
         # オプションは今後必要なら引数化してもいいかも？
         self.mysql_cursor = self.__mysql_connection.cursor(prepared=True)
@@ -61,10 +66,15 @@ class MySQLConnector:
         self.execute(sql, param)
         return self.mysql_cursor.fetchone()
 
-    # SQLをコミットする。
-    def commit(self):
-        # SQLをコミットする。
-        self.__mysql_connection.commit()
+    # SQLを実行してfetchall()した結果であるtupleが返る。
+    # 該当レコードがない場合はNoneが返る。
+    # sql:sql文を入れる。
+    #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
+    # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
+    #     （例）db.execute_fetchall("SELECT id,password FROM site_users WHERE id_name = ?",("hoge"))
+    def execute_fetchall(self, sql: str, param: tuple = None) -> tuple:
+        self.execute(sql, param)
+        return self.mysql_cursor.fetchall()
 
 
 # MySQLConnectorのadaptor
@@ -108,7 +118,8 @@ def login_required(view):
 # ToDoリストで追加されたコメントをDBに登録する。
 @app.route('/', methods=['POST'])
 @login_required
-def todo_items_save():
+def add_todo_items():
+    print('mazumazu')
     with MySQLAdapter() as db:
         # ToDoフォームに入力されたコメント取得
         comment = request.form['comment']
@@ -116,9 +127,21 @@ def todo_items_save():
         # コメントをDBに登録する。
         db.execute(
             "INSERT INTO todo_items (comment) VALUES (?)", (comment,))
-        db.commit()
 
-    return redirect(url_for('top'))
+    return get_todo_items()
+
+
+# ToDoリストで追加されたコメントをDBから取り出す。
+@app.route('/')
+@login_required
+def get_todo_items():
+    with MySQLAdapter() as db:
+        # コメントをDBに登録する。
+        entries = db.execute_fetchall(
+            "SELECT * FROM todo_items", ())
+        print(entries)
+
+    return render_template('index.html', entries=entries)
 
 
 @app.route('/')
