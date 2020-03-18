@@ -31,6 +31,11 @@ var app = new Vue({
 })
 →{{}} を [[]] に変更する。
 
+■HTMLでアップロードしたのに変更されない
+解決：
+再度、pythonをコンパイルする。
+エラーが出ている可能性がある。
+
 参考
 https://muunyblue.github.io/0b7acbba52fb92b2e9c818f7f56bac99.html
 http://tabilike.hatenablog.com/entry/2018/04/09/130209
