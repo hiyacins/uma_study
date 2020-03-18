@@ -16,7 +16,7 @@
       <input type="submit" value="ログアウト" />
 </form>
 
-<h3>ToDoリスト</h3>
+<h1>ToDoリスト</h1>
 
 <div id='todoapp'>
       <!--ここにテンプレートを書く-->
@@ -38,7 +38,7 @@
                         <td>{{todos[1]}}</td>
                         <td class="button">
                               <!-- 削除ボタン -->
-                              <form action="{{ url_for('delete_todo_items', id=entries[todos[0]]) }}" method="POST">
+                              <form action="{{ url_for('delete_todo_items', id=todos[0]) }}" method="POST">
                                     <button type="submit">削除</button>
                               </form>
                         </td>
@@ -54,6 +54,7 @@
             <!-- 追加ボタン -->
             <button type="submit">追加</button>
       </form>
+      <br />
       <form class="add-form" action="{{url_for('all_delete_todo_items')}}" method="POST">
             <!-- 削除ボタン -->
             <button type="submit">すべて削除</button>

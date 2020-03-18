@@ -119,8 +119,8 @@ def login_required(view):
 @app.route('/', methods=['POST'])
 @login_required
 def add_todo_items():
-    print('UMAUMA')
-    # 入力がなければ何もしないで load_todo_items
+
+    # 入力がなければ何もしないで load_todo_items関数 読み込み。
     if request.form.get('comment') == "":
         return load_todo_items()
 
@@ -140,38 +140,41 @@ def add_todo_items():
 @login_required
 def load_todo_items():
     with MySQLAdapter() as db:
-        # コメントをDBに登録する。
+
+        # DBに登録されているコメントをすべて取り出し entries に入れる。
         entries = db.execute_fetchall(
             "SELECT * FROM todo_items", ())
-        print(entries)
 
     return render_template('/index.html', entries=entries)
 
 
-# ToDoリストで追加されたコメントをDBから削除する。
-@app.route('/<int:id>/del', methods=['POST'])
+# ToDoリストに追加されたコメントをDBから削除する。
+# id : 削除するコメントのid
+@app.route('/delete/<int:id>', methods=['POST'])
 @login_required
-def delete_todo_items(int: id):
-    print('削除するよー')
-    print(id)
+def delete_todo_items(id):
+
+    flash('削除しました＼(^o^)／')
+
     with MySQLAdapter() as db:
-        # ToDoフォームに入力されたコメント取得
-        # todo_id = request.form['entries']
-        print(id)
-        # コメントをDBに登録する。
-        # db.execute(
-        #     "DELETE FROM todo_items WHERE id = ?", (id,))
+
+       # 任意のidのコメントをDBから削除する。
+        db.execute(
+            "DELETE FROM todo_items WHERE id = ?", (id,))
 
     return redirect(url_for('load_todo_items'))
 
 
-# ToDoリストで追加されたコメントをDBから取り出す。
+# データベース内のToDoリストをすべて削除する。
 @app.route('/all-delete', methods=['POST'])
 @login_required
 def all_delete_todo_items():
+
     flash('全部削除しました＼(^o^)／ｵﾜｯﾀ')
+
     with MySQLAdapter() as db:
-        # コメントをDBに登録する。
+
+        # ToDoリストをすべて削除する。
         db.execute(
             "DELETE FROM todo_items", ())
 
@@ -182,13 +185,16 @@ def all_delete_todo_items():
 @login_required
 # ログイン成功後の画面(ホーム画面)
 def top():
+
     flash('ログインを成功しました＼(^o^)／')
+
     return render_template('index.html')
 
 
 @app.route('/login', methods=['GET'])
 # ログイン前画面表示
 def login_view():
+
     # ログイン画面に表示している。
     return render_template('login.html')
 
@@ -225,8 +231,10 @@ def login():
 @app.route("/logout", methods=["GET"])
 # ログアウト処理
 def logout():
+
     # セッション情報をクリアにする。
     session.clear()
+
     return redirect(url_for('login'))
 
 
