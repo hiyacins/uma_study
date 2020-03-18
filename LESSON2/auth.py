@@ -119,29 +119,63 @@ def login_required(view):
 @app.route('/', methods=['POST'])
 @login_required
 def add_todo_items():
-    print('mazumazu')
-    with MySQLAdapter() as db:
-        # ToDoフォームに入力されたコメント取得
-        comment = request.form['comment']
+    print('UMAUMA')
+    # 入力がなければ何もしないで load_todo_items
+    if request.form.get('comment') == "":
+        return load_todo_items()
 
+    with MySQLAdapter() as db:
+
+        # ToDoフォームに入力されたコメント取得
+        comment = request.form.get('comment')
         # コメントをDBに登録する。
         db.execute(
             "INSERT INTO todo_items (comment) VALUES (?)", (comment,))
 
-    return get_todo_items()
+    return load_todo_items()
 
 
 # ToDoリストで追加されたコメントをDBから取り出す。
 @app.route('/')
 @login_required
-def get_todo_items():
+def load_todo_items():
     with MySQLAdapter() as db:
         # コメントをDBに登録する。
         entries = db.execute_fetchall(
             "SELECT * FROM todo_items", ())
         print(entries)
 
-    return render_template('index.html', entries=entries)
+    return render_template('/index.html', entries=entries)
+
+
+# ToDoリストで追加されたコメントをDBから削除する。
+@app.route('/<int:id>/del', methods=['POST'])
+@login_required
+def delete_todo_items(int: id):
+    print('削除するよー')
+    print(id)
+    with MySQLAdapter() as db:
+        # ToDoフォームに入力されたコメント取得
+        # todo_id = request.form['entries']
+        print(id)
+        # コメントをDBに登録する。
+        # db.execute(
+        #     "DELETE FROM todo_items WHERE id = ?", (id,))
+
+    return redirect(url_for('load_todo_items'))
+
+
+# ToDoリストで追加されたコメントをDBから取り出す。
+@app.route('/all-delete', methods=['POST'])
+@login_required
+def all_delete_todo_items():
+    flash('全部削除しました＼(^o^)／ｵﾜｯﾀ')
+    with MySQLAdapter() as db:
+        # コメントをDBに登録する。
+        db.execute(
+            "DELETE FROM todo_items", ())
+
+    return redirect(url_for('load_todo_items'))
 
 
 @app.route('/')
