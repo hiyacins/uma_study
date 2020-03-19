@@ -166,7 +166,8 @@ def load_todo_items():
 
 
 # ToDoリストに追加されたコメントをDBから削除する。
-# id : 削除するコメントのid
+# id : int
+# 削除するコメントのid
 @app.route('/delete/<int:id>', methods=['POST'])
 @login_required
 def delete_todo_item(id: int):
