@@ -169,7 +169,7 @@ def load_todo_items():
 # id : 削除するコメントのid
 @app.route('/delete/<int:id>', methods=['POST'])
 @login_required
-def delete_todo_item(id):
+def delete_todo_item(id: int):
 
     with MySQLAdapter() as db:
 
