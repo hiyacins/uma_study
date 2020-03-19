@@ -31,14 +31,14 @@
             </thead>
             <tbody>
                   <!-- ここに<tr>でToDoの要素を1行ずつ繰り返し表示したい-->
-                  {% for todos in entries %}
+                  {% for entry in entries %}
                   <tr>
                         <!-- 要素の情報 -->
-                        <th>{{todos[0]}} </th>
-                        <td>{{todos[1]}}</td>
+                        <th>{{entry.id}} </th>
+                        <td>{{entry.comment}}</td>
                         <td class="button">
                               <!-- 削除ボタン -->
-                              <form action="{{ url_for('delete_todo_items', id=todos[0]) }}" method="POST">
+                              <form action="{{ url_for('delete_todo_item', id=entry.id) }}" method="POST">
                                     <button type="submit">削除</button>
                               </form>
                         </td>
@@ -48,7 +48,7 @@
       </table>
 
       <h2>新しい作業の追加</h2>
-      <form class="add-form" action="{{url_for('add_todo_items')}}" method="POST">
+      <form class="add-form" action="{{url_for('add_todo_item')}}" method="POST">
             <!-- コメント入力フォーム -->
             コメント <input type="text" name="comment" ref="comment">
             <!-- 追加ボタン -->

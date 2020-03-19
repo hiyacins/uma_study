@@ -2,6 +2,7 @@ from flask import Flask, redirect, render_template, request, session, url_for, f
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
 from functools import wraps
+from typing import Union, List
 
 
 # MySQLに接続・切断を行うクラス
@@ -81,26 +82,31 @@ class MySQLConnector:
 class MySQLAdapter(MySQLConnector):
     def __enter__(self):
         # DB接続のための情報入力
-        connect_config = {
-            'user': 'root',
-            'password': 'hiya1023',
-            'host': 'localhost',
-            'port': 3306,
-            'charset': 'utf8',
-            'database': 'tables'
-        }
-        self.connect(connect_config)
+        with open('exclude/connect_config.json', 'r', encoding="utf-8") as connect_config:
+        self.connect(connect_config.read())
         return self
 
     def __exit__(self, ex_type, ex_value, tb):
         self.disconnect()
 
 
+# DBのTODO_ITEMSテーブルの一つのrecordを表現する構造体
+class Entry():
+    def __init__(self, id: int, comment: str):
+        # id : int
+        # auto incremental id
+        self.id = id
+
+        # comment : str
+        # ToDoの内容
+        self.comment = comment
+
+
 app = Flask(__name__)
 
 # シークレットキーの設定
-with open('skey.cfg', 'r') as secret_key_file:
-    app.config["SECRET_KEY"] = str(secret_key_file)
+with open('exclude/secret_key.txt', 'r', encoding="utf-8") as secret_key_file:
+    app.config["SECRET_KEY"] = secret_key_file.readline().strip()
 
 
 # ログインチェック関数
@@ -118,7 +124,7 @@ def login_required(view):
 # ToDoリストで追加されたコメントをDBに登録する。
 @app.route('/', methods=['POST'])
 @login_required
-def add_todo_items():
+def add_todo_item():
 
     # 入力がなければ何もしないで load_todo_items関数 読み込み。
     if request.form.get('comment') == "":
@@ -132,35 +138,39 @@ def add_todo_items():
         db.execute(
             "INSERT INTO todo_items (comment) VALUES (?)", (comment,))
 
-    return load_todo_items()
+    return redirect(url_for('load_todo_items'))
 
 
 # ToDoリストで追加されたコメントをDBから取り出す。
-@app.route('/')
-@login_required
-def load_todo_items():
+def load_todo_items() -> List[Entry]:
     with MySQLAdapter() as db:
 
-        # DBに登録されているコメントをすべて取り出し entries に入れる。
-        entries = db.execute_fetchall(
-            "SELECT * FROM todo_items", ())
+        # DBに登録されているコメントをすべて取り出し entries_ に入れる。
+        entries_ = db.execute_fetchall(
+            "SELECT id, comment FROM todo_items", ())
 
-    return render_template('/index.html', entries=entries)
+    # ここでList[Entry]に変換する
+    entries = []
+    for entry_ in entries_:
+        entry = Entry(entry_[0], entry_[1])
+        entries.append(entry)
+
+    return entries
 
 
 # ToDoリストに追加されたコメントをDBから削除する。
 # id : 削除するコメントのid
 @app.route('/delete/<int:id>', methods=['POST'])
 @login_required
-def delete_todo_items(id):
-
-    flash('削除しました＼(^o^)／')
+def delete_todo_item(id):
 
     with MySQLAdapter() as db:
 
        # 任意のidのコメントをDBから削除する。
         db.execute(
             "DELETE FROM todo_items WHERE id = ?", (id,))
+
+    flash('削除しました＼(^o^)／')
 
     return redirect(url_for('load_todo_items'))
 
@@ -170,13 +180,13 @@ def delete_todo_items(id):
 @login_required
 def all_delete_todo_items():
 
-    flash('全部削除しました＼(^o^)／ｵﾜｯﾀ')
-
     with MySQLAdapter() as db:
 
         # ToDoリストをすべて削除する。
         db.execute(
             "DELETE FROM todo_items", ())
+
+    flash('全部削除しました＼(^o^)／ｵﾜｯﾀ')
 
     return redirect(url_for('load_todo_items'))
 
@@ -188,7 +198,8 @@ def top():
 
     flash('ログインを成功しました＼(^o^)／')
 
-    return render_template('index.html')
+    entries = load_todo_items()
+    return render_template('index.html', entries=entries)
 
 
 @app.route('/login', methods=['GET'])
