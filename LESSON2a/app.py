@@ -86,7 +86,7 @@ class MySQLAdapter(MySQLConnector):
         # DB接続のための情報入力config
         with open('exclude/connect_config.json', 'r', encoding="utf-8") as connect_config:
 
-            # jsonファイルのオープン時、中身はstr型なのでdict型に変換する。
+            # jsonファイルを読み出すと中身は、str型なので connect関数に入れるために dict型に変換する。
             self.connect(ast.literal_eval(connect_config.read()))
 
         return self
