@@ -3,9 +3,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
 from functools import wraps
 from typing import Union, List
-
+import ast
 
 # MySQLに接続・切断を行うクラス
+
+
 class MySQLConnector:
     def __init__(self):
         # MySQLのコネクタ
@@ -81,9 +83,12 @@ class MySQLConnector:
 # MySQLConnectorのadaptor
 class MySQLAdapter(MySQLConnector):
     def __enter__(self):
-        # DB接続のための情報入力
+        # DB接続のための情報入力config
         with open('exclude/connect_config.json', 'r', encoding="utf-8") as connect_config:
-        self.connect(connect_config.read())
+
+            # jsonファイルのオープン時、中身はstr型なのでdict型に変換する。
+            self.connect(ast.literal_eval(connect_config.read()))
+
         return self
 
     def __exit__(self, ex_type, ex_value, tb):
