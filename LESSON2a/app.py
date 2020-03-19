@@ -127,13 +127,13 @@ def login_required(view):
 
 
 # ToDoリストで追加されたコメントをDBに登録する。
-@app.route('/', methods=['POST'])
+@app.route('/add', methods=['POST'])
 @login_required
 def add_todo_item():
 
     # 入力がなければ何もしないで load_todo_items関数 読み込み。
     if request.form.get('comment') == "":
-        return load_todo_items()
+        return redirect(url_for('top'))
 
     with MySQLAdapter() as db:
 
@@ -143,11 +143,14 @@ def add_todo_item():
         db.execute(
             "INSERT INTO todo_items (comment) VALUES (?)", (comment,))
 
-    return redirect(url_for('load_todo_items'))
+    # ToDoリストを更新する。
+    load_todo_items()
+
+    return redirect(url_for('top'))
 
 
 # ToDoリストで追加されたコメントをDBから取り出す。
-def load_todo_items() -> List[Entry]:
+def load_todo_items():
     with MySQLAdapter() as db:
 
         # DBに登録されているコメントをすべて取り出し entries_ に入れる。
@@ -175,9 +178,12 @@ def delete_todo_item(id):
         db.execute(
             "DELETE FROM todo_items WHERE id = ?", (id,))
 
+    # ToDoリストを更新する。
+    load_todo_items()
+
     flash('削除しました＼(^o^)／')
 
-    return redirect(url_for('load_todo_items'))
+    return redirect(url_for('top'))
 
 
 # データベース内のToDoリストをすべて削除する。
@@ -191,9 +197,12 @@ def all_delete_todo_items():
         db.execute(
             "DELETE FROM todo_items", ())
 
+    # ToDoリストを更新する。
+    load_todo_items()
+
     flash('全部削除しました＼(^o^)／ｵﾜｯﾀ')
 
-    return redirect(url_for('load_todo_items'))
+    return redirect(url_for('top'))
 
 
 @app.route('/')

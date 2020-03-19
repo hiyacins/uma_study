@@ -45,8 +45,17 @@ https://blog.hysakhr.com/2019/09/14/flaskjinja2-vue-js-%E3%81%A7mustache%E8%A8%9
 解決：
 .jsファイルのelでは#appと宣言するが、HTMLでは、<div id="app"></div>と書かなければいけない。
 
+■def add_todo_item():のreturnについて　redirect(url_for('load_todo_items'))やload_todo_items（）
+と書くと下記のエラーが出る。
+werkzeug.routing.BuildError: Could not build url for endpoint 'load_todo_items'. Did you mean 'add_todo_item' instead?
 
+解決：
+load_todo_items　の　return　がentriesで　Topをレンダリングしないのがいけないのかも？
 
+下記のように書くとロードして追加が行われる。
+    load_todo_items()
+
+    return redirect(url_for('top''))
 
 
 
