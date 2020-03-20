@@ -111,6 +111,20 @@ class Entry():
         # ToDoの内容
         self.comment = comment
 
+    # List[Entry]に変換関数
+    # entries_：タプルのタプル （例）((1,'abc),(2,'def)) を入れる。
+    # （使用例）
+    # entries_ = db.execute_fetchall("SELECT id, comment FROM todo_items")
+    # entries = Entry.from_tuple_of_tuples(entries_)
+    def from_tuple_of_tuples(entries_: tuple) -> list:
+
+        entries = []
+        for entry_ in entries_:
+            entry = Entry(entry_[0], entry_[1])
+            entries.append(entry)
+
+        return entries
+
 
 app = Flask(__name__)
 
@@ -171,17 +185,14 @@ def add_todo_item():
 
 
 # ToDoリストで追加されたコメントをDBから取り出す。
-def load_todo_items():
+def load_todo_items() -> List[Entry]:
     with MySQLAdapter() as db:
 
         # DBに登録されているコメントをすべて取り出し entries_ に入れる。
         entries_ = db.execute_fetchall("SELECT id, comment FROM todo_items")
 
-    # ここでList[Entry]に変換する
-    entries = []
-    for entry_ in entries_:
-        entry = Entry(entry_[0], entry_[1])
-        entries.append(entry)
+    # ここでList[Entry]に変換する。
+    entries = Entry.from_tuple_of_tuples(entries_)
 
     return entries
 
