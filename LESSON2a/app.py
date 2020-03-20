@@ -55,17 +55,21 @@ class MySQLConnector:
     # sql:sql文を入れる。
     #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
-    #     （例）db.execute("SELECT id,password FROM site_users WHERE id_name = ?",("hoge"))
-    def execute(self, sql: str, param: tuple):
-        return self.mysql_cursor.execute(sql, param)
+    #     （例）db.execute("SELECT id,password FROM site_users WHERE id_name = ?","hoge")
+    #        param = None の時
+    #     （例）db.execute("SELECT id,password FROM site_users WHERE id_name = ?")
+    def execute(self, sql: str, param: str = None):
+        if param == None:
+            return self.mysql_cursor.execute(sql)
+        return self.mysql_cursor.execute(sql, (param,))
 
     # SQLを実行してfetchone()した結果であるtupleが返る。
     # 該当レコードがない場合はNoneが返る。
     # sql:sql文を入れる。
     #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
-    #     （例）db.execute_fetchone("SELECT id,password FROM site_users WHERE id_name = ?",("hoge"))
-    def execute_fetchone(self, sql: str, param: tuple = None) -> tuple:
+    #     （例）db.execute_fetchone("SELECT id,password FROM site_users WHERE id_name = ?","hoge")
+    def execute_fetchone(self, sql: str, param: str = None) -> tuple:
         self.execute(sql, param)
         return self.mysql_cursor.fetchone()
 
@@ -74,8 +78,8 @@ class MySQLConnector:
     # sql:sql文を入れる。
     #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
-    #     （例）db.execute_fetchall("SELECT id,password FROM site_users WHERE id_name = ?",("hoge"))
-    def execute_fetchall(self, sql: str, param: tuple = None) -> tuple:
+    #     （例）db.execute_fetchall("SELECT id,password FROM site_users WHERE id_name = ?","hoge")
+    def execute_fetchall(self, sql: str, param: str = None) -> tuple:
         self.execute(sql, param)
         return self.mysql_cursor.fetchall()
 
@@ -161,7 +165,7 @@ def add_todo_item():
         comment = request.form.get('comment')
         # コメントをDBに登録する。
         db.execute(
-            "INSERT INTO todo_items (comment) VALUES (?)", (comment,))
+            "INSERT INTO todo_items (comment) VALUES (?)", comment)
 
     return redirect(url_for('top'))
 
@@ -171,8 +175,7 @@ def load_todo_items():
     with MySQLAdapter() as db:
 
         # DBに登録されているコメントをすべて取り出し entries_ に入れる。
-        entries_ = db.execute_fetchall(
-            "SELECT id, comment FROM todo_items", ())
+        entries_ = db.execute_fetchall("SELECT id, comment FROM todo_items")
 
     # ここでList[Entry]に変換する
     entries = []
@@ -194,7 +197,7 @@ def delete_todo_item(id: int):
 
        # 任意のidのコメントをDBから削除する。
         db.execute(
-            "DELETE FROM todo_items WHERE id = ?", (id,))
+            "DELETE FROM todo_items WHERE id = ?", id)
 
     flash('削除しました＼(^o^)／')
 
@@ -209,8 +212,7 @@ def all_delete_todo_items():
     with MySQLAdapter() as db:
 
         # ToDoリストをすべて削除する。
-        db.execute(
-            "DELETE FROM todo_items", ())
+        db.execute("DELETE FROM todo_items")
 
     flash('全部削除しました＼(^o^)／ｵﾜｯﾀ')
 
@@ -249,7 +251,7 @@ def login():
 
         # DBからid_nameに対応するpasswordを取得する。
         result = db.execute_fetchone(
-            "SELECT password FROM site_users WHERE id_name = ?", (id_name, ))
+            "SELECT password FROM site_users WHERE id_name = ?", id_name)
 
         # ユーザーIDがDB内に存在し、フォームから入力されたパスワードがDB内のものと一致すれば
         # セッションを登録する
