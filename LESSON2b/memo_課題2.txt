@@ -1,0 +1,82 @@
+
+【困ってしまった】
+■jinja2とvuejsを一緒に使う時、出力方法が同じのためコンフリクトが起こる問題
+解決：
+どちらかのデリミタを変更する。
+〇jinja2の場合
+from flask import Flask
+
+class CustomFlask(Flask):
+  jinja_options = Flask.jinja_options.copy()
+  jinja_options.update(dict(
+    block_start_string='(%',
+    block_end_string='%)',
+    variable_start_string='((',
+    variable_end_string='))',
+    comment_start_string='(#',
+    comment_end_string='#)',
+  ))
+
+app = CustomFlask(__name__)
+
+→{{}} を (()) に変更する。
+
+〇vuejsの場合
+var app = new Vue({
+  el: "#app",
+  delimiters: ["[[", "]]"],
+  data: {
+    message: "Hello Vue!"
+  }
+})
+→{{}} を [[]] に変更する。
+
+参考
+https://muunyblue.github.io/0b7acbba52fb92b2e9c818f7f56bac99.html
+http://tabilike.hatenablog.com/entry/2018/04/09/130209
+https://blog.hysakhr.com/2019/09/14/flaskjinja2-vue-js-%E3%81%A7mustache%E8%A8%98%E6%B3%95-%E3%81%AE%E8%A1%9D%E7%AA%81%E5%9B%9E%E9%81%BF/
+
+■ vuejsでmessageが表示できない。
+解決：
+.jsファイルのelでは#appと宣言するが、HTMLでは、<div id="app"></div>と書かなければいけない。
+
+
+
+
+
+
+
+Q. Promise とは
+A. Promise とは、非同期処理の状態をあわらすオブジェクトです。
+https://rightcode.co.jp/blog/information-technology/javascript-promise
+
+
+【参考】
+TodoMVC の例
+https://jp.vuejs.org/v2/examples/todomvc.html
+
+【使用言語など】
+■Python 公式サイト
+https://www.python.org/
+■Python 公式サイト（日本語）
+https://www.python.jp/
+■Python 公式ドキュメント
+https://docs.python.org/3/
+
+■Flask 公式サイト
+https://palletsprojects.com/
+■Flask 公式ドキュメント
+https://flask.palletsprojects.com/en/master/
+■Flaskドキュメント（日本語）
+https://a2c.bitbucket.io/flask/
+
+■MySQL公式サイト
+https://dev.mysql.com/
+■MySQL公式ドキュメント
+https://dev.mysql.com/doc/
+
+■Vue.js公式サイト
+https://jp.vuejs.org/
+
+
+

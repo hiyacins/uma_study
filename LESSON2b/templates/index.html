@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block script %}
+<!-- Vue.jsのJS読み込み -->
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!--<script src="https://unpkg.com/vue/dist/vue.js"></script>-->
+{% endblock %}
+
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert-info" role="alert">
+      {{ message }}
+</div>
+{% endfor %}
+<form action="{{url_for('logout')}}">
+      <input type="submit" value="ログアウト" />
+</form>
+
+<h3>ToDoリスト</h3>
+
+<div id='todoapp'>
+      <!--ここにテンプレートを書く-->
+      <table>
+            <!-- テーブルヘッダー -->
+            <thead>
+                  <tr>
+                        <th class="id">ID</th>
+                        <th class="comment">コメント</th>
+                        <th class="button">-</th>
+                  </tr>
+            </thead>
+            <tbody>
+                  <!-- ここに<tr>でToDoの要素を1行ずつ繰り返し表示したい-->
+                  <tr v-for="item in todos" v-bind:key="item.id">
+                        <!-- 要素の情報 -->
+                        <th>[[ item.id ]]</th>
+                        <td>[[ item.comment ]]</td>
+                        <td class="button">
+                              <!-- 削除ボタン -->
+                              <button v-on:click="doRemove">削除</button>
+                        </td>
+                  </tr>
+
+            </tbody>
+      </table>
+
+      <h2>新しい作業の追加</h2>
+      <form class="add-form" v-on:submit.prevent="doAdd" action="[[url_for('def todo_items_save():
+')]]" method="POST">
+            <!-- コメント入力フォーム -->
+            コメント <input type="text" name="comment" ref="comment">
+            <!-- 追加ボタン -->
+            <button type="submit">追加</button>
+      </form>
+
+</div>
+<!-- 自作のJS読み込み -->
+<script src="/static/js/todo.js"></script>
+{% endblock %}
