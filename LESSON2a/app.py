@@ -1,12 +1,13 @@
+from HiyaLib import *
 from flask import Flask, redirect, render_template, request, session, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from typing import Union, List, Tuple
 import mysql.connector
 import json
-from HiyaLib import ReadJsonFromFile, FileReader, login_required
-
 
 # MySQLに接続・切断を行うクラス
+
+
 class MySQLConnector:
     def __init__(self):
         # MySQLのコネクタ
@@ -14,12 +15,12 @@ class MySQLConnector:
         # MySQLのカーソル
         self.mysql_cursor = None
 
-    # DBに接続する。
+    # dict型で接続情報を渡す。
     # config: DB接続情報
     # 例
     # config = {
     #    'user': 'root',
-    #    'password': 'hiya1023',
+    #    'password': '****',
     #    'host': 'localhost',
     #    'port': 3306,
     #    'charset': 'utf8',
@@ -119,24 +120,18 @@ class Entry():
     @classmethod
     def from_tuple(cls, entry_: tuple):  # ->Entry
 
-        entry = Entry(entry_[0], entry_[1])
-
-        return entry
+        return Entry(entry_[0], entry_[1])
 
     # Tuple[tuple]型の値 を List[Entry]型の値に変換する。
-    # entries_：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
+    # entries：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
     # 返し値：Tuple[tuple]型 から List[Entry]型 に変換して返す。
     # （使用例）
     # entries_ = db.execute_fetchall("SELECT id, comment FROM todo_items")
     # entries = Entry.from_tuple_of_tuples(entries_)
     @classmethod
-    def from_tuple_of_tuples(cls, entries_: tuple) -> list:  # List[Entry]
+    def from_tuple_of_tuples(cls, entries: tuple) -> list:  # List[Entry]
 
-        entries = []
-        for entry_ in entries_:
-            entries.append(cls.from_tuple(entry_))
-
-        return entries
+        return list(map(cls.from_tuple, entries))
 
 
 # ToDoリストで追加されたコメントをDBから取り出す。
@@ -145,13 +140,11 @@ def load_todo_items() -> List[Entry]:
     with MySQLAdapter() as db:
 
         # DBに登録されているコメントをすべて取り出し entries_ に入れる。
-        entries_ = db.execute_fetchall(
+        entries = db.execute_fetchall(
             "SELECT id, comment FROM todo_items")
 
     # ここでList[Entry]に変換する。
-    entries = Entry.from_tuple_of_tuples(entries_)
-
-    return entries
+    return Entry.from_tuple_of_tuples(entries)
 
 
 app = Flask(__name__)
@@ -168,7 +161,7 @@ with FileReader("exclude/secret_key.txt") as secret_key_file:
 def add_todo_item():
 
     # ToDoフォームに入力されたcomment取得する。
-    comment = request.form.get('comment')
+    comment = request_form('comment')
 
     # commentに入力があればSQLを実行する。
     # commentに入力がなければ何もしないで load_todo_items関数 読み込み。
@@ -191,7 +184,7 @@ def delete_todo_item(id: int):
 
     with MySQLAdapter() as db:
 
-       # 任意のidのコメントをDBから削除する。
+        # 任意のidのコメントをDBから削除する。
         db.execute(
             "DELETE FROM todo_items WHERE id = ?", id)
 
@@ -241,10 +234,10 @@ def login():
 
     with MySQLAdapter() as db:
         # ログインフォームに入力されたユーザーID取得
-        id_name = request.form['id_name']
+        id_name = request_form('id_name')
 
         # ログインフォームに入力されたパスワードの取得
-        password = request.form['password']
+        password = request_form('password')
 
         # DBからid_nameに対応するpasswordを取得する。
         result = db.execute_fetchone(
