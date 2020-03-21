@@ -118,12 +118,12 @@ class Entry():
     # entries = Entry.from_tuple_of_tuples(entries_)
     def from_tuple_of_tuples(entries_: tuple) -> list:
 
-        entries = []
-        for entry_ in entries_:
-            entry = Entry(entry_[0], entry_[1])
-            entries.append(entry)
+        __entries = []
+        for __entry_ in entries_:
+            __entry = Entry(__entry_[0], __entry_[1])
+            __entries.append(__entry)
 
-        return entries
+        return __entries
 
 
 app = Flask(__name__)
@@ -187,7 +187,7 @@ def add_todo_item():
 # ToDoリストで追加されたコメントをDBから取り出す。
 def load_todo_items() -> List[Entry]:
 
-    Entry = Entry()
+    #entry = Entry()
 
     with MySQLAdapter() as db:
 
