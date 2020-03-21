@@ -110,13 +110,14 @@ class Entry():
         # ToDoの内容
         self.comment = comment
 
-    # 【何を】List[Entry]に変換関数する。
+    # Tuple[tuple] を List[Entry] に変換関数する。
     # entries_：tupleのtuple （例）((1,'abc),(2,'def)) を入れる。
-    # 返し値：entries
+    # 返し値：entries：Tuple[tuple] を変換した値を List[Entry]型 で返す。
     # （使用例）
     # entries_ = db.execute_fetchall("SELECT id, comment FROM todo_items")
     # entries = Entry.from_tuple_of_tuples(entries_)
-    def from_tuple_of_tuples(entries_: tuple) -> list:  # List[Entry]
+    @classmethod
+    def from_tuple_of_tuples(cls, entries_: tuple) -> list:  # List[Entry]
 
         entries = []
         for entry_ in entries_:
