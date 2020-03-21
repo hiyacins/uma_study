@@ -67,19 +67,21 @@ class MySQLConnector:
     # SQLを実行してfetchone()した結果であるtupleが返る。
     # 該当レコードがない場合はNoneが返る。
     # sql:sql文を入れる。
-    #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
+    #     （例）"SELECT id FROM site_users WHERE id = ?"
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
-    #     （例）db.execute_fetchone("SELECT id,password FROM site_users WHERE id_name = ?",(1,"hoge"))
+    #     （例）db.execute_fetchone("SELECT id FROM site_users WHERE id = ?", id)
+    # 返し値：
     def execute_fetchone(self, sql: str, param=()) -> tuple:
         self.execute(sql, param)
         return self.mysql_cursor.fetchone()
 
-    # SQLを実行してfetchall()した結果であるtupleのtupleが返る。
+    # SQLを実行してfetchall()した結果であるTuple[Tuple]型が返る。
     # 該当レコードがない場合はNoneが返る。
     # sql:sql文を入れる。
     #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
     #     （例）db.execute_fetchall("SELECT id,password FROM site_users WHERE id_name = ?","hoge")
+    # 返し値：
     def execute_fetchall(self, sql: str, param=()) -> Tuple[Tuple]:
         self.execute(sql, param)
         return self.mysql_cursor.fetchall()
@@ -139,7 +141,7 @@ class Entry():
 
 # ToDoリストで追加されたコメントをDBから取り出す。
 def load_todo_items() -> List[Entry]:
-    print(type(type(())))
+
     with MySQLAdapter() as db:
 
         # DBに登録されているコメントをすべて取り出し entries_ に入れる。
@@ -221,6 +223,7 @@ def top():
     flash('ログインを成功しました＼(^o^)／')
 
     entries = load_todo_items()
+
     return render_template('index.html', entries=entries)
 
 
