@@ -1,10 +1,9 @@
 from flask import Flask, redirect, render_template, request, session, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
-import mysql.connector
-from functools import wraps
 from typing import Union, List
+import mysql.connector
 import json
-from io import TextIOWrapper
+from HiyaLib import ReadJsonFromFile, FileReader, login_required
 
 
 # MySQLに接続・切断を行うクラス
@@ -58,7 +57,7 @@ class MySQLConnector:
     #     （例）db.execute("SELECT id,password FROM site_users WHERE id_name = ?","hoge")
     #        param = None の時
     #     （例）db.execute("SELECT id,password FROM site_users WHERE id_name = ?")
-    def execute(self, sql: str, param: str = None):
+    def execute(self, sql: str, param=None):
         if param == None:
             return self.mysql_cursor.execute(sql)
         return self.mysql_cursor.execute(sql, (param,))
@@ -69,7 +68,7 @@ class MySQLConnector:
     #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
     #     （例）db.execute_fetchone("SELECT id,password FROM site_users WHERE id_name = ?","hoge")
-    def execute_fetchone(self, sql: str, param: str = None) -> tuple:
+    def execute_fetchone(self, sql: str, param=None) -> tuple:
         self.execute(sql, param)
         return self.mysql_cursor.fetchone()
 
@@ -79,7 +78,7 @@ class MySQLConnector:
     #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
     #     （例）db.execute_fetchall("SELECT id,password FROM site_users WHERE id_name = ?","hoge")
-    def execute_fetchall(self, sql: str, param: str = None) -> tuple:
+    def execute_fetchall(self, sql: str, param=None) -> tuple:
         self.execute(sql, param)
         return self.mysql_cursor.fetchall()
 
@@ -111,60 +110,46 @@ class Entry():
         # ToDoの内容
         self.comment = comment
 
-    # List[Entry]に変換関数
-    # entries_：タプルのタプル （例）((1,'abc),(2,'def)) を入れる。
+    # 【何を】List[Entry]に変換関数する。
+    # entries_：tupleのtuple （例）((1,'abc),(2,'def)) を入れる。
+    # 返し値：entries
     # （使用例）
     # entries_ = db.execute_fetchall("SELECT id, comment FROM todo_items")
     # entries = Entry.from_tuple_of_tuples(entries_)
-    def from_tuple_of_tuples(entries_: tuple) -> list:
+    def from_tuple_of_tuples(entries_: tuple) -> list:  # List[Entry]
 
-        __entries = []
-        for __entry_ in entries_:
-            __entry = Entry(__entry_[0], __entry_[1])
-            __entries.append(__entry)
+        entries = []
+        for entry_ in entries_:
+            entry = Entry(entry_[0], entry_[1])
+            entries.append(entry)
 
-        return __entries
+        return entries
+
+
+# ToDoリストで追加されたコメントをDBから取り出す。
+def load_todo_items() -> List[Entry]:
+
+    with MySQLAdapter() as db:
+
+        # DBに登録されているコメントをすべて取り出し entries_ に入れる。
+        entries_ = db.execute_fetchall("SELECT id, comment FROM todo_items")
+
+    # ここでList[Entry]に変換する。
+    entries = Entry.from_tuple_of_tuples(entries_)
+
+    return entries
 
 
 app = Flask(__name__)
-
-
-# JSONファイル丸読みして返す。
-# ファイルはutf-8であるものとする。
-# (使用例)
-# with ReadJsonFromFile("config.json") as f:
-#   line = json.load(f)
-def ReadJsonFromFile(filename: str) -> str:
-    return open(filename, 'r', encoding="utf-8")
-
-
-# utf-8でread openするIOFileWrapper
-# filename: 読み込むファイル
-# (使用例)
-# with FileReader("config.txt") as f:
-#   line = f.readline()
-def FileReader(filename: str) -> TextIOWrapper:
-    return open(filename, 'r', encoding="utf-8")
 
 
 # シークレットキーの設定
 with FileReader("exclude/secret_key.txt") as secret_key_file:
     app.config["SECRET_KEY"] = secret_key_file.readline().strip()
 
-
-# ログインチェック関数
-def login_required(view):
-    @wraps(view)
-    def inner(*args, **kwargs):
-        # セッション情報がなければログイン画面にリダイレクトする。
-        if not session.get('logged_in'):
-            return redirect(url_for('login'))
-        return view(*args, **kwargs)
-
-    return inner
-
-
 # ToDoリストで追加されたコメントをDBに登録する。
+
+
 @app.route('/add', methods=['POST'])
 @login_required
 def add_todo_item():
@@ -183,26 +168,11 @@ def add_todo_item():
 
     return redirect(url_for('top'))
 
-
-# ToDoリストで追加されたコメントをDBから取り出す。
-def load_todo_items() -> List[Entry]:
-
-    #entry_data = Entry()
-
-    with MySQLAdapter() as db:
-
-        # DBに登録されているコメントをすべて取り出し entries_ に入れる。
-        entries_ = db.execute_fetchall("SELECT id, comment FROM todo_items")
-
-    # ここでList[Entry]に変換する。
-    entries = Entry.from_tuple_of_tuples(entries_)
-
-    return entries
-
-
 # ToDoリストに追加されたコメントをDBから削除する。
 # id : int
 # 削除するコメントのid
+
+
 @app.route('/delete/<int:id>', methods=['POST'])
 @login_required
 def delete_todo_item(id: int):
