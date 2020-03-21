@@ -58,8 +58,11 @@ class MySQLConnector:
     #        param = None の時
     #     （例）db.execute("SELECT id,password FROM site_users WHERE id_name = ?")
     def execute(self, sql: str, param=None):
+
+        # param が None のときは、第2引数省略
         if param == None:
             return self.mysql_cursor.execute(sql)
+
         return self.mysql_cursor.execute(sql, (param,))
 
     # SQLを実行してfetchone()した結果であるtupleが返る。
@@ -110,9 +113,9 @@ class Entry():
         # ToDoの内容
         self.comment = comment
 
-    # Tuple[tuple] を List[Entry] に変換関数する。
-    # entries_：tupleのtuple （例）((1,'abc),(2,'def)) を入れる。
-    # 返し値：entries：Tuple[tuple] を変換した値を List[Entry]型 で返す。
+    # Tuple[tuple]型の値 を List[Entry]型の値に変換関数する。
+    # entries_：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
+    # 返し値：entries：Tuple[tuple]型 を変換した値を List[Entry]型 で返す。
     # （使用例）
     # entries_ = db.execute_fetchall("SELECT id, comment FROM todo_items")
     # entries = Entry.from_tuple_of_tuples(entries_)
