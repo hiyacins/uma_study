@@ -1,9 +1,9 @@
 from HiyaLib import *
-from flask import Flask, redirect, render_template, request, session, url_for, flash
-from werkzeug.security import generate_password_hash, check_password_hash
-from typing import Union, List, Tuple
-import mysql.connector
-import json
+# from flask import Flask, redirect, render_template, request, session, url_for, flash
+# from werkzeug.security import generate_password_hash, check_password_hash
+# from typing import Union, List, Tuple
+# import mysql.connector
+# import json
 
 # MySQLに接続・切断を行うクラス
 
@@ -116,11 +116,11 @@ class Entry():
     # entries_：Tuple型の値（（例）(1,'abc')）を入れる。
     # 返し値：Tuple型 から Entry型 に変換して返す。
     # （使用例）
-    # entries.append(cls.from_tuple(entry_))
+    # entries.append(cls.from_tuple(entry))
     @classmethod
-    def from_tuple(cls, entry_: tuple):  # ->Entry
+    def from_tuple(cls, entry: tuple):  # ->Entry
 
-        return Entry(entry_[0], entry_[1])
+        return Entry(entry[0], entry[1])
 
     # Tuple[tuple]型の値 を List[Entry]型の値に変換する。
     # entries：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
