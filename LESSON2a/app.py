@@ -59,13 +59,10 @@ class MySQLConnector:
     #     （例2）db.execute("SELECT id FROM site_users")
     def execute(self, sql: str, param=()):
 
-        # param が () のときと tuple のとき
-        if param == ():
-            return self.mysql_cursor.execute(sql, param)
-
-        # param が tuple以外のstr,intなどのとき
-        if param == (param,):
-            return self.mysql_cursor.execute(sql, (param,))
+        # param が tuple以外のstr,intなどのとき、paramをtupleでくるむ(tupleの１つ目の要素がparamであるtuple化する)。
+        if not type(param) is tuple:
+            param = (param,)
+        return self.mysql_cursor.execute(sql, param)
 
     # SQLを実行してfetchone()した結果であるtupleが返る。
     # 該当レコードがない場合はNoneが返る。
@@ -142,11 +139,12 @@ class Entry():
 
 # ToDoリストで追加されたコメントをDBから取り出す。
 def load_todo_items() -> List[Entry]:
-
+    print(type(type(())))
     with MySQLAdapter() as db:
 
         # DBに登録されているコメントをすべて取り出し entries_ に入れる。
-        entries_ = db.execute_fetchall("SELECT id, comment FROM todo_items")
+        entries_ = db.execute_fetchall(
+            "SELECT id, comment FROM todo_items")
 
     # ここでList[Entry]に変換する。
     entries = Entry.from_tuple_of_tuples(entries_)
@@ -167,17 +165,17 @@ with FileReader("exclude/secret_key.txt") as secret_key_file:
 @login_required
 def add_todo_item():
 
-    # 入力がなければ何もしないで load_todo_items関数 読み込み。
-    if request.form.get('comment') == "":
-        return redirect(url_for('top'))
+    # ToDoフォームに入力されたcomment取得する。
+    comment = request.form.get('comment')
 
-    with MySQLAdapter() as db:
+    # commentに入力があればSQLを実行する。
+    # commentに入力がなければ何もしないで load_todo_items関数 読み込み。
+    if comment:
+        with MySQLAdapter() as db:
 
-        # ToDoフォームに入力されたコメント取得
-        comment = request.form.get('comment')
-        # コメントをDBに登録する。
-        db.execute(
-            "INSERT INTO todo_items (comment) VALUES (?)", comment)
+            # コメントをDBに登録する。
+            db.execute(
+                "INSERT INTO todo_items (comment) VALUES (?)", comment)
 
     return redirect(url_for('top'))
 
