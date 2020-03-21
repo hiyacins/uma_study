@@ -1,6 +1,6 @@
 from flask import Flask, redirect, render_template, request, session, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
-from typing import Union, List
+from typing import Union, List, Tuple
 import mysql.connector
 import json
 from HiyaLib import ReadJsonFromFile, FileReader, login_required
@@ -51,37 +51,39 @@ class MySQLConnector:
             self.__mysql_connection = None
 
     # SQL実行
-    # sql:sql文を入れる。
-    #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
-    # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
-    #     （例）db.execute("SELECT id,password FROM site_users WHERE id_name = ?","hoge")
-    #        param = None の時
-    #     （例）db.execute("SELECT id,password FROM site_users WHERE id_name = ?")
+    # sql:実行するSQL文を入れる。
+    #     （例）"SELECT id FROM site_users WHERE id = ?"
+    # param：paramには、sqlとして渡したSQL文の"?"に入る、それぞれの値をtupleにして渡す。
+    #        paramがデフォルト値のときは、第2引数を省略する。
+    #     （例1）db.execute("SELECT id FROM site_users WHERE id = ?", id)
+    #     （例2）db.execute("SELECT id FROM site_users")
     def execute(self, sql: str, param=None):
 
-        # param が None のときは、第2引数省略
-        if param == None:
-            return self.mysql_cursor.execute(sql)
+        # param が () のときと tuple のとき
+        if param == ():
+            return self.mysql_cursor.execute(sql, param)
 
-        return self.mysql_cursor.execute(sql, (param,))
+        # param が tuple以外のstr,intなどのとき
+        if param == (param,):
+            return self.mysql_cursor.execute(sql, (param,))
 
     # SQLを実行してfetchone()した結果であるtupleが返る。
     # 該当レコードがない場合はNoneが返る。
     # sql:sql文を入れる。
     #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
-    #     （例）db.execute_fetchone("SELECT id,password FROM site_users WHERE id_name = ?","hoge")
-    def execute_fetchone(self, sql: str, param=None) -> tuple:
+    #     （例）db.execute_fetchone("SELECT id,password FROM site_users WHERE id_name = ?",(1,"hoge"))
+    def execute_fetchone(self, sql: str, param=()) -> tuple:
         self.execute(sql, param)
         return self.mysql_cursor.fetchone()
 
-    # SQLを実行してfetchall()した結果であるtupleが返る。
+    # SQLを実行してfetchall()した結果であるtupleのtupleが返る。
     # 該当レコードがない場合はNoneが返る。
     # sql:sql文を入れる。
     #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
     #     （例）db.execute_fetchall("SELECT id,password FROM site_users WHERE id_name = ?","hoge")
-    def execute_fetchall(self, sql: str, param=None) -> tuple:
+    def execute_fetchall(self, sql: str, param=()) -> Tuple[Tuple]:
         self.execute(sql, param)
         return self.mysql_cursor.fetchall()
 
@@ -90,11 +92,8 @@ class MySQLConnector:
 class MySQLAdapter(MySQLConnector):
     def __enter__(self):
 
-        # DB接続のための情報入力config
-        with ReadJsonFromFile('exclude/connect_config.json') as connect_config:
-
-            # json形式で読み込む。
-            self.connect(json.load(connect_config))
+        # DB接続のための情報入力configをjson形式で読み込む。
+        self.connect(ReadJsonFromFile('exclude/connect_config.json'))
 
         return self
 
@@ -113,9 +112,21 @@ class Entry():
         # ToDoの内容
         self.comment = comment
 
-    # Tuple[tuple]型の値 を List[Entry]型の値に変換関数する。
+    # Tuple型の値 を Entry型の値に変換する。
+    # entries_：Tuple型の値（（例）(1,'abc')）を入れる。
+    # 返し値：Tuple型 から Entry型 に変換して返す。
+    # （使用例）
+    # entries.append(cls.from_tuple(entry_))
+    @classmethod
+    def from_tuple(cls, entry_: tuple):  # ->Entry
+
+        entry = Entry(entry_[0], entry_[1])
+
+        return entry
+
+    # Tuple[tuple]型の値 を List[Entry]型の値に変換する。
     # entries_：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
-    # 返し値：entries：Tuple[tuple]型 を変換した値を List[Entry]型 で返す。
+    # 返し値：Tuple[tuple]型 から List[Entry]型 に変換して返す。
     # （使用例）
     # entries_ = db.execute_fetchall("SELECT id, comment FROM todo_items")
     # entries = Entry.from_tuple_of_tuples(entries_)
@@ -124,8 +135,7 @@ class Entry():
 
         entries = []
         for entry_ in entries_:
-            entry = Entry(entry_[0], entry_[1])
-            entries.append(entry)
+            entries.append(cls.from_tuple(entry_))
 
         return entries
 
@@ -151,9 +161,8 @@ app = Flask(__name__)
 with FileReader("exclude/secret_key.txt") as secret_key_file:
     app.config["SECRET_KEY"] = secret_key_file.readline().strip()
 
+
 # ToDoリストで追加されたコメントをDBに登録する。
-
-
 @app.route('/add', methods=['POST'])
 @login_required
 def add_todo_item():
@@ -172,11 +181,10 @@ def add_todo_item():
 
     return redirect(url_for('top'))
 
+
 # ToDoリストに追加されたコメントをDBから削除する。
 # id : int
 # 削除するコメントのid
-
-
 @app.route('/delete/<int:id>', methods=['POST'])
 @login_required
 def delete_todo_item(id: int):
@@ -207,9 +215,9 @@ def all_delete_todo_items():
     return redirect(url_for('top'))
 
 
+# ログイン成功後の画面(ホーム画面)
 @app.route('/')
 @login_required
-# ログイン成功後の画面(ホーム画面)
 def top():
 
     flash('ログインを成功しました＼(^o^)／')
@@ -218,16 +226,16 @@ def top():
     return render_template('index.html', entries=entries)
 
 
-@app.route('/login', methods=['GET'])
 # ログイン前画面表示
+@app.route('/login', methods=['GET'])
 def login_view():
 
     # ログイン画面に表示している。
     return render_template('login.html')
 
 
-@app.route('/login', methods=['POST'])
 # ログイン処理
+@app.route('/login', methods=['POST'])
 def login():
 
     with MySQLAdapter() as db:
@@ -255,8 +263,8 @@ def login():
         return redirect(url_for('top' if LoginOk else 'login'))
 
 
-@app.route("/logout", methods=["GET"])
 # ログアウト処理
+@app.route("/logout", methods=["GET"])
 def logout():
 
     # セッション情報をクリアにする。
