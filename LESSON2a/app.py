@@ -187,7 +187,7 @@ def add_todo_item():
 # ToDoリストで追加されたコメントをDBから取り出す。
 def load_todo_items() -> List[Entry]:
 
-    #entry = Entry()
+    #entry_data = Entry()
 
     with MySQLAdapter() as db:
 
