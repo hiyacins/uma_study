@@ -57,7 +57,7 @@ class MySQLConnector:
     #        paramがデフォルト値のときは、第2引数を省略する。
     #     （例1）db.execute("SELECT id FROM site_users WHERE id = ?", id)
     #     （例2）db.execute("SELECT id FROM site_users")
-    def execute(self, sql: str, param=None):
+    def execute(self, sql: str, param=()):
 
         # param が () のときと tuple のとき
         if param == ():
