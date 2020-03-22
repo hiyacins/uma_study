@@ -1,13 +1,7 @@
 from HiyaLib import *
-# from flask import Flask, redirect, render_template, request, session, url_for, flash
-# from werkzeug.security import generate_password_hash, check_password_hash
-# from typing import Union, List, Tuple
-# import mysql.connector
-# import json
+
 
 # MySQLに接続・切断を行うクラス
-
-
 class MySQLConnector:
     def __init__(self):
         # MySQLのコネクタ
