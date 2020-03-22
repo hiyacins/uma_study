@@ -122,8 +122,8 @@ class Entry():
     # （使用例）
     # entries_ = db.execute_fetchall("SELECT id, comment FROM todo_items")
     # entries = Entry.from_tuple_of_tuples(entries_)
-    @classmethod
-    def from_tuple_of_tuples(cls, entries: tuple) -> list:  # List[Entry]
+    @classmethod    # List[Entry]
+    def from_tuple_of_tuples(cls, entries: Tuple[tuple]) -> list:
 
         return list(map(cls.from_tuple, entries))
 
