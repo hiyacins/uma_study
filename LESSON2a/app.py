@@ -70,25 +70,27 @@ class MySQLConnector:
         self.execute(sql, param)
         return self.mysql_cursor.fetchone()
 
-    # SQLを実行してfetchall()した結果であるTuple[Tuple]型が返る。
+    # SQLを実行してfetchall()した結果であるList[DBRecord]型が返る。
     # 該当レコードがない場合はNoneが返る。
-    # sql:sql文を入れる。
-    #     （例）"SELECT id,password FROM site_users WHERE id_name = ?"
+    # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
+    # sql：実行したいSQL文を入れる。
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
-    #     （例）db.execute_fetchall("SELECT id,password FROM site_users WHERE id_name = ?","hoge")
-    # 返し値：
-    def execute_fetchall(self, sql: str, param=()) -> Tuple[Tuple]:
-        self.execute(sql, param)
-        return self.mysql_cursor.fetchall()
-
-    #
+    # 返し値：List[DBRecord]型が返る。
+    # （使用例）
+    # entries = db.select(Entry,"SELECT id FROM site_users WHERE id_name = ?",id)
     def select(self, t: type, sql: str, param=()) -> list:  # List[DBRecord]
         self.execute(sql, param)
         elements = self.mysql_cursor.fetchall()
         return t.from_tuple_of_tuples(elements)
 
-    #
-    #
+    # SQLを実行してfetchone()した結果であるtuple型が返る。
+    # 該当レコードがない場合はNoneが返る。
+    # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
+    # sql：実行したいSQL文を入れる。
+    # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
+    # 返し値：tuple型が返る。
+    # （使用例）
+    # entry = db.select_one(Entry,"SELECT id FROM site_users WHERE id = ?", id)
     def select_one(self, t: type, sql: str, param=()) -> tuple:
         self.execute(sql, param)
         return t.from_tuple(self.mysql_cursor.fetchone())
@@ -110,6 +112,7 @@ class MySQLAdapter(MySQLConnector):
 # Tuple[Tuple]型からList[DBRecord]型に変換するためのクラス
 class DBRecord():
 
+    # 例外処理
     def from_tuple(cls, x):
         raise RunTimeError("この関数呼び出すなハゲ")
 
@@ -137,15 +140,42 @@ class Entry(DBRecord):
         # ToDoの内容
         self.comment = comment
 
-    # Tuple型の値 を DBRecord型の値に変換する。
+    # Tuple型の値 を Entry型の値に変換する。
     # entries_：Tuple型の値（（例）(1,'abc')）を入れる。
-    # 返し値：Tuple型 から DBRecord型 に変換して返す。
+    # 返し値：Tuple型 から Entry型 に変換して返す。
     # （使用例）
     # entries.append(cls.from_tuple(entry))
     @classmethod
-    def from_tuple(cls, entry: tuple):  # ->DBRecord ※エラーのためコメントにする
+    def from_tuple(cls, entry: tuple):  # ->Entry ※エラーのためコメントにする
 
         return Entry(entry[0], entry[1])
+
+# DBのSITE_USERSテーブルの一つのrecordを表現する構造体
+
+
+class Login(DBRecord):
+    def __init__(self, id: int, id_name: str, pasword: str):
+        # id : int
+        # auto incremental id
+        self.id = id
+
+        # id_name : str
+        # ユーザーIDの内容
+        self.id_name = id_name
+
+        # password : str
+        # ログインパスワードの内容
+        self.password = password
+
+    # Tuple型の値 を Login型の値に変換する。
+    # entries_：Tuple型の値（（例）(1, 'site01','abcd')）を入れる。
+    # 返し値：Tuple型 から Login型 に変換して返す。
+    # （使用例）
+    # from_tuple(self.mysql_cursor.fetchone())
+    @classmethod
+    def from_tuple(cls, login: tuple):  # ->Entry ※エラーのためコメントにする
+
+        return Login(login[0], login[1], login[2])
 
 
 # ToDoリストで追加されたコメントをDBから取り出す。
