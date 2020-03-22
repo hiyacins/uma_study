@@ -59,26 +59,17 @@ class MySQLConnector:
             param = (param,)
         return self.mysql_cursor.execute(sql, param)
 
-    # SQLを実行してfetchone()した結果であるtupleが返る。
-    # 該当レコードがない場合はNoneが返る。
-    # sql:sql文を入れる。
-    #     （例）"SELECT id FROM site_users WHERE id = ?"
-    # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
-    #     （例）db.execute_fetchone("SELECT id FROM site_users WHERE id = ?", id)
-    # 返し値：
-    def execute_fetchone(self, sql: str, param=()) -> tuple:
-        self.execute(sql, param)
-        return self.mysql_cursor.fetchone()
-
     # SQLを実行してfetchall()した結果であるList[DBRecord]型が返る。
     # 該当レコードがない場合はNoneが返る。
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
-    # sql：実行したいSQL文を入れる。
+    # sql：条件部分のみのSQLを入れる。デフォルトは""。（str型 ※エラーのためここに書く）
+    # （例）"WHERE id = ?"
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
     # 返し値：List[DBRecord]型が返る。
     # （使用例）
-    # entries = db.select(Entry,"SELECT id FROM site_users WHERE id_name = ?",id)
-    def select(self, t: type, sql: str, param=()) -> list:  # List[DBRecord]
+    # entries = db.select(Entry)
+    def select(self, t: type, sql="", param=()) -> list:   # List[DBRecord]
+        sql = f"SELECT {t.sql_select_statement} FROM {t.table_name} {sql}"
         self.execute(sql, param)
         elements = self.mysql_cursor.fetchall()
         return t.from_tuple_of_tuples(elements)
@@ -86,12 +77,13 @@ class MySQLConnector:
     # SQLを実行してfetchone()した結果であるtuple型が返る。
     # 該当レコードがない場合はNoneが返る。
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
-    # sql：実行したいSQL文を入れる。
+    # sql：条件部分のみのSQLを入れる。デフォルトは""。（str型 ※エラーのためここに書く）
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
     # 返し値：tuple型が返る。
     # （使用例）
-    # entry = db.select_one(Entry,"SELECT id FROM site_users WHERE id = ?", id)
-    def select_one(self, t: type, sql: str, param=()) -> tuple:
+    # entry = db.select_one(Entry,"WHERE id = ?", id)
+    def select_one(self, t: type, sql="", param=()) -> tuple:
+        sql = f"SELECT {t.sql_select_statement} FROM {t.table_name} {sql}"
         self.execute(sql, param)
         return t.from_tuple(self.mysql_cursor.fetchone())
 
@@ -131,6 +123,13 @@ class DBRecord():
 
 # DBのTODO_ITEMSテーブルの一つのrecordを表現する構造体
 class ToDoItem(DBRecord):
+
+    # TODO_ITEMSテーブルの名前
+    table_name = "todo_items"
+
+    # TODO_ITEMSテーブルの各フォールド名
+    sql_select_statement = "id,comment"
+
     def __init__(self, id: int, comment: str):
         # id : int
         # auto incremental id
@@ -153,6 +152,13 @@ class ToDoItem(DBRecord):
 
 # DBのSITE_USERSテーブルの一つのrecordを表現する構造体
 class SiteUser(DBRecord):
+
+    # TODO_ITEMSテーブルの名前
+    table_name = "site_users"
+
+    # TODO_ITEMSテーブルの各フォールド名
+    sql_select_statement = "id,id_name,password"
+
     def __init__(self, id: int, id_name: str, password: str):
         # id : int
         # auto incremental id
@@ -183,7 +189,8 @@ def load_todo_items() -> List[ToDoItem]:
     with MySQLAdapter() as db:
 
         # DBに登録されているコメントをすべて取り出し entries に入れる。
-        entries = db.select(ToDoItem, "SELECT id, comment FROM todo_items")
+        # entries = db.select(ToDoItem, "SELECT id, comment FROM todo_items")
+        entries = db.select(ToDoItem)
 
     return entries
 
@@ -281,8 +288,7 @@ def login():
         password = request_form('password')
 
         # DBからid_nameに対応するpasswordを取得する。
-        result = db.select_one(
-            SiteUser, "SELECT * FROM site_users WHERE id_name = ?", id_name)
+        result = db.select_one(SiteUser, "WHERE id_name = ?", id_name)
 
         # ユーザーIDがDB内に存在し、フォームから入力されたパスワードがDB内のものと一致すれば
         # セッションを登録する
