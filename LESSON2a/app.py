@@ -150,11 +150,10 @@ class Entry(DBRecord):
 
         return Entry(entry[0], entry[1])
 
+
 # DBのSITE_USERSテーブルの一つのrecordを表現する構造体
-
-
-class Login(DBRecord):
-    def __init__(self, id: int, id_name: str, pasword: str):
+class SiteUser(DBRecord):
+    def __init__(self, id: int, id_name: str, password: str):
         # id : int
         # auto incremental id
         self.id = id
@@ -173,9 +172,9 @@ class Login(DBRecord):
     # （使用例）
     # from_tuple(self.mysql_cursor.fetchone())
     @classmethod
-    def from_tuple(cls, login: tuple):  # ->Entry ※エラーのためコメントにする
-
-        return Login(login[0], login[1], login[2])
+    def from_tuple(cls, siteuser: tuple):  # ->Entry ※エラーのためコメントにする
+        print(siteuser)
+        return SiteUser(siteuser[0], siteuser[1], siteuser[2])
 
 
 # ToDoリストで追加されたコメントをDBから取り出す。
@@ -282,13 +281,13 @@ def login():
         password = request_form('password')
 
         # DBからid_nameに対応するpasswordを取得する。
-        result = db.execute_fetchone(
-            "SELECT password FROM site_users WHERE id_name = ?", id_name)
+        result = db.select_one(
+            SiteUser, "SELECT * FROM site_users WHERE id_name = ?", id_name)
 
         # ユーザーIDがDB内に存在し、フォームから入力されたパスワードがDB内のものと一致すれば
         # セッションを登録する
         LoginOk = result is not None and check_password_hash(
-            result[0], password)
+            result.password, password)
         session['logged_in'] = LoginOk
 
         if not LoginOk:
