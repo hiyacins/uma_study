@@ -81,6 +81,12 @@ class MySQLConnector:
         self.execute(sql, param)
         return self.mysql_cursor.fetchall()
 
+    #
+    def select(self, t: type, sql: str, param=()) -> list:  # List[DBRecord]
+        self.execute(sql, param)
+        elements = self.mysql_cursor.fetchall()
+        return t.from_tuple_of_tuples(elements)
+
 
 # MySQLConnectorのadaptor
 class MySQLAdapter(MySQLConnector):
@@ -95,8 +101,33 @@ class MySQLAdapter(MySQLConnector):
         self.disconnect()
 
 
+class DBRecord():
+
+    # Tuple型の値 を DBRecord型の値に変換する。
+    # entries_：Tuple型の値（（例）(1,'abc')）を入れる。
+    # 返し値：Tuple型 から DBRecord型 に変換して返す。
+    # （使用例）
+    # entries.append(cls.from_tuple(entry))
+    @classmethod
+    def from_tuple(cls, entry: tuple):  # ->DBRecord ※エラーのためコメントにする
+
+        return DBRecord(entry[0], entry[1])
+
+    # Tuple[tuple]型の値 を List[DBRecord]型の値に変換する。
+    # entries：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
+    # 返し値：Tuple[tuple]型 から List[Entry]型 に変換して返す。
+    # （使用例）
+    # entries_ = db.select(Entry, "SELECT id, comment FROM todo_items")
+    # entries = Entry.from_tuple_of_tuples(entries_)
+    @classmethod
+    def from_tuple_of_tuples(cls, entries: Tuple[tuple]) -> list:
+        # -> List[DBRecord]
+
+        return list(map(cls.from_tuple, entries))
+
+
 # DBのTODO_ITEMSテーブルの一つのrecordを表現する構造体
-class Entry():
+class Entry(DBRecord):
     def __init__(self, id: int, comment: str):
         # id : int
         # auto incremental id
@@ -106,27 +137,6 @@ class Entry():
         # ToDoの内容
         self.comment = comment
 
-    # Tuple型の値 を Entry型の値に変換する。
-    # entries_：Tuple型の値（（例）(1,'abc')）を入れる。
-    # 返し値：Tuple型 から Entry型 に変換して返す。
-    # （使用例）
-    # entries.append(cls.from_tuple(entry))
-    @classmethod
-    def from_tuple(cls, entry: tuple):  # ->Entry
-
-        return Entry(entry[0], entry[1])
-
-    # Tuple[tuple]型の値 を List[Entry]型の値に変換する。
-    # entries：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
-    # 返し値：Tuple[tuple]型 から List[Entry]型 に変換して返す。
-    # （使用例）
-    # entries_ = db.execute_fetchall("SELECT id, comment FROM todo_items")
-    # entries = Entry.from_tuple_of_tuples(entries_)
-    @classmethod    # List[Entry]
-    def from_tuple_of_tuples(cls, entries: Tuple[tuple]) -> list:
-
-        return list(map(cls.from_tuple, entries))
-
 
 # ToDoリストで追加されたコメントをDBから取り出す。
 def load_todo_items() -> List[Entry]:
@@ -134,8 +144,8 @@ def load_todo_items() -> List[Entry]:
     with MySQLAdapter() as db:
 
         # DBに登録されているコメントをすべて取り出し entries_ に入れる。
-        entries = db.execute_fetchall(
-            "SELECT id, comment FROM todo_items")
+        entries = db.select(
+            Entry, "SELECT id, comment FROM todo_items")
 
     # ここでList[Entry]に変換する。
     return Entry.from_tuple_of_tuples(entries)
