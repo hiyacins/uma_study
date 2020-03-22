@@ -101,7 +101,16 @@ class MySQLAdapter(MySQLConnector):
         self.disconnect()
 
 
+# Tuple[Tuple]型からList[DBRecord]型に変換するためのクラス
 class DBRecord():
+    def __init__(self, id: int, comment: str):
+        # id : int
+        # auto incremental id
+        self.id = id
+
+        # comment : str
+        # ToDoの内容
+        self.comment = comment
 
     # Tuple型の値 を DBRecord型の値に変換する。
     # entries_：Tuple型の値（（例）(1,'abc')）を入れる。
@@ -128,14 +137,15 @@ class DBRecord():
 
 # DBのTODO_ITEMSテーブルの一つのrecordを表現する構造体
 class Entry(DBRecord):
-    def __init__(self, id: int, comment: str):
-        # id : int
-        # auto incremental id
-        self.id = id
+    # def __init__(self, id: int, comment: str):
+    #     # # id : int
+    #     # # auto incremental id
+    #     # self.id = id
 
-        # comment : str
-        # ToDoの内容
-        self.comment = comment
+    #     # # comment : str
+    #     # # ToDoの内容
+    #     # self.comment = comment
+    pass
 
 
 # ToDoリストで追加されたコメントをDBから取り出す。
@@ -143,12 +153,10 @@ def load_todo_items() -> List[Entry]:
 
     with MySQLAdapter() as db:
 
-        # DBに登録されているコメントをすべて取り出し entries_ に入れる。
-        entries = db.select(
-            Entry, "SELECT id, comment FROM todo_items")
+        # DBに登録されているコメントをすべて取り出し entries に入れる。
+        entries = db.select(Entry, "SELECT id, comment FROM todo_items")
 
-    # ここでList[Entry]に変換する。
-    return Entry.from_tuple_of_tuples(entries)
+    return entries
 
 
 app = Flask(__name__)
