@@ -109,6 +109,25 @@ class MySQLAdapter(MySQLConnector):
 
 # Tuple[Tuple]型からList[DBRecord]型に変換するためのクラス
 class DBRecord():
+
+    def from_tuple(cls, x):
+        raise RunTimeError("この関数呼び出すなハゲ")
+
+    # Tuple[tuple]型の値 を List[DBRecord]型の値に変換する。
+    # entries：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
+    # 返し値：Tuple[tuple]型 から List[Entry]型 に変換して返す。
+    # （使用例）
+    # entries_ = db.select(Entry, "SELECT id, comment FROM todo_items")
+    # entries = Entry.from_tuple_of_tuples(entries_)
+    @classmethod
+    def from_tuple_of_tuples(cls, entries: Tuple[tuple]) -> list:
+        # -> List[DBRecord]
+
+        return list(map(cls.from_tuple, entries))
+
+
+# DBのTODO_ITEMSテーブルの一つのrecordを表現する構造体
+class Entry(DBRecord):
     def __init__(self, id: int, comment: str):
         # id : int
         # auto incremental id
@@ -126,32 +145,7 @@ class DBRecord():
     @classmethod
     def from_tuple(cls, entry: tuple):  # ->DBRecord ※エラーのためコメントにする
 
-        return DBRecord(entry[0], entry[1])
-
-    # Tuple[tuple]型の値 を List[DBRecord]型の値に変換する。
-    # entries：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
-    # 返し値：Tuple[tuple]型 から List[Entry]型 に変換して返す。
-    # （使用例）
-    # entries_ = db.select(Entry, "SELECT id, comment FROM todo_items")
-    # entries = Entry.from_tuple_of_tuples(entries_)
-    @classmethod
-    def from_tuple_of_tuples(cls, entries: Tuple[tuple]) -> list:
-        # -> List[DBRecord]
-
-        return list(map(cls.from_tuple, entries))
-
-
-# DBのTODO_ITEMSテーブルの一つのrecordを表現する構造体
-class Entry(DBRecord):
-    # def __init__(self, id: int, comment: str):
-    #     # # id : int
-    #     # # auto incremental id
-    #     # self.id = id
-
-    #     # # comment : str
-    #     # # ToDoの内容
-    #     # self.comment = comment
-    pass
+        return Entry(entry[0], entry[1])
 
 
 # ToDoリストで追加されたコメントをDBから取り出す。
