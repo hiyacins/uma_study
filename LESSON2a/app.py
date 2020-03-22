@@ -87,6 +87,12 @@ class MySQLConnector:
         elements = self.mysql_cursor.fetchall()
         return t.from_tuple_of_tuples(elements)
 
+    #
+    #
+    def select_one(self, t: type, sql: str, param=()) -> tuple:
+        self.execute(sql, param)
+        return t.from_tuple(self.mysql_cursor.fetchone())
+
 
 # MySQLConnectorのadaptor
 class MySQLAdapter(MySQLConnector):
