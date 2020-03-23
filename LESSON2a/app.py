@@ -119,18 +119,21 @@ class DBRecord():
     # （使用例）
     # entries.append(cls.from_tuple(entry))
     @classmethod
-    def from_tuple(cls, entry: tuple):  # ->Entry ※エラーのためコメントにする
+    def from_tuple(cls, db_table_column: tuple, entry: tuple):  # ->Entry ※エラーのためコメントにする
 
         # クラス型をオブジェクト化する。
         record = (cls)()
 
+        # # テーブルのカラム数だけ回す。
+        # for column_name in range(len(self.mysql_cursor.description)):
+        #     # descriptionの0番目の要素がカラム名なので、0番目だけcolnamesに入れる。
+        #     colnames = self.mysql_cursor.description[column_name][0]
         # テーブルのカラム数だけ回す。
-        for column_name in range(len(self.mysql_cursor.description)):
+        for column_name in range(len(db_table_column)):
 
             # descriptionの0番目の要素がカラム名なので、0番目だけcolnamesに入れる。
-            colnames = self.mysql_cursor.description[column_name][0]
+            colnames = db_table_column[column_name][0]
 
-        print(colnames)
         return record.__dict__[colnames]
 
     # Tuple[tuple]型の値 を List[DBRecord]型の値に変換する。
@@ -155,14 +158,14 @@ class ToDoItem(DBRecord):
     # TODO_ITEMSテーブルの各フォールド名
     sql_select_statement = "id,comment"
 
-    def __init__(self, id: int, comment: str):
-        # id : int
-        # auto incremental id
-        self.id = id
+    # def __init__(self, id: int, comment: str):
+    #     # id : int
+    #     # auto incremental id
+    #     self.id = id
 
-        # comment : str
-        # ToDoの内容
-        self.comment = comment
+    #     # comment : str
+    #     # ToDoの内容
+    #     self.comment = comment
 
     # # Tuple型の値 を ToDoItem型の値に変換する。
     # # entries_：Tuple型の値（（例）(1,'abc')）を入れる。
