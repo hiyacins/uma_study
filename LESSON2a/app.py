@@ -62,27 +62,36 @@ class MySQLConnector:
     # SQLを実行してfetchall()した結果であるList[DBRecord]型が返る。
     # 該当レコードがない場合はNoneが返る。
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
-    # sql：条件部分のみのSQLを入れる。デフォルトは""。（str型 ※エラーのためここに書く）
+    # sql：条件部分のみのSQLを入れる。デフォルトは""。
     # （例）"WHERE id = ?"
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
     # 返し値：List[DBRecord]型が返る。
     # （使用例）
     # entries = db.select(Entry)
-    def select(self, t: type, sql="", param=()) -> list:   # List[DBRecord]
+    # List[DBRecord]
+    def select(self, t: type, sql: str = "", param=()) -> list:
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name} {sql}"
         self.execute(sql, param)
-        elements = self.mysql_cursor.fetchall()
-        return t.from_tuple_of_tuples(elements)
+
+        # for column_name in range(len(self.mysql_cursor.description)):
+        #     colnames = self.mysql_cursor.description[column_name][0]
+        # print(len(self.mysql_cursor.description))
+
+        # colnames = [column_name[0]
+        #             for column_name in self.mysql_cursor.description]
+        # print(colnames[0])
+
+        return t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
 
     # SQLを実行してfetchone()した結果であるtuple型が返る。
     # 該当レコードがない場合はNoneが返る。
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
-    # sql：条件部分のみのSQLを入れる。デフォルトは""。（str型 ※エラーのためここに書く）
+    # sql：条件部分のみのSQLを入れる。デフォルトは""。
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
     # 返し値：tuple型が返る。
     # （使用例）
     # entry = db.select_one(Entry,"WHERE id = ?", id)
-    def select_one(self, t: type, sql="", param=()) -> tuple:
+    def select_one(self, t: type, sql: str = "", param=()) -> tuple:
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name} {sql}"
         self.execute(sql, param)
         return t.from_tuple(self.mysql_cursor.fetchone())
@@ -104,9 +113,25 @@ class MySQLAdapter(MySQLConnector):
 # Tuple[Tuple]型からList[DBRecord]型に変換するためのクラス
 class DBRecord():
 
-    # 例外処理
-    def from_tuple(cls, x):
-        raise RunTimeError("この関数呼び出すなハゲ")
+    # Tuple型の値 を ToDoItem型の値に変換する。
+    # entries_：Tuple型の値（（例）(1,'abc')）を入れる。
+    # 返し値：Tuple型 から ToDoItem型 に変換して返す。
+    # （使用例）
+    # entries.append(cls.from_tuple(entry))
+    @classmethod
+    def from_tuple(cls, entry: tuple):  # ->Entry ※エラーのためコメントにする
+
+        # クラス型をオブジェクト化する。
+        record = (cls)()
+
+        # テーブルのカラム数だけ回す。
+        for column_name in range(len(self.mysql_cursor.description)):
+
+            # descriptionの0番目の要素がカラム名なので、0番目だけcolnamesに入れる。
+            colnames = self.mysql_cursor.description[column_name][0]
+
+        print(colnames)
+        return record.__dict__[colnames]
 
     # Tuple[tuple]型の値 を List[DBRecord]型の値に変換する。
     # entries：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
@@ -139,15 +164,15 @@ class ToDoItem(DBRecord):
         # ToDoの内容
         self.comment = comment
 
-    # Tuple型の値 を ToDoItem型の値に変換する。
-    # entries_：Tuple型の値（（例）(1,'abc')）を入れる。
-    # 返し値：Tuple型 から ToDoItem型 に変換して返す。
-    # （使用例）
-    # entries.append(cls.from_tuple(entry))
-    @classmethod
-    def from_tuple(cls, entry: tuple):  # ->Entry ※エラーのためコメントにする
+    # # Tuple型の値 を ToDoItem型の値に変換する。
+    # # entries_：Tuple型の値（（例）(1,'abc')）を入れる。
+    # # 返し値：Tuple型 から ToDoItem型 に変換して返す。
+    # # （使用例）
+    # # entries.append(cls.from_tuple(entry))
+    # @classmethod
+    # def from_tuple(cls, entry: tuple):  # ->Entry ※エラーのためコメントにする
 
-        return ToDoItem(entry[0], entry[1])
+    #     return ToDoItem(entry[0], entry[1])
 
 
 # DBのSITE_USERSテーブルの一つのrecordを表現する構造体
@@ -179,7 +204,7 @@ class SiteUser(DBRecord):
     # from_tuple(self.mysql_cursor.fetchone())
     @classmethod
     def from_tuple(cls, siteuser: tuple):  # ->Entry ※エラーのためコメントにする
-        print(siteuser)
+
         return SiteUser(siteuser[0], siteuser[1], siteuser[2])
 
 
