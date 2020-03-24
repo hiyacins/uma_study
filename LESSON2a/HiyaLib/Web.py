@@ -19,5 +19,15 @@ def login_required(view):
 # 返し値：入力フォームから取得したdict型データを返す。
 # (使用例)
 # request_form('comment')
-def request_form(s)->str:
-    return request.form.get(s, "")
+def request_form(*val) -> str:
+
+    # tupleに要素が1つだけあれば、tupleから文字列に変換する。
+    if len(val) < 2:
+        return request.form.get("".join(map(str, val)), "")
+
+    rusult = list
+    for name in range(len(val)):
+        rusults = list(request.form.get(val[name], ""))
+        #rusults = list(request.form.get("".join(map(str, val[name])), ""))
+
+    return rusults

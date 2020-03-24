@@ -72,15 +72,6 @@ class MySQLConnector:
     def select(self, t: type, sql: str = "", param=()) -> list:
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name} {sql}"
         self.execute(sql, param)
-
-        # for column_name in range(len(self.mysql_cursor.description)):
-        #     colnames = self.mysql_cursor.description[column_name][0]
-        # print(len(self.mysql_cursor.description))
-
-        # colnames = [column_name[0]
-        #             for column_name in self.mysql_cursor.description]
-        # print(colnames[0])
-
         return t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
 
     # SQLを実行してfetchone()した結果であるtuple型が返る。
@@ -110,31 +101,34 @@ class MySQLAdapter(MySQLConnector):
         self.disconnect()
 
 
-# Tuple[Tuple]型からList[DBRecord]型に変換するためのクラス
-class DBRecord():
+# DBのテーブルを表現するクラスの基底クラス
+class DBTable():
 
-    # Tuple型の値 を ToDoItem型の値に変換する。
-    # entries_：Tuple型の値（（例）(1,'abc')）を入れる。
-    # 返し値：Tuple型 から ToDoItem型 に変換して返す。
-    # （使用例）
-    # entries.append(cls.from_tuple(entry))
-    @classmethod
-    def from_tuple(cls, db_table_column: tuple, entry: tuple):  # ->Entry ※エラーのためコメントにする
+    # # Tuple型の値 を ToDoItem型の値に変換する。
+    # # entries_：Tuple型の値（（例）(1,'abc')）を入れる。
+    # # 返し値：Tuple型 から ToDoItem型 に変換して返す。
+    # # （使用例）
+    # # entries.append(cls.from_tuple(entry))
+    # @classmethod
+    # def from_tuple(cls, db_table_column: list, entry: tuple):  # ->Entry ※エラーのためコメントにする
 
-        # クラス型をオブジェクト化する。
-        record = (cls)()
+    #     # クラス型をオブジェクト化する。
+    #     #record = (cls)()
 
-        # # テーブルのカラム数だけ回す。
-        # for column_name in range(len(self.mysql_cursor.description)):
-        #     # descriptionの0番目の要素がカラム名なので、0番目だけcolnamesに入れる。
-        #     colnames = self.mysql_cursor.description[column_name][0]
-        # テーブルのカラム数だけ回す。
-        for column_name in range(len(db_table_column)):
+    #     # # テーブルのカラム数だけ回す。
+    #     # for column_name in range(len(self.mysql_cursor.description)):
+    #     #     # descriptionの0番目の要素がカラム名なので、0番目だけcolnamesに入れる。
+    #     #     colnames = self.mysql_cursor.description[column_name][0]
+    #     # テーブルのカラム数だけ回す。
+    #     for column_name in range(len(db_table_column)):
 
-            # descriptionの0番目の要素がカラム名なので、0番目だけcolnamesに入れる。
-            colnames = db_table_column[column_name][0]
+    #         # descriptionの0番目の要素がカラム名なので、0番目だけcolnamesに入れる。
+    #         colnames = db_table_column[column_name][0]
+    #         colnames = db_table_column[column_name][0]
+    #     print()
+    #     # record.__dict__[colnames]
 
-        return record.__dict__[colnames]
+    #     return colnames
 
     # Tuple[tuple]型の値 を List[DBRecord]型の値に変換する。
     # entries：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
@@ -146,11 +140,12 @@ class DBRecord():
     def from_tuple_of_tuples(cls, entries: Tuple[tuple]) -> list:
         # -> List[DBRecord]
 
+        # return list(map(lambda x: cls.from_tuple(x), entries))
         return list(map(cls.from_tuple, entries))
 
 
 # DBのTODO_ITEMSテーブルの一つのrecordを表現する構造体
-class ToDoItem(DBRecord):
+class ToDoItem(DBTable):
 
     # TODO_ITEMSテーブルの名前
     table_name = "todo_items"
@@ -158,28 +153,28 @@ class ToDoItem(DBRecord):
     # TODO_ITEMSテーブルの各フォールド名
     sql_select_statement = "id,comment"
 
-    # def __init__(self, id: int, comment: str):
-    #     # id : int
-    #     # auto incremental id
-    #     self.id = id
+    def __init__(self, id: int, comment: str):
+        # id : int
+        # auto incremental id
+        self.id = id
 
-    #     # comment : str
-    #     # ToDoの内容
-    #     self.comment = comment
+        # comment : str
+        # ToDoの内容
+        self.comment = comment
 
-    # # Tuple型の値 を ToDoItem型の値に変換する。
-    # # entries_：Tuple型の値（（例）(1,'abc')）を入れる。
-    # # 返し値：Tuple型 から ToDoItem型 に変換して返す。
-    # # （使用例）
-    # # entries.append(cls.from_tuple(entry))
-    # @classmethod
-    # def from_tuple(cls, entry: tuple):  # ->Entry ※エラーのためコメントにする
+    # Tuple型の値 を ToDoItem型の値に変換する。
+    # entries_：Tuple型の値（（例）(1,'abc')）を入れる。
+    # 返し値：Tuple型 から ToDoItem型 に変換して返す。
+    # （使用例）
+    # entries.append(cls.from_tuple(entry))
+    @classmethod
+    def from_tuple(cls, entry: tuple):  # ->Entry ※エラーのためコメントにする
 
-    #     return ToDoItem(entry[0], entry[1])
+        return ToDoItem(entry[0], entry[1])
 
 
 # DBのSITE_USERSテーブルの一つのrecordを表現する構造体
-class SiteUser(DBRecord):
+class SiteUser(DBTable):
 
     # TODO_ITEMSテーブルの名前
     table_name = "site_users"
@@ -209,18 +204,6 @@ class SiteUser(DBRecord):
     def from_tuple(cls, siteuser: tuple):  # ->Entry ※エラーのためコメントにする
 
         return SiteUser(siteuser[0], siteuser[1], siteuser[2])
-
-
-# ToDoリストで追加されたコメントをDBから取り出す。
-def load_todo_items() -> List[ToDoItem]:
-
-    with MySQLAdapter() as db:
-
-        # DBに登録されているコメントをすべて取り出し entries に入れる。
-        # entries = db.select(ToDoItem, "SELECT id, comment FROM todo_items")
-        entries = db.select(ToDoItem)
-
-    return entries
 
 
 app = Flask(__name__)
@@ -291,16 +274,15 @@ def top():
 
     flash('ログインを成功しました＼(^o^)／')
 
-    entries = load_todo_items()
-
-    return render_template('index.html', entries=entries)
+    with MySQLAdapter() as db:
+        return render_template('index.html', entries=db.select(ToDoItem))
 
 
 # ログイン前画面表示
 @app.route('/login', methods=['GET'])
 def login_view():
 
-    # ログイン画面に表示している。
+    # ログイン画面に表示する。
     return render_template('login.html')
 
 
@@ -310,18 +292,18 @@ def login():
 
     with MySQLAdapter() as db:
         # ログインフォームに入力されたユーザーID取得
-        id_name = request_form('id_name')
+        id_name = request_form('id_name', 'password')
 
         # ログインフォームに入力されたパスワードの取得
         password = request_form('password')
 
         # DBからid_nameに対応するpasswordを取得する。
-        result = db.select_one(SiteUser, "WHERE id_name = ?", id_name)
+        site_user = db.select_one(SiteUser, "WHERE id_name = ?", id_name)
 
         # ユーザーIDがDB内に存在し、フォームから入力されたパスワードがDB内のものと一致すれば
         # セッションを登録する
-        LoginOk = result is not None and check_password_hash(
-            result.password, password)
+        LoginOk = site_user is not None and check_password_hash(
+            site_user.password, password)
         session['logged_in'] = LoginOk
 
         if not LoginOk:
