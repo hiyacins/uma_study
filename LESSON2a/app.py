@@ -71,7 +71,7 @@ class MySQLConnector:
     # List[DBRecord]
     def select(self, t: type, sql: str = "", param=()) -> list:
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name} {sql}"
-        self.execute(sql, param)
+        self.execute(sql, str(param))
         return t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
 
     # SQLを実行してfetchone()した結果であるtuple型が返る。
@@ -84,7 +84,7 @@ class MySQLConnector:
     # entry = db.select_one(Entry,"WHERE id = ?", id)
     def select_one(self, t: type, sql: str = "", param=()) -> tuple:
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name} {sql}"
-        self.execute(sql, param)
+        self.execute(sql, str(param))
         return t.from_tuple(self.mysql_cursor.fetchone())
 
 
@@ -210,8 +210,7 @@ app = Flask(__name__)
 
 
 # シークレットキーの設定
-with FileReader("exclude/secret_key.txt") as secret_key_file:
-    app.config["SECRET_KEY"] = secret_key_file.readline().strip()
+set_secret_key(app, "exclude/secret_key.txt")
 
 
 # ToDoリストで追加されたコメントをDBに登録する。
@@ -292,7 +291,7 @@ def login():
 
     with MySQLAdapter() as db:
         # ログインフォームに入力されたユーザーID取得
-        id_name = request_form('id_name', 'password')
+        id_name = request_form('id_name')
 
         # ログインフォームに入力されたパスワードの取得
         password = request_form('password')
@@ -303,7 +302,7 @@ def login():
         # ユーザーIDがDB内に存在し、フォームから入力されたパスワードがDB内のものと一致すれば
         # セッションを登録する
         LoginOk = site_user is not None and check_password_hash(
-            site_user.password, password)
+            password, password)
         session['logged_in'] = LoginOk
 
         if not LoginOk:
