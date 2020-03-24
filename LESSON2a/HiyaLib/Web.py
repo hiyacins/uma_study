@@ -3,6 +3,33 @@ from functools import wraps
 from HiyaLib.common import ReadJsonFromFile, FileReader
 
 
+# Flaskクラスのbuilder
+class builder():
+
+    # シークレットキーの設定も行う。
+    # name：現在のファイルのモジュール名
+    # 返し値：Flaskクラスのインスタンスを返す。
+    # （使用例）
+    # app = FlaskBuilder(__name__)
+    def FlaskBuilder(name: str) -> Flask:
+
+        app = Flask(name)
+
+        # シークレットキーの設定のための関数
+        with FileReader("exclude/secret_key.txt") as secret_key_file:
+            app.config["SECRET_KEY"] = secret_key_file.readline().strip()
+        return app
+
+    # セッションログイン関数
+    def login(self, LoginOk):
+        session['logged_in'] = LoginOk
+
+    # セッションログアウトの関数
+    def logout(self):
+        # セッション情報をクリアにする。
+        session.clear()
+
+
 # ログインチェック関数
 def login_required(view):
     @wraps(view)
@@ -32,19 +59,3 @@ def request_form(*val) -> list:
 
     # tupleに要素が複数あるなら要素をList型に入れ替えたものを返す。
     return [request.form.get(e, "") for e in val]
-
-
-# シークレットキーの設定のための関数
-# app：Flaskクラスをインスタンス化したもの。
-# file_path：シークレットキーファイルを読み込む。
-# 返し値：読み込んだシークレットキーの内容を str型 で返す。
-# （使用例）
-#   set_secret_key(app, "exclude/secret_key.txt")
-def set_secret_key(app: Flask, file_path: str)->str:
-    with FileReader(file_path) as secret_key_file:
-        app.config["SECRET_KEY"] = secret_key_file.readline().strip()
-
-
-# セッション ログイン関数
-def login(session_name: str):
-    return session['logged_in']  # = session_name

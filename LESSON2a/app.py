@@ -206,11 +206,7 @@ class SiteUser(DBTable):
         return SiteUser(siteuser[0], siteuser[1], siteuser[2])
 
 
-app = Flask(__name__)
-
-
-# シークレットキーの設定
-set_secret_key(app, "exclude/secret_key.txt")
+app = builders.FlaskBuilder(__name__)
 
 
 # ToDoリストで追加されたコメントをDBに登録する。
@@ -301,7 +297,8 @@ def login():
         # セッションを登録する
         LoginOk = site_user is not None and check_password_hash(
             password, password)
-        session['logged_in'] = LoginOk
+        # session['logged_in'] = LoginOk
+        app.login(LoginOk)
 
         if not LoginOk:
             flash('ログイン失敗：ユーザーIDもしくはパスワードが正しくありません。')
@@ -315,8 +312,7 @@ def login():
 @app.route("/logout", methods=["GET"])
 def logout():
 
-    # セッション情報をクリアにする。
-    session.clear()
+    app.logout()
 
     return redirect(url_for('login'))
 
