@@ -23,8 +23,11 @@ def login_required(view):
 # request_form('id','comment')
 def request_form(*val) -> list:
 
-    # tupleに要素が1つだけあれば、tupleから文字列に変換する。
-    if len(val) == 1:
+    num = len(val)
+    if num == 0:
+        raise ValueError("request_formの引数が0")
+    elif num == 1:
+        # tupleに要素が1つだけあれば、tupleから文字列に変換する。
         return request.form.get("".join(map(str, val)), "")
 
     # tupleに要素が複数あるなら要素をList型に入れ替えたものを返す。
@@ -40,4 +43,8 @@ def request_form(*val) -> list:
 def set_secret_key(app: Flask, file_path: str)->str:
     with FileReader(file_path) as secret_key_file:
         app.config["SECRET_KEY"] = secret_key_file.readline().strip()
-    return app.config["SECRET_KEY"]
+
+
+# セッション ログイン関数
+def login(session_name: str):
+    return session['logged_in']  # = session_name

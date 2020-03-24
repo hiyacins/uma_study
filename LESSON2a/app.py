@@ -290,11 +290,9 @@ def login_view():
 def login():
 
     with MySQLAdapter() as db:
-        # ログインフォームに入力されたユーザーID取得
-        id_name = request_form('id_name')
 
-        # ログインフォームに入力されたパスワードの取得
-        password = request_form('password')
+        # ログインフォームに入力されたユーザーIDとパスワード取得
+        id_name, password = request_form('id_name', 'password')
 
         # DBからid_nameに対応するpasswordを取得する。
         site_user = db.select_one(SiteUser, "WHERE id_name = ?", id_name)
