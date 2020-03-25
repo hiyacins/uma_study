@@ -71,7 +71,7 @@ class MySQLConnector:
     # List[DBRecord]
     def select(self, t: type, sql: str = "", param=()) -> list:
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name} {sql}"
-        self.execute(sql, str(param))
+        self.execute(sql, param)
         return t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
 
     # SQLを実行してfetchone()した結果であるtuple型が返る。
@@ -85,7 +85,7 @@ class MySQLConnector:
     def select_one(self, t: type, sql: str = "", param=()) -> tuple:
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name} {sql}"
         self.execute(sql, str(param))
-        return t.from_tuple(self.mysql_cursor.fetchone())
+        return t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
 
 
 # MySQLConnectorのadaptor
@@ -104,31 +104,34 @@ class MySQLAdapter(MySQLConnector):
 # DBのテーブルを表現するクラスの基底クラス
 class DBTable():
 
-    # # Tuple型の値 を ToDoItem型の値に変換する。
-    # # entries_：Tuple型の値（（例）(1,'abc')）を入れる。
-    # # 返し値：Tuple型 から ToDoItem型 に変換して返す。
-    # # （使用例）
-    # # entries.append(cls.from_tuple(entry))
-    # @classmethod
-    # def from_tuple(cls, db_table_column: list, entry: tuple):  # ->Entry ※エラーのためコメントにする
+    # columns と column_names から要素をひとつずつ取り出して、それを record型オブジェクトとして、
+    # setattr を適用してList化する関数
+    # columns：tuple , カラムの値が格納されている。
+    # 返し値：
+    # （使用例）
+    # list(map(cls.from_tuple, entries))
+    @classmethod
+    def from_tuple(cls, columns: tuple, column_names: List[str]):
+            # ->Entry ※エラーのためコメントにする
 
-    #     # クラス型をオブジェクト化する。
-    #     #record = (cls)()
+        # 引数のクラス型をオブジェクト化する。
+        record = (cls)()
 
-    #     # # テーブルのカラム数だけ回す。
-    #     # for column_name in range(len(self.mysql_cursor.description)):
-    #     #     # descriptionの0番目の要素がカラム名なので、0番目だけcolnamesに入れる。
-    #     #     colnames = self.mysql_cursor.description[column_name][0]
-    #     # テーブルのカラム数だけ回す。
-    #     for column_name in range(len(db_table_column)):
+        # sql_select_statement から "," くぎりで column_names に格納する。
+        #column_names = cls.sql_select_statement.split(",")
 
-    #         # descriptionの0番目の要素がカラム名なので、0番目だけcolnamesに入れる。
-    #         colnames = db_table_column[column_name][0]
-    #         colnames = db_table_column[column_name][0]
-    #     print()
-    #     # record.__dict__[colnames]
+        # テーブルに定義しているカラム数だけ回す。
+        # for i in range(len(column_names)):
+        #     # column_names から要素（カラム名）をひとつずつ取り出して入れる変数
+        #     name = column_names[i]
+        #     # columns から要素（値）をひとつずつ取り出して入れる変数
+        #     value = columns[i]
+        #     # nameとvalueに対してrecordにsetattr(name,value)する。
+        #     setattr(record, name, value)
+        for name, value in zip(column_names, columns):
+            setattr(record, name, value)
 
-    #     return colnames
+        return record
 
     # Tuple[tuple]型の値 を List[DBRecord]型の値に変換する。
     # entries：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
@@ -138,9 +141,8 @@ class DBTable():
     # entries = Entry.from_tuple_of_tuples(entries_)
     @classmethod
     def from_tuple_of_tuples(cls, entries: Tuple[tuple]) -> list:
-        # -> List[DBRecord]
+        # -> List[DBTable]
 
-        # return list(map(lambda x: cls.from_tuple(x), entries))
         return list(map(cls.from_tuple, entries))
 
 
@@ -153,60 +155,18 @@ class ToDoItem(DBTable):
     # TODO_ITEMSテーブルの各フォールド名
     sql_select_statement = "id,comment"
 
-    def __init__(self, id: int, comment: str):
-        # id : int
-        # auto incremental id
-        self.id = id
-
-        # comment : str
-        # ToDoの内容
-        self.comment = comment
-
-    # Tuple型の値 を ToDoItem型の値に変換する。
-    # entries_：Tuple型の値（（例）(1,'abc')）を入れる。
-    # 返し値：Tuple型 から ToDoItem型 に変換して返す。
-    # （使用例）
-    # entries.append(cls.from_tuple(entry))
-    @classmethod
-    def from_tuple(cls, entry: tuple):  # ->Entry ※エラーのためコメントにする
-
-        return ToDoItem(entry[0], entry[1])
-
 
 # DBのSITE_USERSテーブルの一つのrecordを表現する構造体
 class SiteUser(DBTable):
 
-    # TODO_ITEMSテーブルの名前
+    # SITE_USERSテーブルの名前
     table_name = "site_users"
 
-    # TODO_ITEMSテーブルの各フォールド名
+    # SITE_USERSテーブルの各フォールド名
     sql_select_statement = "id,id_name,password"
 
-    def __init__(self, id: int, id_name: str, password: str):
-        # id : int
-        # auto incremental id
-        self.id = id
 
-        # id_name : str
-        # ユーザーIDの内容
-        self.id_name = id_name
-
-        # password : str
-        # ログインパスワードの内容
-        self.password = password
-
-    # Tuple型の値 を Login型の値に変換する。
-    # entries_：Tuple型の値（（例）(1, 'site01','abcd')）を入れる。
-    # 返し値：Tuple型 から Login型 に変換して返す。
-    # （使用例）
-    # from_tuple(self.mysql_cursor.fetchone())
-    @classmethod
-    def from_tuple(cls, siteuser: tuple):  # ->Entry ※エラーのためコメントにする
-
-        return SiteUser(siteuser[0], siteuser[1], siteuser[2])
-
-
-app = builders.FlaskBuilder(__name__)
+app = FlaskBuilder(__name__)
 
 
 # ToDoリストで追加されたコメントをDBに登録する。
@@ -289,15 +249,14 @@ def login():
 
         # ログインフォームに入力されたユーザーIDとパスワード取得
         id_name, password = request_form('id_name', 'password')
-
+        print(password)
         # DBからid_nameに対応するpasswordを取得する。
         site_user = db.select_one(SiteUser, "WHERE id_name = ?", id_name)
-
+        print(site_user.password)
         # ユーザーIDがDB内に存在し、フォームから入力されたパスワードがDB内のものと一致すれば
         # セッションを登録する
         LoginOk = site_user is not None and check_password_hash(
-            password, password)
-        # session['logged_in'] = LoginOk
+            site_user.password, password)
         app.login(LoginOk)
 
         if not LoginOk:

@@ -4,33 +4,32 @@ from HiyaLib.common import ReadJsonFromFile, FileReader
 
 
 # Flaskクラスのbuilder
-class builder():
+# シークレットキーの設定も行う。
+# name：現在のファイルのモジュール名
+# 返し値：Flaskクラスのインスタンスを返す。
+# （使用例）
+# app = FlaskBuilder(__name__)
+def FlaskBuilder(name: str) -> Flask:
 
-    # シークレットキーの設定も行う。
-    # name：現在のファイルのモジュール名
-    # 返し値：Flaskクラスのインスタンスを返す。
-    # （使用例）
-    # app = FlaskBuilder(__name__)
-    def FlaskBuilder(name: str) -> Flask:
+    app = Flask(name)
 
-        app = Flask(name)
+    # シークレットキーの設定のための関数
+    with FileReader("exclude/secret_key.txt") as secret_key_file:
+        app.config["SECRET_KEY"] = secret_key_file.readline().strip()
 
-        # シークレットキーの設定のための関数
-        with FileReader("exclude/secret_key.txt") as secret_key_file:
-            app.config["SECRET_KEY"] = secret_key_file.readline().strip()
-        return app
+    # セッションログイン
+    app.login = lambda loginOk: session['logged_in']=loginOk
+    session['logged_in'] = loginOk
 
-    # セッションログイン関数
-    def login(self, LoginOk):
-        session['logged_in'] = LoginOk
+    # ログアウト
+    # セッション情報をクリアする。
+    app.logout = lambda: session.clear()
 
-    # セッションログアウトの関数
-    def logout(self):
-        # セッション情報をクリアにする。
-        session.clear()
+    return app
 
 
-# ログインチェック関数
+# デコレーター構文で用いる。ログインチェックの必要な関数にデコレーターとして付与する。
+# （例）
 def login_required(view):
     @wraps(view)
     def inner(*args, **kwargs):
@@ -43,12 +42,12 @@ def login_required(view):
 
 
 # 入力フォームからデータを取得する。
-# s：フォームに入力されたデータ
+# val：フォームに入力されたデータ
 # 返し値：入力フォームから取得した引数が1つならstr型で返す。
 # 　　　　複数あるならlist型データを返す。
 # (使用例)
 # request_form('id','comment')
-def request_form(*val) -> list:
+def request_form(*val):
 
     num = len(val)
     if num == 0:
