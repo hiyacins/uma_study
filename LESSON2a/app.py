@@ -249,10 +249,10 @@ def login():
 
         # ログインフォームに入力されたユーザーIDとパスワード取得
         id_name, password = request_form('id_name', 'password')
-        print(password)
+
         # DBからid_nameに対応するpasswordを取得する。
         site_user = db.select_one(SiteUser, "WHERE id_name = ?", id_name)
-        print(site_user.password)
+
         # ユーザーIDがDB内に存在し、フォームから入力されたパスワードがDB内のものと一致すれば
         # セッションを登録する
         LoginOk = site_user is not None and check_password_hash(

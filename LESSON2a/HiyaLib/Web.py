@@ -17,12 +17,18 @@ def FlaskBuilder(name: str) -> Flask:
     with FileReader("exclude/secret_key.txt") as secret_key_file:
         app.config["SECRET_KEY"] = secret_key_file.readline().strip()
 
-    # セッションログイン
-    app.login = lambda loginOk: session['logged_in']=loginOk
-    session['logged_in'] = loginOk
+    # ログイン認証でTrueのとき、セッション情報を登録する。
+    # ログイン認証でFalseのとき、登録しない。
+    # loginOk：ログイン認証の真偽値を入れる変数
+    # （使用例）
+    # app.login(loginOk)
+    def login(loginOk: bool):
+        session["logged_in"] = loginOk
 
-    # ログアウト
-    # セッション情報をクリアする。
+    # ログイン認証でTrueのとき、セッション情報を登録する。
+    app.login = login
+
+    # ログアウトのとき、セッション情報をクリアする。
     app.logout = lambda: session.clear()
 
     return app
