@@ -59,33 +59,46 @@ class MySQLConnector:
             param = (param,)
         return self.mysql_cursor.execute(sql, param)
 
-    # SQLを実行してfetchall()した結果であるList[DBRecord]型が返る。
+   # SQLを実行してfetchall()した結果であるList[DBRecord]型が返る。
     # 該当レコードがない場合はNoneが返る。
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
-    # sql：条件部分のみのSQLを入れる。デフォルトは""。
+    # sql_where：条件部分のみのSQLを入れる。デフォルトは""。
     # （例）"WHERE id = ?"
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
     # 返し値：List[DBRecord]型が返る。
     # （使用例）
     # entries = db.select(Entry)
     # List[DBRecord]
-    def select(self, t: type, sql: str = "", param=()) -> list:
-        sql = f"SELECT {t.sql_select_statement} FROM {t.table_name} {sql}"
+
+    def select(self, t: type, sql_where: str = "", param=()) -> list:
+        sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{self.Space(sql_where)}"
         self.execute(sql, param)
         return t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
 
     # SQLを実行してfetchone()した結果であるtuple型が返る。
     # 該当レコードがない場合はNoneが返る。
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
-    # sql：条件部分のみのSQLを入れる。デフォルトは""。
+    # sql_where：条件部分のみのSQLを入れる。デフォルトは""。
     # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
     # 返し値：tuple型が返る。
     # （使用例）
     # entry = db.select_one(Entry,"WHERE id = ?", id)
-    def select_one(self, t: type, sql: str = "", param=()) -> tuple:
-        sql = f"SELECT {t.sql_select_statement} FROM {t.table_name} {sql}"
+    def select_one(self, t: type, sql_where: str = "", param=()) -> tuple:
+        sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{self.Space(sql_where)}"
         self.execute(sql, str(param))
         return t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
+
+    # WHERE文の記述があるときは、先頭に半角空白を付け、 WHERE文の記述がないときは、空白をなくす関数
+    # where_str：WHERE文の記述を入れる変数
+    # 返し値：引数にWHERE文がないとき「""」
+    # 　　　　引数にWHERE文があるとき、半角空白とWHERE文を返す。
+    # （使用例）
+    # sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{self.Space(sql_where)}"
+    def Space(self, where_str: str) -> str:
+        if where_str == "":
+            return ""
+
+        return " " + where_str
 
 
 # MySQLConnectorのadaptor
@@ -107,27 +120,20 @@ class DBTable():
     # columns と column_names から要素をひとつずつ取り出して、それを record型オブジェクトとして、
     # setattr を適用してList化する関数
     # columns：tuple , カラムの値が格納されている。
-    # 返し値：
+    # column_names：tuple , カラム名が格納されている。
+    # 返し値：recordオブジェクトに name属性に value を追加したものを返す。
     # （使用例）
     # list(map(cls.from_tuple, entries))
     @classmethod
     def from_tuple(cls, columns: tuple, column_names: List[str]):
-            # ->Entry ※エラーのためコメントにする
+            # ->DBTable ※エラーのためコメントにする
 
         # 引数のクラス型をオブジェクト化する。
         record = (cls)()
 
-        # sql_select_statement から "," くぎりで column_names に格納する。
-        #column_names = cls.sql_select_statement.split(",")
-
-        # テーブルに定義しているカラム数だけ回す。
-        # for i in range(len(column_names)):
-        #     # column_names から要素（カラム名）をひとつずつ取り出して入れる変数
-        #     name = column_names[i]
-        #     # columns から要素（値）をひとつずつ取り出して入れる変数
-        #     value = columns[i]
-        #     # nameとvalueに対してrecordにsetattr(name,value)する。
-        #     setattr(record, name, value)
+        # column_names と columns から要素をひとつずつ取り出して
+        # name と value に入れる。
+        # nameとvalueに対して、recordオブジェクトに name属性に value を追加する。
         for name, value in zip(column_names, columns):
             setattr(record, name, value)
 
