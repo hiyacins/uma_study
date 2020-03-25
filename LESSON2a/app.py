@@ -70,7 +70,7 @@ class MySQLConnector:
     # entries = db.select(Entry)
     def select(self, t: type, sql_where: str = "", param=()) -> list:
         # -> List[DBTable] ※エラーになるためコメントしています。
-        sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{self.Space(sql_where)}"
+        sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
         self.execute(sql, param)
         return t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
 
@@ -83,21 +83,9 @@ class MySQLConnector:
     # （使用例）
     # entry = db.select_one(Entry,"WHERE id = ?", id)
     def select_one(self, t: type, sql_where: str = "", param=()) -> tuple:
-        sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{self.Space(sql_where)}"
+        sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
         self.execute(sql, str(param))
         return t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
-
-    # WHERE文の記述があるときは、先頭に半角空白を付け、 WHERE文の記述がないときは、空白をなくす関数
-    # where_str：WHERE文の記述を入れる変数
-    # 返し値：引数にWHERE文がないとき「""」
-    # 　　　　引数にWHERE文があるとき、半角空白とWHERE文を返す。
-    # （使用例）
-    # sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{self.Space(sql_where)}"
-    def Space(self, where_str: str) -> str:
-        if where_str == "":
-            return ""
-
-        return " " + where_str
 
 
 # MySQLConnectorのadaptor
