@@ -59,27 +59,26 @@ class MySQLConnector:
             param = (param,)
         return self.mysql_cursor.execute(sql, param)
 
-   # SQLを実行してfetchall()した結果であるList[DBRecord]型が返る。
-    # 該当レコードがない場合はNoneが返る。
+    # SQLを実行してfetchall()した結果である List[DBTable]型 が返る。
+    # 該当レコードがない場合は None が返る。
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
-    # sql_where：条件部分のみのSQLを入れる。デフォルトは""。
+    # sql_where：条件部分のみの SQL を入れる。デフォルトは""。
     # （例）"WHERE id = ?"
-    # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
-    # 返し値：List[DBRecord]型が返る。
+    # param：paramには、sql として渡したSQL文の "?" に入るそれぞれの値を tuple にして渡す。
+    # 返し値：List[DBTable]型 が返る。
     # （使用例）
     # entries = db.select(Entry)
-    # List[DBRecord]
-
     def select(self, t: type, sql_where: str = "", param=()) -> list:
+        # -> List[DBTable] ※エラーになるためコメントしています。
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{self.Space(sql_where)}"
         self.execute(sql, param)
         return t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
 
-    # SQLを実行してfetchone()した結果であるtuple型が返る。
-    # 該当レコードがない場合はNoneが返る。
+    # SQLを実行して fetchone() した結果である tuple型 が返る。
+    # 該当レコードがない場合は None が返る。
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
-    # sql_where：条件部分のみのSQLを入れる。デフォルトは""。
-    # param：paramには、sqlとして渡したSQL文の"?"に入るそれぞれの値をtupleにして渡す。
+    # sql_where：条件部分のみの SQL を入れる。デフォルトは "" 。
+    # param：paramには、sql として渡したSQL文の "?" に入るそれぞれの値を tuple にして渡す。
     # 返し値：tuple型が返る。
     # （使用例）
     # entry = db.select_one(Entry,"WHERE id = ?", id)
@@ -120,15 +119,15 @@ class DBTable():
     # columns と column_names から要素をひとつずつ取り出して、それを record型オブジェクトとして、
     # setattr を適用してList化する関数
     # columns：tuple , カラムの値が格納されている。
-    # column_names：tuple , カラム名が格納されている。
+    # column_names：List[str] , カラム名が格納されている。
     # 返し値：recordオブジェクトに name属性に value を追加したものを返す。
     # （使用例）
     # list(map(cls.from_tuple, entries))
     @classmethod
     def from_tuple(cls, columns: tuple, column_names: List[str]):
-            # ->DBTable ※エラーのためコメントにする
+            # ->record ※エラーのためコメントにする
 
-        # 引数のクラス型をオブジェクト化する。
+        # DBのテーブルのクラスをオブジェクト化する。
         record = (cls)()
 
         # column_names と columns から要素をひとつずつ取り出して
@@ -139,15 +138,15 @@ class DBTable():
 
         return record
 
-    # Tuple[tuple]型の値 を List[DBRecord]型の値に変換する。
+    # Tuple[tuple]型の値 を List[map]型の値に変換する。
     # entries：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
-    # 返し値：Tuple[tuple]型 から List[Entry]型 に変換して返す。
+    # 返し値：Tuple[tuple]型 から List[map]型 に変換して返す。
     # （使用例）
     # entries_ = db.select(Entry, "SELECT id, comment FROM todo_items")
     # entries = Entry.from_tuple_of_tuples(entries_)
     @classmethod
     def from_tuple_of_tuples(cls, entries: Tuple[tuple]) -> list:
-        # -> List[DBTable]
+        # -> List[map]
 
         return list(map(cls.from_tuple, entries))
 
