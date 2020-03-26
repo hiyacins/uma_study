@@ -3,9 +3,9 @@ import json
 
 
 # JSONファイル丸読みしてdict型データを返す。
-# ファイルはutf-8であるものとする。
+# ファイルの文字エンコードはutf-8であるものとする。
 # filename：丸読みするJSONファイル
-# 返し値：str型からdict型に変換して返す。
+# 返し値：dict型に変換して返す。
 # (使用例)
 # self.connect(ReadJsonFromFile("config.json"))
 def ReadJsonFromFile(filename: str) -> dict:
@@ -16,7 +16,7 @@ def ReadJsonFromFile(filename: str) -> dict:
 
 # utf-8でread openするIOFileWrapper
 # filename: 読み込むファイル
-# 返し値: str型からTextIOWrapper型に変換して返す。
+# 返し値: TextIOWrapper型に変換して返す。
 # (使用例)
 # with FileReader("config.txt") as f:
 #   line = f.readline()

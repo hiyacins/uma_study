@@ -5,6 +5,8 @@ from HiyaLib.common import ReadJsonFromFile, FileReader
 
 # Flaskクラスのbuilder
 # シークレットキーの設定も行う。
+# appでログインするためにlogin関数を生やしています。
+# appでログアウトするためにlogout関数を生やしています。
 # name：現在のファイルのモジュール名
 # 返し値：Flaskクラスのインスタンスを返す。
 # （使用例）
@@ -17,18 +19,18 @@ def FlaskBuilder(name: str) -> Flask:
     with FileReader("exclude/secret_key.txt") as secret_key_file:
         app.config["SECRET_KEY"] = secret_key_file.readline().strip()
 
-    # ログイン認証でTrueのとき、セッション情報を登録する。
-    # ログイン認証でFalseのとき、登録しない。
+    # ログインが成功しているとき、セッション情報を登録する。
+    # ログインが失敗しているとき、登録しない。
     # loginOk：ログイン認証の真偽値を入れる変数
     # （使用例）
     # app.login(loginOk)
     def login(loginOk: bool):
         session["logged_in"] = loginOk
 
-    # ログイン認証でTrueのとき、セッション情報を登録する。
+    # ログインが成功のとき、セッション情報を登録する。
     app.login = login
 
-    # ログアウトのとき、セッション情報をクリアする。
+    # ログアウトするとき、セッション情報をクリアする。
     app.logout = lambda: session.clear()
 
     return app
@@ -47,17 +49,17 @@ def login_required(view):
     return inner
 
 
-# 入力フォームからデータを取得する。
-# val：フォームに入力されたデータ
-# 返し値：入力フォームから取得した引数が1つならstr型で返す。
-# 　　　　複数あるならlist型データを返す。
+# request.form からデータを取得する。
+# val：request.form.get(name)のnameを指定する。複数指定可能。
+# 返し値：request.form.get(name)の値をstr型で返す。
+# 　　　　※ nameを複数指定した場合は、返し値は、List[str]になる。
 # (使用例)
 # request_form('id','comment')
 def request_form(*val):
 
     num = len(val)
     if num == 0:
-        raise ValueError("request_formの引数が0")
+        raise ValueError("request_formの引数が0個")
     elif num == 1:
         # tupleに要素が1つだけあれば、tupleから文字列に変換する。
         return request.form.get("".join(map(str, val)), "")

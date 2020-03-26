@@ -72,7 +72,9 @@ class MySQLConnector:
         # -> List[DBTable] ※エラーになるためコメントしています。
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
         self.execute(sql, param)
-        return list(map(lambda x: t.from_tuple(t.sql_select_statement.split(","), x), self.mysql_cursor.fetchall()))
+        results = self.mysql_cursor.fetchall()
+        return t.from_tuple_of_tuples(results)
+        # return list(map(lambda x: t.from_tuple(x, results), t.sql_select_statement.split(",")))
 
     # SQLを実行して fetchone() した結果である tuple型 が返る。
     # 該当レコードがない場合は None が返る。
@@ -85,8 +87,8 @@ class MySQLConnector:
     def select_one(self, t: type, sql_where: str = "", param=()) -> tuple:
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
         self.execute(sql, param)
-        return self.mysql_cursor.fetchone()
-        # return t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
+
+        return t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
 
 
 # MySQLConnectorのadaptor
@@ -113,17 +115,16 @@ class DBTable():
     # （使用例）
     # list(map(cls.from_tuple, entries))
     @classmethod
-    def from_tuple(cls, column_names: List[str], columns: Tuple[Tuple]):
+    def from_tuple(cls, columns: Tuple[Tuple], column_names: List[str]):
             # ->record ※エラーのためコメントにする
 
-        # DBのテーブルのクラスをオブジェクト化する。
+        # DBTable派生クラスのインスタンスを作成する。
         record = (cls)()
 
         # column_names と columns から要素をひとつずつ取り出して
         # name と value に入れる。
         # nameとvalueに対して、recordオブジェクトに name属性に value を追加する。
-
-        for name, value in zip(column_names, columns):
+        for name, value in zip(columns, column_names):
             setattr(record, str(name), value)
 
         return record
@@ -137,8 +138,11 @@ class DBTable():
     @classmethod
     def from_tuple_of_tuples(cls, entries: Tuple[tuple]) -> list:
         # -> List[map]
-
-        return list(map(cls.from_tuple, entries))
+        t = cls.sql_select_statement.split(",")
+        print(entries)
+        # print(t)
+        return list(map(lambda x: cls.from_tuple(t, x), entries))
+        # return list(map(cls.from_tuple, entries, cls.sql_select_statement.split(",")))
 
 
 # DBのTODO_ITEMSテーブルの一つのrecordを表現する構造体
@@ -162,6 +166,12 @@ class ToDoItem(DBTable):
 # DBのSITE_USERSテーブルの一つのrecordを表現する構造体
 class SiteUser(DBTable):
 
+    # SITE_USERSテーブルの名前
+    table_name = "site_users"
+
+    # SITE_USERSテーブルの各フォールド名
+    sql_select_statement = "id,id_name,password"
+
     def __init__(self):
 
         # auto_increment , primary
@@ -173,12 +183,6 @@ class SiteUser(DBTable):
         # ここにパスワードの内容が入っている
         self.password = ""
 
-    # SITE_USERSテーブルの名前
-    table_name = "site_users"
-
-    # SITE_USERSテーブルの各フォールド名
-    sql_select_statement = "id,id_name,password"
-
 
 app = FlaskBuilder(__name__)
 
@@ -188,11 +192,11 @@ app = FlaskBuilder(__name__)
 @login_required
 def add_todo_item():
 
-    # ToDoフォームに入力されたcomment取得する。
+    # ToDoフォームのテキストボックスに入力されたテキストを取得する。
     comment = request_form('comment')
 
-    # commentに入力があればSQLを実行する。
-    # commentに入力がなければ何もしないで load_todo_items関数 読み込み。
+    # コメント欄のテキストボックスが空でなければ、SQLを実行する。
+    # コメント欄のテキストボックスが空なら何もしない。
     if comment:
         with MySQLAdapter() as db:
 
@@ -221,7 +225,7 @@ def delete_todo_item(id: int):
     return redirect(url_for('top'))
 
 
-# データベース内のToDoリストをすべて削除する。
+# DB内のToDoリストをすべて削除する。
 @app.route('/all-delete', methods=['POST'])
 @login_required
 def all_delete_todo_items():
@@ -273,14 +277,14 @@ def login():
         # ユーザーIDがDB内に存在し、フォームから入力されたパスワードがDB内のものと一致すれば
         # セッションを登録する
         LoginOk = site_user is not None and check_password_hash(
-            site_user[2], password)
+            site_user.password, password)
         app.login(LoginOk)
 
         if not LoginOk:
             flash('ログイン失敗：ユーザーIDもしくはパスワードが正しくありません。')
 
-        # session['logged_in']がTrueであれば、(ログインに成功しているので)ログイン後のページへリダイレクトする。
-        # session['logged_in']がFalseであれば、(ログインに失敗しているので)ログインページにリダイレクトする。(再度表示する)
+        # ログインに成功していれば、ログイン後のページへリダイレクトする。
+        # ログインに失敗していれば、ログインページにリダイレクトする。(再度表示する)
         return redirect(url_for('top' if LoginOk else 'login'))
 
 
