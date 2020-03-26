@@ -72,7 +72,7 @@ class MySQLConnector:
         # -> List[DBTable] ※エラーになるためコメントしています。
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
         self.execute(sql, param)
-        return t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
+        return list(map(lambda x: t.from_tuple(t.sql_select_statement.split(","), x), self.mysql_cursor.fetchall()))
 
     # SQLを実行して fetchone() した結果である tuple型 が返る。
     # 該当レコードがない場合は None が返る。
@@ -84,8 +84,9 @@ class MySQLConnector:
     # entry = db.select_one(Entry,"WHERE id = ?", id)
     def select_one(self, t: type, sql_where: str = "", param=()) -> tuple:
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
-        self.execute(sql, str(param))
-        return t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
+        self.execute(sql, param)
+        return self.mysql_cursor.fetchone()
+        # return t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
 
 
 # MySQLConnectorのadaptor
@@ -112,7 +113,7 @@ class DBTable():
     # （使用例）
     # list(map(cls.from_tuple, entries))
     @classmethod
-    def from_tuple(cls, columns: tuple, column_names: List[str]):
+    def from_tuple(cls, column_names: List[str], columns: Tuple[Tuple]):
             # ->record ※エラーのためコメントにする
 
         # DBのテーブルのクラスをオブジェクト化する。
@@ -121,8 +122,9 @@ class DBTable():
         # column_names と columns から要素をひとつずつ取り出して
         # name と value に入れる。
         # nameとvalueに対して、recordオブジェクトに name属性に value を追加する。
+
         for name, value in zip(column_names, columns):
-            setattr(record, name, value)
+            setattr(record, str(name), value)
 
         return record
 
@@ -148,9 +150,28 @@ class ToDoItem(DBTable):
     # TODO_ITEMSテーブルの各フォールド名
     sql_select_statement = "id,comment"
 
+    def __init__(self):
+
+        # auto_increment , primary
+        self.id = -1
+
+        # ここにToDoの内容が入っている
+        self.comment = ""
+
 
 # DBのSITE_USERSテーブルの一つのrecordを表現する構造体
 class SiteUser(DBTable):
+
+    def __init__(self):
+
+        # auto_increment , primary
+        self.id = -1
+
+        # ここにユーザーIDの内容が入っている
+        self.id_name = ""
+
+        # ここにパスワードの内容が入っている
+        self.password = ""
 
     # SITE_USERSテーブルの名前
     table_name = "site_users"
@@ -243,13 +264,16 @@ def login():
         # ログインフォームに入力されたユーザーIDとパスワード取得
         id_name, password = request_form('id_name', 'password')
 
+        # # DBからid_nameに対応するpasswordを取得する。
+        # site_user = db.select_one(SiteUser, "WHERE id_name = ?", id_name)
         # DBからid_nameに対応するpasswordを取得する。
-        site_user = db.select_one(SiteUser, "WHERE id_name = ?", id_name)
+        site_user = None if id_name == '' else db.select_one(
+            SiteUser, "WHERE id_name = ?", id_name)
 
         # ユーザーIDがDB内に存在し、フォームから入力されたパスワードがDB内のものと一致すれば
         # セッションを登録する
         LoginOk = site_user is not None and check_password_hash(
-            site_user.password, password)
+            site_user[2], password)
         app.login(LoginOk)
 
         if not LoginOk:

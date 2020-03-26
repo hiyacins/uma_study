@@ -24,13 +24,20 @@ def FileReader(filename: str) -> TextIOWrapper:
     return open(filename, 'r', encoding="utf-8")
 
 
-# 文字列があるときは、先頭に半角空白を付け、 文字列がないときは、空文字を返す関数
-# s：文字列を入れる変数
-# 返し値：引数に文字列があるとき、半角空白と文字列を返す。文字列がないときは、 ""を返す。
+# 文字列sがあるときは、先頭に半角空白を付け、文字列sがないときは、空文字を返す関数
+# s：文字列sを入れる変数。ただし、文字列sにNoneをいれてはいけない。
+# 返し値：引数に文字列sがあるとき、半角空白と文字列sを返す。文字列sがないときは、""を返す。
 # （使用例）
 # sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
 def Space(s: str) -> str:
-    if s == "":
-        return ""
+    return "" if s == "" else " " + s
 
-    return " " + s
+
+# Space関数のunitテスト
+def SpaceTest():
+    my_assert(Space("ABC") == " ABC")
+    my_assert(Space("") == "")
+
+
+if __name__ == "__main__":
+    SpaceTest()
