@@ -74,7 +74,6 @@ class MySQLConnector:
         self.execute(sql, param)
         results = self.mysql_cursor.fetchall()
         return t.from_tuple_of_tuples(results)
-        # return list(map(lambda x: t.from_tuple(x, results), t.sql_select_statement.split(",")))
 
     # SQLを実行して fetchone() した結果である tuple型 が返る。
     # 該当レコードがない場合は None が返る。
@@ -84,6 +83,7 @@ class MySQLConnector:
     # 返し値：tuple型が返る。
     # （使用例）
     # entry = db.select_one(Entry,"WHERE id = ?", id)
+
     def select_one(self, t: type, sql_where: str = "", param=()) -> tuple:
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
         self.execute(sql, param)
@@ -124,7 +124,7 @@ class DBTable():
         # column_names と columns から要素をひとつずつ取り出して
         # name と value に入れる。
         # nameとvalueに対して、recordオブジェクトに name属性に value を追加する。
-        for name, value in zip(columns, column_names):
+        for name, value in zip(column_names, columns):
             setattr(record, str(name), value)
 
         return record
@@ -139,10 +139,8 @@ class DBTable():
     def from_tuple_of_tuples(cls, entries: Tuple[tuple]) -> list:
         # -> List[map]
         t = cls.sql_select_statement.split(",")
-        print(entries)
-        # print(t)
-        return list(map(lambda x: cls.from_tuple(t, x), entries))
-        # return list(map(cls.from_tuple, entries, cls.sql_select_statement.split(",")))
+
+        return list(map(lambda x: cls.from_tuple(x, t), entries))
 
 
 # DBのTODO_ITEMSテーブルの一つのrecordを表現する構造体
