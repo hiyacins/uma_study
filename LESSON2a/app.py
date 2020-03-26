@@ -70,8 +70,9 @@ class MySQLConnector:
     # entries = db.select(Entry)
     def select(self, t: type, sql_where: str = "", param=()) -> list:
         # -> List[DBTable] ※エラーになるためコメントしています。
-        sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
-        self.execute(sql, param)
+        #sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
+        sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}"
+        self.execute(hiya_join(sql, sql_where), param)
         return t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
 
     # SQLを実行して fetchone() した結果である tuple型 が返る。
@@ -83,8 +84,9 @@ class MySQLConnector:
     # （使用例）
     # entry = db.select_one(Entry,"WHERE id = ?", id)
     def select_one(self, t: type, sql_where: str = "", param=()) -> tuple:
-        sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
-        self.execute(sql, param)
+        #sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
+        sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}"
+        self.execute(hiya_join(sql, sql_where), param)
         return t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
 
 
@@ -266,8 +268,8 @@ def login():
         # # DBからid_nameに対応するpasswordを取得する。
         # site_user = db.select_one(SiteUser, "WHERE id_name = ?", id_name)
         # DBからid_nameに対応するpasswordを取得する。
-        site_user = None if id_name == '' else db.select_one(
-            SiteUser, "WHERE id_name = ?", id_name)
+        site_user = db.select_one(
+            SiteUser, "WHERE id_name = ?", id_name) if id_name else None
 
         # ユーザーIDがDB内に存在し、フォームから入力されたパスワードがDB内のものと一致すれば
         # セッションを登録する

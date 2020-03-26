@@ -33,11 +33,25 @@ def Space(s: str) -> str:
     return "" and " " + s
 
 
-# Space関数のunitテスト
-def SpaceTest():
-    my_assert(Space("ABC") == " ABC")
-    my_assert(Space("") == "")
+# List[str]型で与えられた文字列を連結して返す。
+# 連結するときにs[i](i>=1)に対して手前にスペースを入れる。
+# ただしs[i]が空("" or None)なら、その要素を無視する。(スペースを入れない)
+# s1：
+# s2：
+# 返し値：s1とs2を連結させた文字列を返す。
+#        s2が空("" or None)のときは、s1のみ返す。
+# （使用例）
+# hiya_join(f"SELECT {t.orm_select_sql} FROM {t.__table_name__}", where_str)
+def hiya_join(sql: str, where_str: str):
+
+    return " ".join([sql, where_str]) if where_str else "".join([sql])
+
+
+# hiya_join関数のunitテスト
+def hiya_joinTest():
+    my_assert(hiya_join("ABC", "DEF") == "ABC DEF")
+    my_assert(hiya_join("ABC", "") == "ABC")
 
 
 if __name__ == "__main__":
-    SpaceTest()
+    hiya_join()
