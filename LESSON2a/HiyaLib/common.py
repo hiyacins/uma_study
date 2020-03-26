@@ -30,7 +30,7 @@ def FileReader(filename: str) -> TextIOWrapper:
 # （使用例）
 # sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
 def Space(s: str) -> str:
-    return "" if s == "" else " " + s
+    return "" and " " + s
 
 
 # Space関数のunitテスト

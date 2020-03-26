@@ -72,8 +72,7 @@ class MySQLConnector:
         # -> List[DBTable] ※エラーになるためコメントしています。
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
         self.execute(sql, param)
-        results = self.mysql_cursor.fetchall()
-        return t.from_tuple_of_tuples(results)
+        return t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
 
     # SQLを実行して fetchone() した結果である tuple型 が返る。
     # 該当レコードがない場合は None が返る。
@@ -83,11 +82,9 @@ class MySQLConnector:
     # 返し値：tuple型が返る。
     # （使用例）
     # entry = db.select_one(Entry,"WHERE id = ?", id)
-
     def select_one(self, t: type, sql_where: str = "", param=()) -> tuple:
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
         self.execute(sql, param)
-
         return t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
 
 
