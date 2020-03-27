@@ -55,7 +55,7 @@ def login_required(view):
 # 　　　　※ nameを複数指定した場合は、返し値は、List[str]になる。
 # (使用例)
 # request_form('id','id_name','password')
-def request_form(*val):
+def request_form(*val: Tuple[str...]):
 
     num = len(val)
 
