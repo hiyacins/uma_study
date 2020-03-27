@@ -72,8 +72,9 @@ class MySQLConnector:
     def select(self, t: type, sql_where: str = "", param=()) -> list:
         # -> List[DBTable] ※エラーになるためコメントしています。
 
-        sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}"
-        self.execute(hiya_join(sql, sql_where), param)
+        sql = [
+            f"SELECT {t.sql_select_statement} FROM {t.table_name}", sql_where]
+        self.execute(hiya_join(sql), param)
         return t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
 
     # SQLを実行して fetchone() した結果である tuple型 が返る。
@@ -86,8 +87,9 @@ class MySQLConnector:
     # result = db.select_one(SiteUser,"WHERE id = ?", id)
     def select_one(self, t: type, sql_where: str = "", param=()) -> tuple:
 
-        sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}"
-        self.execute(hiya_join(sql, sql_where), param)
+        sql = [
+            f"SELECT {t.sql_select_statement} FROM {t.table_name}", sql_where]
+        self.execute(hiya_join(sql), param)
         return t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
 
     # DELETEを実行する関数
