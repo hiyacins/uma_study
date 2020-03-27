@@ -9,6 +9,16 @@ class MySQLConnector:
         # MySQLのカーソル
         self.mysql_cursor = None
 
+    def __enter__(self):
+
+        # DB接続のための情報入力configをjson形式で読み込む。
+        self.connect(ReadJsonFromFile('exclude/connect_config.json'))
+
+        return self
+
+    def __exit__(self, ex_type, ex_value, tb):
+        self.disconnect()
+
     # dict型で接続情報を渡す。
     # config: DB接続情報
     # 例
@@ -69,8 +79,7 @@ class MySQLConnector:
     # 返し値：List[DBTable]型 が返る。
     # （使用例）
     # entries = db.select(Entry)
-    def select(self, t: type, sql_where: str = "", param=()) -> list:
-        # -> List[DBTable] ※エラーになるためコメントしています。
+    def select(self, t: type, sql_where: str = "", param=()) -> "List[DBTable]":
 
         sql = [
             f"SELECT {t.sql_select_statement} FROM {t.table_name}", sql_where]
@@ -140,32 +149,18 @@ class MySQLConnector:
         return self.execute(hiya_join(sql), param)
 
 
-# MySQLConnectorのadaptor
-class MySQLAdapter(MySQLConnector):
-    def __enter__(self):
-
-        # DB接続のための情報入力configをjson形式で読み込む。
-        self.connect(ReadJsonFromFile('exclude/connect_config.json'))
-
-        return self
-
-    def __exit__(self, ex_type, ex_value, tb):
-        self.disconnect()
-
-
 # DBのテーブルを表現するクラスの基底クラス
 class DBTable():
 
-    # columns と column_names から要素をひとつずつ取り出して、それを record型オブジェクトとして、
-    # setattr を適用してList化する関数
+    # columns と column_names から要素をひとつずつ取り出したのがvalue , nameとして、
+    # それを 生成したDBTable派生型のオブジェクトに setattr(object,name,value)する。
     # columns：カラムの値が格納されている。
     # column_names：カラム名が格納されている。
     # 返し値：recordオブジェクトに name属性に value を追加したものを返す。
     # （使用例）
     # t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
     @classmethod
-    def from_tuple(cls, columns: Tuple[Tuple], column_names: List[str]):
-            # ->record ※エラーのためコメントにする
+    def from_tuple(cls, columns: Tuple[Tuple], column_names: List[str]) -> "DBTable":
 
         # DBTable派生クラスのインスタンスを作成する。
         record = (cls)()
@@ -174,7 +169,7 @@ class DBTable():
         # name と value に入れる。
         # nameとvalueに対して、recordオブジェクトに name属性に value を追加する。
         for name, value in zip(column_names, columns):
-            setattr(record, str(name), value)
+            setattr(record, name, value)
 
         return record
 
@@ -184,8 +179,8 @@ class DBTable():
     # （使用例）
     # t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
     @classmethod
-    def from_tuple_of_tuples(cls, columns: Tuple[tuple]) -> list:
-        # -> List[map]
+    def from_tuple_of_tuples(cls, columns: Tuple[tuple]) -> "List[map]":
+
         t = cls.sql_select_statement.split(",")
 
         return list(map(lambda x: cls.from_tuple(x, t), columns))
@@ -239,12 +234,12 @@ app = FlaskBuilder(__name__)
 def add_todo_item():
 
     # ToDoフォームのテキストボックスに入力されたテキストを取得する。
-    comment = request_form('comment')
+    comment, = request_form('comment')
 
     # コメント欄のテキストボックスが空でなければ、SQLを実行する。
     # コメント欄のテキストボックスが空なら何もしない。
     if comment:
-        with MySQLAdapter() as db:
+        with MySQLConnector() as db:
 
             # コメントをDBに登録する。
             db.execute(
@@ -260,7 +255,7 @@ def add_todo_item():
 @login_required
 def delete_todo_item(id: int):
 
-    with MySQLAdapter() as db:
+    with MySQLConnector() as db:
 
         # 任意のidのコメントをDBから削除する。
         db.execute(
@@ -276,7 +271,7 @@ def delete_todo_item(id: int):
 @login_required
 def all_delete_todo_items():
 
-    with MySQLAdapter() as db:
+    with MySQLConnector() as db:
 
         # ToDoリストをすべて削除する。
         db.execute("DELETE FROM todo_items")
@@ -293,7 +288,7 @@ def top():
 
     flash('ログインを成功しました＼(^o^)／')
 
-    with MySQLAdapter() as db:
+    with MySQLConnector() as db:
         return render_template('index.html', entries=db.select(ToDoItem))
 
 
@@ -309,7 +304,7 @@ def login_view():
 @app.route('/login', methods=['POST'])
 def login():
 
-    with MySQLAdapter() as db:
+    with MySQLConnector() as db:
 
         # ログインフォームに入力されたユーザーIDとパスワード取得
         id_name, password = request_form('id_name', 'password')

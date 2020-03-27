@@ -54,15 +54,16 @@ def login_required(view):
 # 返し値：request.form.get(name)の値をstr型で返す。
 # 　　　　※ nameを複数指定した場合は、返し値は、List[str]になる。
 # (使用例)
-# request_form('id','comment')
+# request_form('id','id_name','password')
 def request_form(*val):
 
     num = len(val)
+
     if num == 0:
         raise ValueError("request_formの引数が0個")
     elif num == 1:
         # tupleに要素が1つだけあれば、tupleから文字列に変換する。
-        return request.form.get("".join(map(str, val)), "")
+        return [request.form.get(e, "") for e in val if e]
 
     # tupleに要素が複数あるなら要素をList型に入れ替えたものを返す。
     return [request.form.get(e, "") for e in val]
