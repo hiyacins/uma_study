@@ -27,11 +27,11 @@ def FileReader(filename: str) -> TextIOWrapper:
 
 
 # unittest項目に対して、期待通りの値が出ればOK。値が違えば、assert文が出る。
-# x：unittestしたい項目を入れる。
+# b：unittestしたい項目を入れる。
 # （使用例）
 # my_assert(hiya_join(["ABC", "DEF"]) == "ABC DEF")
-def my_assert(x):
-    assert x, '期待通りの値が出力されていません。'
+def my_assert(b: bool):
+    assert b, '期待通りの値が出力されていません。'
 
 
 # List[str]型で与えられた文字列を連結して返す。
@@ -49,12 +49,12 @@ def hiya_join(str_list: List[str]) -> str:
 
 # unittest.TestCaseの子クラス
 class MyTest(unittest.TestCase):
+
     # hiya_join関数のunitテスト
     def test_hiya_joinTest(self):
         # ここにテスト項目を書いていく。
         my_assert(hiya_join(["ABC", "DEF"]) == "ABC DEF")
         my_assert(hiya_join(["ABC", ""]) == "ABC")
-    # hiya_join関数のunitテスト
 
 
 if __name__ == "__main__":
