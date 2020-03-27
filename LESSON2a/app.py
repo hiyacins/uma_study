@@ -31,7 +31,6 @@ class MySQLConnector:
         self.__mysql_connection.autocommit = True
 
         # カーソルを取得する。
-        # オプションは今後必要なら引数化してもいいかも？
         self.mysql_cursor = self.__mysql_connection.cursor(prepared=True)
 
     # DB切断する。
@@ -40,6 +39,7 @@ class MySQLConnector:
         if self.mysql_cursor is not None:
             self.mysql_cursor.close()
             self.mysql_cursor = None
+
         # MySQLのコネクトの切断
         if self.__mysql_connection is not None:
             self.__mysql_connection.close()
@@ -57,6 +57,7 @@ class MySQLConnector:
         # param が tuple以外のstr,intなどのとき、paramをtupleでくるむ(tupleの１つ目の要素がparamであるtuple化する)。
         if not type(param) is tuple:
             param = (param,)
+
         return self.mysql_cursor.execute(sql, param)
 
     # SQLを実行してfetchall()した結果である List[DBTable]型 が返る。
@@ -70,7 +71,7 @@ class MySQLConnector:
     # entries = db.select(Entry)
     def select(self, t: type, sql_where: str = "", param=()) -> list:
         # -> List[DBTable] ※エラーになるためコメントしています。
-        #sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
+
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}"
         self.execute(hiya_join(sql, sql_where), param)
         return t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
@@ -84,7 +85,7 @@ class MySQLConnector:
     # （使用例）
     # entry = db.select_one(Entry,"WHERE id = ?", id)
     def select_one(self, t: type, sql_where: str = "", param=()) -> tuple:
-        #sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
+
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}"
         self.execute(hiya_join(sql, sql_where), param)
         return t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
@@ -108,11 +109,11 @@ class DBTable():
 
     # columns と column_names から要素をひとつずつ取り出して、それを record型オブジェクトとして、
     # setattr を適用してList化する関数
-    # columns：tuple , カラムの値が格納されている。
-    # column_names：List[str] , カラム名が格納されている。
+    # columns：カラムの値が格納されている。
+    # column_names：カラム名が格納されている。
     # 返し値：recordオブジェクトに name属性に value を追加したものを返す。
     # （使用例）
-    # list(map(cls.from_tuple, entries))
+    # t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
     @classmethod
     def from_tuple(cls, columns: Tuple[Tuple], column_names: List[str]):
             # ->record ※エラーのためコメントにする
@@ -129,17 +130,16 @@ class DBTable():
         return record
 
     # Tuple[tuple]型の値 を List[map]型の値に変換する。
-    # entries：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
+    # columns：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
     # 返し値：Tuple[tuple]型 から List[map]型 に変換して返す。
     # （使用例）
-    # entries_ = db.select(Entry, "SELECT id, comment FROM todo_items")
-    # entries = Entry.from_tuple_of_tuples(entries_)
+    # t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
     @classmethod
-    def from_tuple_of_tuples(cls, entries: Tuple[tuple]) -> list:
+    def from_tuple_of_tuples(cls, columns: Tuple[tuple]) -> list:
         # -> List[map]
         t = cls.sql_select_statement.split(",")
 
-        return list(map(lambda x: cls.from_tuple(x, t), entries))
+        return list(map(lambda x: cls.from_tuple(x, t), columns))
 
 
 # DBのTODO_ITEMSテーブルの一つのrecordを表現する構造体
@@ -148,7 +148,7 @@ class ToDoItem(DBTable):
     # TODO_ITEMSテーブルの名前
     table_name = "todo_items"
 
-    # TODO_ITEMSテーブルの各フォールド名
+    # TODO_ITEMSテーブルの各フィールド名
     sql_select_statement = "id,comment"
 
     def __init__(self):
@@ -166,7 +166,7 @@ class SiteUser(DBTable):
     # SITE_USERSテーブルの名前
     table_name = "site_users"
 
-    # SITE_USERSテーブルの各フォールド名
+    # SITE_USERSテーブルの各フィールド名
     sql_select_statement = "id,id_name,password"
 
     def __init__(self):
@@ -265,9 +265,9 @@ def login():
         # ログインフォームに入力されたユーザーIDとパスワード取得
         id_name, password = request_form('id_name', 'password')
 
-        # # DBからid_nameに対応するpasswordを取得する。
-        # site_user = db.select_one(SiteUser, "WHERE id_name = ?", id_name)
-        # DBからid_nameに対応するpasswordを取得する。
+        # ログインフォームに入力されたユーザーIDをパラメーターに、select_one関数で
+        # DBのテーブルクラスを入れ、fetchoneをして、値を抽出する。
+        # ただし、ログインフォームに入力されたユーザーIDが空のときは、Noneを返す。
         site_user = db.select_one(
             SiteUser, "WHERE id_name = ?", id_name) if id_name else None
 

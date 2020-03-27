@@ -24,27 +24,18 @@ def FileReader(filename: str) -> TextIOWrapper:
     return open(filename, 'r', encoding="utf-8")
 
 
-# 文字列sがあるときは、先頭に半角空白を付け、文字列sがないときは、空文字を返す関数
-# s：文字列sを入れる変数。ただし、文字列sにNoneをいれてはいけない。
-# 返し値：引数に文字列sがあるとき、半角空白と文字列sを返す。文字列sがないときは、""を返す。
-# （使用例）
-# sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}{Space(sql_where)}"
-def Space(s: str) -> str:
-    return "" and " " + s
-
-
-# List[str]型で与えられた文字列を連結して返す。
-# 連結するときにs[i](i>=1)に対して手前にスペースを入れる。
-# ただしs[i]が空("" or None)なら、その要素を無視する。(スペースを入れない)
-# s1：
-# s2：
+# s1とs2の文字列を連結して返す。
+# 連結するときにs2に対して手前にスペースを入れる。
+# ただしs2が空("" or None)なら、その要素を無視する。(スペースを入れない)
+# s1：文字列s1をいれる。
+# s2：文字列s2をいれる。
 # 返し値：s1とs2を連結させた文字列を返す。
 #        s2が空("" or None)のときは、s1のみ返す。
 # （使用例）
 # hiya_join(f"SELECT {t.orm_select_sql} FROM {t.__table_name__}", where_str)
 def hiya_join(sql: str, where_str: str):
 
-    return " ".join([sql, where_str]) if where_str else "".join([sql])
+    return " ".join([sql, where_str]) if where_str else sql
 
 
 # hiya_join関数のunitテスト
