@@ -83,12 +83,58 @@ class MySQLConnector:
     # param：paramには、sql として渡したSQL文の "?" に入るそれぞれの値を tuple にして渡す。
     # 返し値：tuple型が返る。
     # （使用例）
-    # entry = db.select_one(Entry,"WHERE id = ?", id)
+    # result = db.select_one(SiteUser,"WHERE id = ?", id)
     def select_one(self, t: type, sql_where: str = "", param=()) -> tuple:
 
         sql = f"SELECT {t.sql_select_statement} FROM {t.table_name}"
         self.execute(hiya_join(sql, sql_where), param)
         return t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
+
+    # DELETEを実行する関数
+    # 該当レコードがない場合は None が返る。
+    # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
+    # sql_where：条件部分のみの SQL を入れる。デフォルトは""。
+    # （例）"WHERE id = ?"
+    # param：paramには、sql として渡したSQL文の "?" に入るそれぞれの値を tuple にして渡す。
+    # 返し値：
+    # （使用例）
+    # db.insert(SiteUser,"WHERE id = ?", id)
+    def delete(self, t: type, sql_where: str = "", param=()):
+
+        sql = f"DELETE FROM {t.table_name}"
+
+        return self.execute(hiya_join(sql, sql_where), param)
+
+    # INSERTを実行する関数
+    # 該当レコードがない場合は None が返る。
+    # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
+    # sql_where：条件部分のみの SQL を入れる。デフォルトは""。
+    # （例）"VALUES (?)"
+    # param：paramには、sql として渡したSQL文の "?" に入るそれぞれの値を tuple にして渡す。
+    # 返し値：
+    # （使用例）
+    # db.insert(SiteUser,"VALUES (?)", comment)
+    def insert(self, t: type, sql_where: str = "", param=()):
+
+        sql = f"INSERT INTO {t.table_name} ({t.sql_select_statement})"
+
+        return self.execute(hiya_join(sql, sql_where), param)
+
+    # UPDATEを実行する関数
+    # 該当レコードがない場合は None が返る。
+    # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
+    # sql_set：アップデート対象の部分のみ SQL を入れる。デフォルトは""。（記入例）"SET id=?"
+    # sql_where：検索条件部分のみの SQL を入れる。デフォルトは""。（記入例）"WHERE id=3"
+    # （例）" WHERE id = ?"
+    # param：paramには、sql として渡したSQL文の "?" に入るそれぞれの値を tuple にして渡す。
+    # 返し値：
+    # （使用例）
+    # db.update(SiteUser,"SET id=?, comment=?","WHERE id=3", comment)
+    def update(self, t: type, sql_set: str = "", sql_where: str = "", param=()):
+
+        sql = f"UPDATE {t.table_name}"
+
+        return self.execute(hiya_join(sql, sql_set, sql_where), param)
 
 
 # MySQLConnectorのadaptor
