@@ -3,14 +3,13 @@ from typing import Union, List, Tuple
 import json
 import unittest
 
+
 # JSONファイル丸読みしてdict型データを返す。
 # ファイルの文字エンコードはutf-8であるものとする。
 # filename：丸読みするJSONファイル
 # 返し値：dict型に変換して返す。
 # (使用例)
 # self.connect(ReadJsonFromFile("config.json"))
-
-
 def ReadJsonFromFile(filename: str) -> dict:
     # json形式で読み込む。
     with open(filename, 'r', encoding="utf-8") as jsonFile:
@@ -48,13 +47,15 @@ def hiya_join(str_list: List[str]) -> str:
     return " ".join([s for s in str_list if s])
 
 
-# hiya_join関数のunitテスト
-def hiya_joinTest():
-    # ここにテスト項目を書いていく。
-    my_assert(hiya_join(["ABC", "DEF"]) == "ABC DEF")
-    my_assert(hiya_join(["ABC", ""]) == "ABC")
+# unittest.TestCaseの子クラス
+class MyTest(unittest.TestCase):
+    # hiya_join関数のunitテスト
+    def test_hiya_joinTest(self):
+        # ここにテスト項目を書いていく。
+        my_assert(hiya_join(["ABC", "DEF"]) == "ABC DEF")
+        my_assert(hiya_join(["ABC", ""]) == "ABC")
+    # hiya_join関数のunitテスト
 
 
 if __name__ == "__main__":
-    hiya_joinTest()
     unittest.main()
