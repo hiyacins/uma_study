@@ -38,7 +38,7 @@ def FlaskBuilder(name: str) -> Flask:
 
 
 # デコレーター構文で用いる。ログインチェックの必要な関数にデコレーターとして付与する。
-# （例）
+# （使用例）
 # @app.route('/')
 # @login_required
 # def top():

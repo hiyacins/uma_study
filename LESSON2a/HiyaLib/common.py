@@ -10,6 +10,7 @@ import unittest
 # 返し値：dict型に変換して返す。
 # (使用例)
 # self.connect(ReadJsonFromFile("config.json"))
+# （必要性）jsonファイルを毎回openして、json.loadするのが手間なため、JSONファイル丸読みしてdict型データを返す関数を作成した。
 def ReadJsonFromFile(filename: str) -> dict:
     # json形式で読み込む。
     with open(filename, 'r', encoding="utf-8") as jsonFile:
@@ -22,6 +23,7 @@ def ReadJsonFromFile(filename: str) -> dict:
 # (使用例)
 # with FileReader("config.txt") as f:
 #   line = f.readline()
+# （必要性）テキストファイルを毎回openするのが手間なことと、テキストエンコードをutf-8で常に開きたかったので関数を作成した。
 def FileReader(filename: str) -> TextIOWrapper:
     return open(filename, 'r', encoding="utf-8")
 
@@ -30,6 +32,7 @@ def FileReader(filename: str) -> TextIOWrapper:
 # b：unittestしたい項目を入れる。
 # （使用例）
 # my_assert(hiya_join(["ABC", "DEF"]) == "ABC DEF")
+# （必要性）assertを呼び出すとき、共通文言を毎回書きたくないため関数化した。
 def my_assert(b: bool):
     assert b, '期待通りの値が出力されていません。'
 
