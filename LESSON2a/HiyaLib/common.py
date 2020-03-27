@@ -41,8 +41,8 @@ def my_assert(b: bool):
 # 返し値：List[str]型で与えられた文字列を連結して返す。ただし、空の要素は、無視する。
 # （使用例）
 # sql=[f"SELECT {t.orm_select_sql} FROM {t.__table_name__}", where_str]
-# hiya_join(sql)
-def hiya_join(str_list: List[str]) -> str:
+# power_join(sql)
+def power_join(str_list: List[str]) -> str:
 
     return " ".join([s for s in str_list if s])
 
@@ -51,10 +51,10 @@ def hiya_join(str_list: List[str]) -> str:
 class MyTest(unittest.TestCase):
 
     # hiya_join関数のunitテスト
-    def test_hiya_joinTest(self):
+    def test_power_joinTest(self):
         # ここにテスト項目を書いていく。
-        my_assert(hiya_join(["ABC", "DEF"]) == "ABC DEF")
-        my_assert(hiya_join(["ABC", ""]) == "ABC")
+        my_assert(power_join(["ABC", "DEF"]) == "ABC DEF")
+        my_assert(power_join(["ABC", ""]) == "ABC")
 
 
 if __name__ == "__main__":

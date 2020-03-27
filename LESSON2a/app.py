@@ -71,7 +71,7 @@ class MySQLConnector:
         return self.mysql_cursor.execute(sql, param)
 
     # SQLを実行してfetchall()した結果である List[DBTable]型 が返る。
-    # 該当レコードがない場合は None が返る。
+    # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
     # sql_where：条件部分のみの SQL を入れる。デフォルトは""。
     # （例）"WHERE id = ?"
@@ -81,13 +81,12 @@ class MySQLConnector:
     # entries = db.select(Entry)
     def select(self, t: type, sql_where: str = "", param=()) -> "List[DBTable]":
 
-        sql = [
-            f"SELECT {t.sql_select_statement} FROM {t.table_name}", sql_where]
-        self.execute(hiya_join(sql), param)
+        self.execute(power_join(
+            [f"SELECT {t.sql_select_statement} FROM {t.table_name}", sql_where]), param)
         return t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
 
     # SQLを実行して fetchone() した結果である tuple型 が返る。
-    # 該当レコードがない場合は None が返る。
+    # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
     # sql_where：条件部分のみの SQL を入れる。デフォルトは "" 。
     # param：paramには、sql として渡したSQL文の "?" に入るそれぞれの値を tuple にして渡す。
@@ -96,13 +95,12 @@ class MySQLConnector:
     # result = db.select_one(SiteUser,"WHERE id = ?", id)
     def select_one(self, t: type, sql_where: str = "", param=()) -> tuple:
 
-        sql = [
-            f"SELECT {t.sql_select_statement} FROM {t.table_name}", sql_where]
-        self.execute(hiya_join(sql), param)
+        self.execute(power_join(
+            [f"SELECT {t.sql_select_statement} FROM {t.table_name}", sql_where]), param)
         return t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
 
     # DELETEを実行する関数
-    # 該当レコードがない場合は None が返る。
+    # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
     # sql_where：条件部分のみの SQL を入れる。デフォルトは""。
     # （例）"WHERE id = ?"
@@ -114,26 +112,10 @@ class MySQLConnector:
 
         sql = [f"DELETE FROM {t.table_name}", sql_where]
 
-        return self.execute(hiya_join(sql), param)
-
-    # INSERTを実行する関数
-    # 該当レコードがない場合は None が返る。
-    # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
-    # sql_where：条件部分のみの SQL を入れる。デフォルトは""。
-    # （例）"VALUES (?)"
-    # param：paramには、sql として渡したSQL文の "?" に入るそれぞれの値を tuple にして渡す。
-    # 返し値：
-    # （使用例）
-    # db.insert(SiteUser,"VALUES (?)", comment)
-    def insert(self, t: type, sql_where: str = "", param=()):
-
-        sql = [
-            f"INSERT INTO {t.table_name} ({t.sql_select_statement})", sql_where]
-
-        return self.execute(hiya_join(sql), param)
+        return self.execute(power_join(sql), param)
 
     # UPDATEを実行する関数
-    # 該当レコードがない場合は None が返る。
+    # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
     # sql_set：アップデート対象の部分のみ SQL を入れる。デフォルトは""。（記入例）"SET id=?"
     # sql_where：検索条件部分のみの SQL を入れる。デフォルトは""。（記入例）"WHERE id=3"
@@ -146,7 +128,23 @@ class MySQLConnector:
 
         sql = [f"UPDATE {t.table_name}", sql_set, sql_where]
 
-        return self.execute(hiya_join(sql), param)
+        return self.execute(power_join(sql), param)
+
+    # INSERTを実行する関数
+    # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
+    # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
+    # sql_where：条件部分のみの SQL を入れる。デフォルトは""。
+    # （例）"VALUES (?)"
+    # param：paramには、sql として渡したSQL文の "?" に入るそれぞれの値を tuple にして渡す。
+    # 返し値：
+    # （使用例）
+    # db.insert(SiteUser,"VALUES (?)", comment)
+    def insert(self, t: type, sql_where: str = "", param=()):
+
+        sql = [
+            f"INSERT INTO {t.table_name} ({t.sql_select_statement})", sql_where]
+
+        return self.execute(power_join(sql), param)
 
 
 # DBのテーブルを表現するクラスの基底クラス
@@ -234,7 +232,7 @@ app = FlaskBuilder(__name__)
 def add_todo_item():
 
     # ToDoフォームのテキストボックスに入力されたテキストを取得する。
-    comment, = request_form('comment')
+    comment = request_form('comment')
 
     # コメント欄のテキストボックスが空でなければ、SQLを実行する。
     # コメント欄のテキストボックスが空なら何もしない。

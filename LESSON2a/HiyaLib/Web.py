@@ -5,14 +5,15 @@ from HiyaLib.common import ReadJsonFromFile, FileReader
 
 # Flaskクラスのbuilder
 # シークレットキーの設定も行う。
-# appでログインするためにlogin関数を生やしています。
-# appでログアウトするためにlogout関数を生やしています。
+# Flaskのインスタンスである app でログインするためにlogin関数を生やしています。
+# Flaskのインスタンスである app でログアウトするためにlogout関数を生やしています。
 # name：現在のファイルのモジュール名
 # 返し値：Flaskクラスのインスタンスを返す。
 # （使用例）
 # app = FlaskBuilder(__name__)
 def FlaskBuilder(name: str) -> Flask:
 
+    # Flaskクラスのインスタンスを作成する。
     app = Flask(name)
 
     # シークレットキーの設定のための関数
@@ -38,6 +39,9 @@ def FlaskBuilder(name: str) -> Flask:
 
 # デコレーター構文で用いる。ログインチェックの必要な関数にデコレーターとして付与する。
 # （例）
+# @app.route('/')
+# @login_required
+# def top():
 def login_required(view):
     @wraps(view)
     def inner(*args, **kwargs):
@@ -55,15 +59,19 @@ def login_required(view):
 # 　　　　※ nameを複数指定した場合は、返し値は、List[str]になる。
 # (使用例)
 # request_form('id','id_name','password')
-def request_form(*val: Tuple[str...]):
+# (必要性) 以下のように2変数分まとめて取得したかったのでこの関数を作成した。
+# また該当要素が存在しないときにNoneになってしまうと扱いにくいので""が返るようにもしたかった。
+#  id_name, password = request_form('id_name', 'password')
+def request_form(*val: "Tuple[str...]"):
 
     num = len(val)
 
     if num == 0:
         raise ValueError("request_formの引数が0個")
     elif num == 1:
-        # tupleに要素が1つだけあれば、tupleから文字列に変換する。
-        return [request.form.get(e, "") for e in val if e]
+        # val (tuple型) の要素が1つであれば、文字列で返す。
+        for e in val:
+            return request.form.get(e, "") if e else ""
 
-    # tupleに要素が複数あるなら要素をList型に入れ替えたものを返す。
+    # val (tuple型) の要素が複数あるなら要素をList型に入れ替えたものを返す。
     return [request.form.get(e, "") for e in val]
