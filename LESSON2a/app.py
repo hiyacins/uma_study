@@ -103,9 +103,9 @@ class MySQLConnector:
     # db.insert(SiteUser,"WHERE id = ?", id)
     def delete(self, t: type, sql_where: str = "", param=()):
 
-        sql = f"DELETE FROM {t.table_name}"
+        sql = [f"DELETE FROM {t.table_name}", sql_where]
 
-        return self.execute(hiya_join(sql, sql_where), param)
+        return self.execute(hiya_join(sql), param)
 
     # INSERTを実行する関数
     # 該当レコードがない場合は None が返る。
@@ -118,9 +118,10 @@ class MySQLConnector:
     # db.insert(SiteUser,"VALUES (?)", comment)
     def insert(self, t: type, sql_where: str = "", param=()):
 
-        sql = f"INSERT INTO {t.table_name} ({t.sql_select_statement})"
+        sql = [
+            f"INSERT INTO {t.table_name} ({t.sql_select_statement})", sql_where]
 
-        return self.execute(hiya_join(sql, sql_where), param)
+        return self.execute(hiya_join(sql), param)
 
     # UPDATEを実行する関数
     # 該当レコードがない場合は None が返る。
@@ -134,9 +135,9 @@ class MySQLConnector:
     # db.update(SiteUser,"SET id=?, comment=?","WHERE id=3", comment)
     def update(self, t: type, sql_set: str = "", sql_where: str = "", param=()):
 
-        sql = f"UPDATE {t.table_name}"
+        sql = [f"UPDATE {t.table_name}", sql_set, sql_where]
 
-        return self.execute(hiya_join(sql, sql_set, sql_where), param)
+        return self.execute(hiya_join(sql), param)
 
 
 # MySQLConnectorのadaptor
