@@ -1,6 +1,7 @@
 from io import TextIOWrapper
 from typing import Union, List, Tuple
 import json
+import unittest
 
 # JSONファイル丸読みしてdict型データを返す。
 # ファイルの文字エンコードはutf-8であるものとする。
@@ -26,6 +27,14 @@ def FileReader(filename: str) -> TextIOWrapper:
     return open(filename, 'r', encoding="utf-8")
 
 
+# unittest項目に対して、期待通りの値が出ればOK。値が違えば、assert文が出る。
+# x：unittestしたい項目を入れる。
+# （使用例）
+# my_assert(hiya_join(["ABC", "DEF"]) == "ABC DEF")
+def my_assert(x):
+    assert x, '期待通りの値が出力されていません。'
+
+
 # List[str]型で与えられた文字列を連結して返す。
 # 連結するときに s[i](i>=1) に対して手前にスペースを入れる。
 # ただし s[i] が空("" or None)なら、その要素を無視する。(スペースを入れない)
@@ -41,9 +50,11 @@ def hiya_join(str_list: List[str]) -> str:
 
 # hiya_join関数のunitテスト
 def hiya_joinTest():
+    # ここにテスト項目を書いていく。
     my_assert(hiya_join(["ABC", "DEF"]) == "ABC DEF")
     my_assert(hiya_join(["ABC", ""]) == "ABC")
 
 
 if __name__ == "__main__":
-    hiya_join()
+    hiya_joinTest()
+    unittest.main()
