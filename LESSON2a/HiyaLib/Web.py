@@ -3,6 +3,7 @@ from functools import wraps
 from HiyaLib.common import ReadJsonFromFile, FileReader
 from typing import Union, List, Tuple
 
+
 # Flaskクラスのbuilder
 # シークレットキーの設定も行う。
 # Flaskのインスタンスである app でログインするためにlogin関数を生やしています。
@@ -13,8 +14,6 @@ from typing import Union, List, Tuple
 # app = FlaskBuilder(__name__)
 # (必要性)　Flaskのインスタンス生成とそのオブジェクトを使っている
 # シークレットキーの設定とログイン・ログアウト操作を同じ関数内で行いたいため。
-
-
 def FlaskBuilder(name: str) -> Flask:
 
     # Flaskクラスのインスタンスを作成する。
