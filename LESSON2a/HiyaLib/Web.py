@@ -75,6 +75,7 @@ def request_form(*val: Tuple[str, ...]):
     elif num == 1:
         # val (tuple型) の要素が1つであれば、文字列で返す。
         # [ToDo]：for使わない！
+        #
         return request.form.get(val[0])
 
     # val (tuple型) の要素が複数あるなら要素をList型に入れ替えたものを返す。
