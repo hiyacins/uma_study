@@ -67,7 +67,7 @@ def login_required(view):
 # また該当要素が存在しないときにNoneになってしまうと扱いにくいので""が返るようにもしたかった。
 #  id_name, password = request_form('id_name', 'password')
 def request_form(*val: Tuple[str, ...]):
-    print(val)
+
     num = len(val)
 
     if num == 0:
@@ -75,8 +75,7 @@ def request_form(*val: Tuple[str, ...]):
     elif num == 1:
         # val (tuple型) の要素が1つであれば、文字列で返す。
         # [ToDo]：for使わない！
-        for e in val:
-            return request.form.get(e, "")
+        return request.form.get(val[0])
 
     # val (tuple型) の要素が複数あるなら要素をList型に入れ替えたものを返す。
     return [request.form.get(e, "") for e in val]
