@@ -192,9 +192,7 @@ class MySQLConnector:
 
         primary_key = t.orm_primary_key
 
-        sql = [f"DELETE FROM {t.table_name}", f"WHERE {primary_key} = ?"]
-
-        return self.execute(power_join(sql), getattr(t, primary_key))
+        return self.execute(power_join([f"DELETE FROM {t.table_name}", f"WHERE {primary_key} = ?"]), getattr(t, primary_key))
 
     # UPDATEを実行する関数
     # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
@@ -206,11 +204,14 @@ class MySQLConnector:
     # 返し値：
     # （使用例）
     # db.update(SiteUser,"SET id=?, comment=?","WHERE id=3", comment)
-    def update(self, t: type, sql_set: str = "", sql_where: str = "", param=()):
+    def update(self, t: DBTable):
 
-        sql = [f"UPDATE {t.table_name}", sql_set, sql_where]
+        primary_key = t.orm_primary_key
 
-        return self.execute(power_join(sql), param)
+        sql = [
+            f"UPDATE {t.table_name} SET {update_str} WHERE {primary_key} = ?"]
+
+        return self.execute(power_join(sql), getattr(t, update_str))
 
     # INSERTを実行する関数
     # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
