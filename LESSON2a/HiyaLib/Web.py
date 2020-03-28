@@ -73,7 +73,7 @@ def request_form(*val: Tuple[str, ...]):
         raise ValueError("request_formの引数が0個")
     elif num == 1:
         # val (tuple型) の要素が1つであれば、文字列で返す。
-        return request.form.get(val[0])
+        return request.form.get(val[0], "")
 
     # val (tuple型) の要素が複数あるなら要素をList型に入れ替えたものを返す。
     return [request.form.get(e, "") for e in val]

@@ -186,9 +186,17 @@ class MySQLConnector:
     # DELETEを実行する関数
     # 該当レコードがない場合は None が返る。
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
+    # 　 または、クラスのオブジェクト DBTable を入れる。
     # （使用例）
-    # db.delete(ToDoItem)
-    def delete(self, t: DBTable):
+    # ※DBTable型のとき
+    # 　db.delete(todo_item)
+    # ※ToDoItemクラス型のとき
+    # 　db.delete(ToDoItem)
+    def delete(self, t):
+
+        # t が type型 のときは、全件削除する。
+        if type(t) is type:
+            return self.execute(f"DELETE FROM {t.table_name}", param=())
 
         primary_key = t.orm_primary_key
 
@@ -211,7 +219,7 @@ class MySQLConnector:
         sql = [
             f"UPDATE {t.table_name} SET {update_str} WHERE {primary_key} = ?"]
 
-        return self.execute(power_join(sql), getattr(t, update_str))
+        return self.execute(power_join(sql), getattr(t, primary_key))
 
     # INSERTを実行する関数
     # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
@@ -280,7 +288,8 @@ def all_delete_todo_items():
     with MySQLConnector() as db:
 
         # ToDoリストをすべて削除する。
-        db.execute("DELETE FROM todo_items")
+        # db.execute("DELETE FROM todo_items")
+        db.delete(ToDoItem)
 
     flash('全部削除しました＼(^o^)／ｵﾜｯﾀ')
 
