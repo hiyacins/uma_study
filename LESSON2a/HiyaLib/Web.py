@@ -1,7 +1,7 @@
 from flask import Flask, redirect, url_for, request, session
 from functools import wraps
 from HiyaLib.common import ReadJsonFromFile, FileReader
-
+from typing import Union, List, Tuple
 
 # Flaskクラスのbuilder
 # シークレットキーの設定も行う。
@@ -13,6 +13,8 @@ from HiyaLib.common import ReadJsonFromFile, FileReader
 # app = FlaskBuilder(__name__)
 # (必要性)　Flaskのインスタンス生成とそのオブジェクトを使っている
 # シークレットキーの設定とログイン・ログアウト操作を同じ関数内で行いたいため。
+
+
 def FlaskBuilder(name: str) -> Flask:
 
     # Flaskクラスのインスタンスを作成する。
@@ -64,16 +66,17 @@ def login_required(view):
 # (必要性) 以下のように2変数分まとめて取得したかったのでこの関数を作成した。
 # また該当要素が存在しないときにNoneになってしまうと扱いにくいので""が返るようにもしたかった。
 #  id_name, password = request_form('id_name', 'password')
-def request_form(*val: "Tuple[str,...]"):
-
+def request_form(*val: Tuple[str, ...]):
+    print(val)
     num = len(val)
 
     if num == 0:
         raise ValueError("request_formの引数が0個")
     elif num == 1:
         # val (tuple型) の要素が1つであれば、文字列で返す。
+        # [ToDo]：for使わない！
         for e in val:
-            return request.form.get(e, "") if e else ""
+            return request.form.get(e, "")
 
     # val (tuple型) の要素が複数あるなら要素をList型に入れ替えたものを返す。
     return [request.form.get(e, "") for e in val]

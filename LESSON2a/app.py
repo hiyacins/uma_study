@@ -1,6 +1,90 @@
 from HiyaLib import *
 
 
+# DBのテーブルを表現するクラスの基底クラス
+class DBTable():
+
+    # columns と column_names から要素をひとつずつ取り出したのがvalue , nameとして、
+    # それを 生成したDBTable派生型のオブジェクトに setattr(object,name,value)する。
+    # columns：カラムの値が格納されている。
+    # column_names：カラム名が格納されている。
+    # 返し値：recordオブジェクトに name属性に value を追加したものを返す。
+    # （使用例）
+    # t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
+    # (必要性)　
+    @classmethod
+    def from_tuple(cls, columns: Tuple[Tuple], column_names: List[str]) -> "DBTable":
+
+        # DBTable派生クラスのインスタンスを作成する。
+        record = (cls)()
+
+        # column_names と columns から要素をひとつずつ取り出して
+        # name と value に入れる。
+        # nameとvalueに対して、recordオブジェクトに name属性に value を追加する。
+        for name, value in zip(column_names, columns):
+            setattr(record, name, value)
+
+        return record
+
+    # Tuple[tuple]型の値 を List[map]型の値に変換する。
+    # columns：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
+    # 返し値：Tuple[tuple]型 から List[map]型 に変換して返す。
+    # （使用例）
+    # t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
+    # (必要性)　
+    @classmethod
+    def from_tuple_of_tuples(cls, columns: Tuple[tuple]) -> "List[map]":
+
+        t = cls.sql_select_statement.split(",")
+
+        return list(map(lambda x: cls.from_tuple(x, t), columns))
+
+
+# DBのTODO_ITEMSテーブルの一つのrecordを表現する構造体
+class ToDoItem(DBTable):
+
+    # TODO_ITEMSテーブルの名前
+    table_name = "todo_items"
+
+    # TODO_ITEMSテーブルの各フィールド名
+    sql_select_statement = "id,comment"
+
+    # TODO_ITEMSテーブルのprimary key設定
+    orm_primary_key = "id"
+
+    def __init__(self):
+
+        # auto_increment , primary
+        self.id = -1
+
+        # ここにToDoの内容が入っている
+        self.comment = ""
+
+
+# DBのSITE_USERSテーブルの一つのrecordを表現する構造体
+class SiteUser(DBTable):
+
+    # SITE_USERSテーブルの名前
+    table_name = "site_users"
+
+    # SITE_USERSテーブルの各フィールド名
+    sql_select_statement = "id,id_name,password"
+
+    # SITE_USERSテーブルのprimary key設定
+    orm_primary_key = "id"
+
+    def __init__(self):
+
+        # auto_increment , primary
+        self.id = -1
+
+        # ここにユーザーIDの内容が入っている
+        self.id_name = ""
+
+        # ここにパスワードの内容が入っている
+        self.password = ""
+
+
 # MySQLに接続・切断を行うクラス
 class MySQLConnector:
     def __init__(self):
@@ -100,21 +184,17 @@ class MySQLConnector:
         return t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
 
     # DELETEを実行する関数
-    # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
+    # 該当レコードがない場合は None が返る。
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
-    # sql_where：条件部分のみの SQL を入れる。デフォルトは""。
-    # （例）"WHERE id = ?"
-    # param：paramには、sql として渡したSQL文の "?" に入るそれぞれの値を tuple にして渡す。
-    # 返し値：
     # （使用例）
-    # db.insert(SiteUser,"WHERE id = ?", id)
-    def delete(self, t: "DBTable"):
+    # db.delete(ToDoItem)
+    def delete(self, t: DBTable):
 
         primary_key = t.orm_primary_key
-        sql = [f"DELETE FROM {t.table_name}", "WHERE {primary_key} = ? "]
 
-        # [ToDo]：primary_keyの値を取れたらいいが、どうしたらとれるのか？
-        return self.execute(power_join(sql), primary_key)
+        sql = [f"DELETE FROM {t.table_name}", f"WHERE {primary_key} = ?"]
+
+        return self.execute(power_join(sql), getattr(t, primary_key))
 
     # UPDATEを実行する関数
     # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
@@ -141,96 +221,12 @@ class MySQLConnector:
     # 返し値：
     # （使用例）
     # db.insert(SiteUser,"VALUES (?)", comment)
-    def insert(self, t: type, sql_where: str = "", param=()):
+    # def insert(self, t: type, sql_where: str = "", param=()):
 
-        sql = [
-            f"INSERT INTO {t.table_name} ({t.sql_select_statement})", sql_where]
+    #     sql = [
+    #         f"INSERT INTO {t.table_name} ({t.sql_select_statement})", sql_where]
 
-        return self.execute(power_join(sql), param)
-
-
-# DBのテーブルを表現するクラスの基底クラス
-class DBTable():
-
-    # columns と column_names から要素をひとつずつ取り出したのがvalue , nameとして、
-    # それを 生成したDBTable派生型のオブジェクトに setattr(object,name,value)する。
-    # columns：カラムの値が格納されている。
-    # column_names：カラム名が格納されている。
-    # 返し値：recordオブジェクトに name属性に value を追加したものを返す。
-    # （使用例）
-    # t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
-    # (必要性)　
-    @classmethod
-    def from_tuple(cls, columns: Tuple[Tuple], column_names: List[str]) -> "DBTable":
-
-        # DBTable派生クラスのインスタンスを作成する。
-        record = (cls)()
-
-        # column_names と columns から要素をひとつずつ取り出して
-        # name と value に入れる。
-        # nameとvalueに対して、recordオブジェクトに name属性に value を追加する。
-        for name, value in zip(column_names, columns):
-            setattr(record, name, value)
-
-        return record
-
-    # Tuple[tuple]型の値 を List[map]型の値に変換する。
-    # columns：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
-    # 返し値：Tuple[tuple]型 から List[map]型 に変換して返す。
-    # （使用例）
-    # t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
-    # (必要性)　
-    @classmethod
-    def from_tuple_of_tuples(cls, columns: Tuple[tuple]) -> "List[map]":
-
-        t = cls.sql_select_statement.split(",")
-
-        return list(map(lambda x: cls.from_tuple(x, t), columns))
-
-
-# DBのTODO_ITEMSテーブルの一つのrecordを表現する構造体
-class ToDoItem(DBTable):
-
-    # TODO_ITEMSテーブルの名前
-    table_name = "todo_items"
-
-    # TODO_ITEMSテーブルの各フィールド名
-    sql_select_statement = "id,comment"
-
-    # TODO_ITEMSテーブルのprimary key設定
-    orm_primary_key = "id"
-
-    def __init__(self):
-
-        # auto_increment , primary
-        self.id = -1
-
-        # ここにToDoの内容が入っている
-        self.comment = ""
-
-
-# DBのSITE_USERSテーブルの一つのrecordを表現する構造体
-class SiteUser(DBTable):
-
-    # SITE_USERSテーブルの名前
-    table_name = "site_users"
-
-    # SITE_USERSテーブルの各フィールド名
-    sql_select_statement = "id,id_name,password"
-
-    # SITE_USERSテーブルのprimary key設定
-    orm_primary_key = "id"
-
-    def __init__(self):
-
-        # auto_increment , primary
-        self.id = -1
-
-        # ここにユーザーIDの内容が入っている
-        self.id_name = ""
-
-        # ここにパスワードの内容が入っている
-        self.password = ""
+    #     return self.execute(power_join(sql), param)
 
 
 app = FlaskBuilder(__name__)
