@@ -108,11 +108,13 @@ class MySQLConnector:
     # 返し値：
     # （使用例）
     # db.insert(SiteUser,"WHERE id = ?", id)
-    def delete(self, t: type, sql_where: str = "", param=()):
+    def delete(self, t: "DBTable"):
 
-        sql = [f"DELETE FROM {t.table_name}", sql_where]
+        primary_key = t.orm_primary_key
+        sql = [f"DELETE FROM {t.table_name}", "WHERE {primary_key} = ? "]
 
-        return self.execute(power_join(sql), param)
+        # [ToDo]：primary_keyの値を取れたらいいが、どうしたらとれるのか？
+        return self.execute(power_join(sql), primary_key)
 
     # UPDATEを実行する関数
     # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
@@ -157,6 +159,7 @@ class DBTable():
     # 返し値：recordオブジェクトに name属性に value を追加したものを返す。
     # （使用例）
     # t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
+    # (必要性)　
     @classmethod
     def from_tuple(cls, columns: Tuple[Tuple], column_names: List[str]) -> "DBTable":
 
@@ -176,6 +179,7 @@ class DBTable():
     # 返し値：Tuple[tuple]型 から List[map]型 に変換して返す。
     # （使用例）
     # t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
+    # (必要性)　
     @classmethod
     def from_tuple_of_tuples(cls, columns: Tuple[tuple]) -> "List[map]":
 
@@ -192,6 +196,9 @@ class ToDoItem(DBTable):
 
     # TODO_ITEMSテーブルの各フィールド名
     sql_select_statement = "id,comment"
+
+    # TODO_ITEMSテーブルのprimary key設定
+    orm_primary_key = "id"
 
     def __init__(self):
 
@@ -210,6 +217,9 @@ class SiteUser(DBTable):
 
     # SITE_USERSテーブルの各フィールド名
     sql_select_statement = "id,id_name,password"
+
+    # SITE_USERSテーブルのprimary key設定
+    orm_primary_key = "id"
 
     def __init__(self):
 
@@ -255,9 +265,10 @@ def delete_todo_item(id: int):
 
     with MySQLConnector() as db:
 
-        # 任意のidのコメントをDBから削除する。
-        db.execute(
-            "DELETE FROM todo_items WHERE id = ?", id)
+        todo_item = db.select_one(
+            ToDoItem, "WHERE id = ?", id) if id else None
+
+        db.delete(todo_item)
 
     flash('削除しました＼(^o^)／')
 

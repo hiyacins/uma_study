@@ -11,6 +11,8 @@ from HiyaLib.common import ReadJsonFromFile, FileReader
 # 返し値：Flaskクラスのインスタンスを返す。
 # （使用例）
 # app = FlaskBuilder(__name__)
+# (必要性)　Flaskのインスタンス生成とそのオブジェクトを使っている
+# シークレットキーの設定とログイン・ログアウト操作を同じ関数内で行いたいため。
 def FlaskBuilder(name: str) -> Flask:
 
     # Flaskクラスのインスタンスを作成する。
@@ -62,7 +64,7 @@ def login_required(view):
 # (必要性) 以下のように2変数分まとめて取得したかったのでこの関数を作成した。
 # また該当要素が存在しないときにNoneになってしまうと扱いにくいので""が返るようにもしたかった。
 #  id_name, password = request_form('id_name', 'password')
-def request_form(*val: "Tuple[str...]"):
+def request_form(*val: "Tuple[str,...]"):
 
     num = len(val)
 

@@ -45,6 +45,8 @@ def my_assert(b: bool):
 # （使用例）
 # sql=[f"SELECT {t.orm_select_sql} FROM {t.__table_name__}", where_str]
 # power_join(sql)
+# (必要性)　例えば、SQL文を作るとき、文字列連結で行うとSELRCTやWHEREやORDERといったパーツごとに記述できる。
+# しかし、それらの先頭には、半角スペースが必要なため、それを実現する関数があれば便利であるというのが理由。
 def power_join(str_list: List[str]) -> str:
 
     return " ".join([s for s in str_list if s])
