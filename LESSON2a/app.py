@@ -52,6 +52,12 @@ class ToDoItem(DBTable):
     # TODO_ITEMSテーブルのprimary key設定
     orm_primary_key = "id"
 
+    # TODO_ITEMSテーブルのupdateカラムを設定
+    orm_update_str = "comment=?"
+
+    # TODO_ITEMSテーブルのカラム名をlistで設定
+    orm_column_names = ["id", "comment"]
+
     def __init__(self):
 
         # auto_increment , primary
@@ -72,6 +78,12 @@ class SiteUser(DBTable):
 
     # SITE_USERSテーブルのprimary key設定
     orm_primary_key = "id"
+
+    # SITE_USERSテーブルのupdateカラムを設定
+    orm_update_str = "id_name=?,password=?"
+
+    # SITE_USERSテーブルのカラム名をlistで設定
+    orm_column_names = ["id", "id_name", "password"]
 
     def __init__(self):
 
@@ -192,6 +204,9 @@ class MySQLConnector:
     # 　db.delete(todo_item)
     # ※ToDoItemクラス型のとき
     # 　db.delete(ToDoItem)
+    # (必要性)　ToDoリストの個別削除と全件削除を実現したいため作成。個別削除では、DBTableを引数に取るが、
+    # 全件削除では、ToDoItemクラス型を使う。Pythonでは、異なる型を引数にとってもコンパイル時にチェックされていないので
+    # 関数内で処理することにする。
     def delete(self, t):
 
         # t が type型 のときは、全件削除する。
@@ -203,7 +218,7 @@ class MySQLConnector:
         return self.execute(power_join([f"DELETE FROM {t.table_name}", f"WHERE {primary_key} = ?"]), getattr(t, primary_key))
 
     # UPDATEを実行する関数
-    # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
+    # 該当レコードがない場合は None が返る。
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
     # sql_set：アップデート対象の部分のみ SQL を入れる。デフォルトは""。（記入例）"SET id=?"
     # sql_where：検索条件部分のみの SQL を入れる。デフォルトは""。（記入例）"WHERE id=3"
@@ -214,12 +229,22 @@ class MySQLConnector:
     # db.update(SiteUser,"SET id=?, comment=?","WHERE id=3", comment)
     def update(self, t: DBTable):
 
+        # updateカラム取得
+        update_strs = t.orm_update_str
+
+        # primary_key を取得
         primary_key = t.orm_primary_key
 
-        sql = [
-            f"UPDATE {t.table_name} SET {update_str} WHERE {primary_key} = ?"]
+        update_param = []
+        for member_name in t.orm_column_names:
 
-        return self.execute(power_join(sql), getattr(t, primary_key))
+            # primary_key は update 対象にしない。
+            if member_name != primary_key:
+
+                # 最終的には tuple にしたいが、値の変更ができる list にまず入れる。
+                update_param = member_name
+
+        return self.execute(power_join(["UPDATE {t.table_name} SET {update_strs} WHERE {primary_key} = ?"]), tuple(update_param))
 
     # INSERTを実行する関数
     # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
@@ -261,7 +286,7 @@ def add_todo_item():
     return redirect(url_for('top'))
 
 
-# ToDoリストに追加されたコメントをDBから削除する。
+# ToDoリストに追加されたコメントをDBから1件だけ削除する。
 # id : int
 # 削除するコメントのid
 @app.route('/delete/<int:id>', methods=['POST'])
@@ -288,7 +313,6 @@ def all_delete_todo_items():
     with MySQLConnector() as db:
 
         # ToDoリストをすべて削除する。
-        # db.execute("DELETE FROM todo_items")
         db.delete(ToDoItem)
 
     flash('全部削除しました＼(^o^)／ｵﾜｯﾀ')
