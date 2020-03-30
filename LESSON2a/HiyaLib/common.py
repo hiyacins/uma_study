@@ -53,7 +53,7 @@ def power_join(str_list: List[str]) -> str:
 
 
 # unittest.TestCaseの子クラス
-class MyTest(unittest.TestCase):
+class HiyaLib_Common_Test(unittest.TestCase):
 
     # hiya_join関数のunitテスト
     def test_power_joinTest(self):

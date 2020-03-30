@@ -1,4 +1,5 @@
 from HiyaLib import *
+import unittest
 
 
 # DBのテーブルを表現するクラスの基底クラス
@@ -247,14 +248,11 @@ class MySQLConnector:
     # UPDATEを実行する関数
     # 該当レコードがない場合は None が返る。
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
-    # sql_set：アップデート対象の部分のみ SQL を入れる。デフォルトは""。（記入例）"SET id=?"
-    # sql_where：検索条件部分のみの SQL を入れる。デフォルトは""。（記入例）"WHERE id=3"
-    # （例）" WHERE id = ?"
     # param：paramには、sql として渡したSQL文の "?" に入るそれぞれの値を tuple にして渡す。
     # 返し値：
     # （使用例）
-    # db.update(SiteUser,"SET id=?, comment=?","WHERE id=3", comment)
-    def update(self, t: DBTable):
+    # db.update(SiteUser)
+    def update(self, t: type, update_param: tuple):
 
         # updateカラム取得
         update_strs = t.orm_update_str
@@ -262,31 +260,16 @@ class MySQLConnector:
         # primary_key を取得
         primary_key = t.orm_primary_key
 
-        update_param = []
-        for member_name in t.orm_column_names:
+        #update_param = []
+        # for member_name in t.orm_column_names:
 
-            # primary_key は update 対象にしない。
-            if member_name != primary_key:
+        #     # primary_key は update 対象にしない。
+        #     if member_name != primary_key:
 
-                # 最終的には tuple にしたいが、値の変更ができる list にまず入れる。
-                update_param = member_name
+        #         # 最終的には tuple にしたいが、値の変更ができる list にまず入れる。
+        #         update_param = member_name
 
         return self.execute(power_join([f"UPDATE {t.table_name} SET {update_strs} WHERE {primary_key} = ?"]), tuple(update_param))
-
-    # unittest.TestCaseの子クラス
-
-    class MyTest2(unittest.TestCase):
-
-        # hiya_join関数のunitテスト
-        def test_update(self):
-            # ここにテスト項目を書いていく。
-            with MySQLConnector() as db:
-
-                # コメントをDBに登録する。
-                test_table =
-
-                db.delete(test_table)
-
 
     # INSERTを実行する関数
     # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
@@ -303,6 +286,7 @@ class MySQLConnector:
     #         f"INSERT INTO {t.table_name} ({t.sql_select_statement})", sql_where]
 
     #     return self.execute(power_join(sql), param)
+
 
 app = FlaskBuilder(__name__)
 
@@ -419,6 +403,20 @@ def logout():
     return redirect(url_for('login'))
 
 
+# unittest.TestCaseの子クラス
+class App_Test(unittest.TestCase):
+
+    # update関数のunitテスト
+    def test_update(self):
+        # ここにテスト項目を書いていく。
+        test_table = ('算数', 1)
+
+        with MySQLConnector() as db:
+
+            db.update(TestTable, test_table)
+
+
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
-#    app.run(host="0.0.0.0", port=80, debug=False)
+    #    app.run(port=5000, debug=True)
+    #    app.run(host="0.0.0.0", port=80, debug=False)
+    unittest.main()

@@ -57,6 +57,7 @@ def login_required(view):
 
 
 # request.form からデータを取得する。
+# 引数なしで使用しないこと。空リストが返るため。
 # val：request.form.get(name)のnameを指定する。複数指定可能。
 # 返し値：request.form.get(name)の値をstr型で返す。
 # 　　　　※ nameを複数指定した場合は、返し値は、List[str]になる。
@@ -67,13 +68,10 @@ def login_required(view):
 #  id_name, password = request_form('id_name', 'password')
 def request_form(*val: Tuple[str, ...]):
 
-    num = len(val)
+    if not val:
+        raise ValueError("引数の数が0個")
 
-    if num == 0:
-        raise ValueError("request_formの引数が0個")
-    elif num == 1:
-        # val (tuple型) の要素が1つであれば、文字列で返す。
-        return request.form.get(val[0], "")
-
+    l = [request.form.get(e, "") for e in val]
+    # val (tuple型) の要素が1つであれば、文字列で返す。
     # val (tuple型) の要素が複数あるなら要素をList型に入れ替えたものを返す。
-    return [request.form.get(e, "") for e in val]
+    return l[0] if len(l) == 1 else l
