@@ -56,6 +56,9 @@ class ToDoItem(DBTable):
     # TODO_ITEMSテーブルのupdateカラムを設定
     orm_update_str = "comment=?"
 
+    # TEST_TABLEテーブルのinsertカラムを設定
+    orm_insert_param = "?"
+
     # TODO_ITEMSテーブルのカラム名をlistで設定
     orm_column_names = ["id", "comment"]
 
@@ -113,6 +116,9 @@ class TestTable(DBTable):
     # TEST_TABLEテーブルのupdateカラムを設定
     orm_update_str = "comment=?"
 
+    # TEST_TABLEテーブルのinsertカラムを設定
+    orm_insert_param = "?"
+
     # TEST_TABLEテーブルのカラム名をlistで設定
     orm_column_names = ["id", "comment"]
 
@@ -123,6 +129,43 @@ class TestTable(DBTable):
 
         # ここにTestcommentの内容が入っている
         self.comment = ""
+
+# DBのTEST_TABLEテーブルの一つのrecordを表現する構造体
+
+
+class TestTable2(DBTable):
+
+    # SITE_USERSテーブルの名前
+    table_name = "test_tables2"
+
+    # SITE_USERSテーブルの各フィールド名
+    sql_select_statement = "id,id_name,password"
+
+    # SITE_USERSテーブルのprimary key設定
+    orm_primary_key = "id"
+
+    # SITE_USERSテーブルのupdateカラムを設定
+    orm_update_str = "id_name=?,password=?"
+
+    # TEST_TABLEテーブルのinsertカラムを設定
+    orm_insert_param = "?,?"
+
+    # SITE_USERSテーブルのカラム名をlistで設定
+    orm_column_names = ["id", "id_name", "password"]
+
+    # SITE_USERSテーブルのカラム名をlistで設定
+    orm_insert_colum = "id_name, password"
+
+    def __init__(self):
+
+        # auto_increment , primary
+        self.id = -1
+
+        # ここにユーザーIDの内容が入っている
+        self.id_name = ""
+
+        # ここにパスワードの内容が入っている
+        self.password = ""
 
 
 # MySQLに接続・切断を行うクラス
@@ -260,7 +303,7 @@ class MySQLConnector:
         # primary_key を取得
         primary_key = t.orm_primary_key
 
-        #update_param = []
+        # update_param = []
         # for member_name in t.orm_column_names:
 
         #     # primary_key は update 対象にしない。
@@ -279,13 +322,28 @@ class MySQLConnector:
     # param：paramには、sql として渡したSQL文の "?" に入るそれぞれの値を tuple にして渡す。
     # 返し値：
     # （使用例）
-    # db.insert(SiteUser,"VALUES (?)", comment)
-    # def insert(self, t: type, sql_where: str = "", param=()):
+    # db.insert(ToDoItem, comment)
+    def insert(self, t: type, param: tuple):
 
-    #     sql = [
-    #         f"INSERT INTO {t.table_name} ({t.sql_select_statement})", sql_where]
+        # primary_key を取得
+        primary_key = t.orm_primary_key
 
-    #     return self.execute(power_join(sql), param)
+        insert_colum = t.orm_insert_colum
+
+        insert_param = t.orm_insert_param
+
+        # insert_str = []
+        # for member_name in t.orm_column_names:
+
+        #     # primary_key は update 対象にしない。
+        #     if member_name != primary_key:
+
+        #         # 最終的には tuple にしたいが、値の変更ができる list にまず入れる。
+        #         insert_str.append(member_name)
+        sql = [
+            f"INSERT INTO {t.table_name} ({insert_colum}) VALUES ({insert_param})"]
+        print(sql)
+        return self.execute(power_join(sql), param)
 
 
 app = FlaskBuilder(__name__)
@@ -305,9 +363,9 @@ def add_todo_item():
         with MySQLConnector() as db:
 
             # コメントをDBに登録する。
-            db.execute(
-                "INSERT INTO test_tables (comment) VALUES (?)", comment)
-            # "INSERT INTO todo_items (comment) VALUES (?)", comment)
+            # db.execute(
+            #     "INSERT INTO test_tables (comment) VALUES (?)", comment)
+            db.insert(ToDoItem, comment)
 
     return redirect(url_for('top'))
 
@@ -414,6 +472,14 @@ class App_Test(unittest.TestCase):
         with MySQLConnector() as db:
 
             db.update(TestTable, test_table)
+
+    # insert関数のunitテスト
+    def test_insert(self):
+        # ここにテスト項目を書いていく。
+        with MySQLConnector() as db:
+
+            # コメントをDBに登録する。
+            db.insert(TestTable2, ('yama', '838861'))
 
 
 if __name__ == "__main__":
