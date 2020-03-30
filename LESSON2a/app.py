@@ -97,6 +97,33 @@ class SiteUser(DBTable):
         self.password = ""
 
 
+# DBのTEST_TABLEテーブルの一つのrecordを表現する構造体
+class TestTable(DBTable):
+
+    # TEST_TABLEテーブルの名前
+    table_name = "test_tables"
+
+    # TEST_TABLEテーブルの各フィールド名
+    sql_select_statement = "id,comment"
+
+    # TEST_TABLEテーブルのprimary key設定
+    orm_primary_key = "id"
+
+    # TEST_TABLEテーブルのupdateカラムを設定
+    orm_update_str = "comment=?"
+
+    # TEST_TABLEテーブルのカラム名をlistで設定
+    orm_column_names = ["id", "comment"]
+
+    def __init__(self):
+
+        # auto_increment , primary
+        self.id = -1
+
+        # ここにTestcommentの内容が入っている
+        self.comment = ""
+
+
 # MySQLに接続・切断を行うクラス
 class MySQLConnector:
     def __init__(self):
@@ -244,7 +271,22 @@ class MySQLConnector:
                 # 最終的には tuple にしたいが、値の変更ができる list にまず入れる。
                 update_param = member_name
 
-        return self.execute(power_join(["UPDATE {t.table_name} SET {update_strs} WHERE {primary_key} = ?"]), tuple(update_param))
+        return self.execute(power_join([f"UPDATE {t.table_name} SET {update_strs} WHERE {primary_key} = ?"]), tuple(update_param))
+
+    # unittest.TestCaseの子クラス
+
+    class MyTest2(unittest.TestCase):
+
+        # hiya_join関数のunitテスト
+        def test_update(self):
+            # ここにテスト項目を書いていく。
+            with MySQLConnector() as db:
+
+                # コメントをDBに登録する。
+                test_table =
+
+                db.delete(test_table)
+
 
     # INSERTを実行する関数
     # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
@@ -261,7 +303,6 @@ class MySQLConnector:
     #         f"INSERT INTO {t.table_name} ({t.sql_select_statement})", sql_where]
 
     #     return self.execute(power_join(sql), param)
-
 
 app = FlaskBuilder(__name__)
 
@@ -281,7 +322,8 @@ def add_todo_item():
 
             # コメントをDBに登録する。
             db.execute(
-                "INSERT INTO todo_items (comment) VALUES (?)", comment)
+                "INSERT INTO test_tables (comment) VALUES (?)", comment)
+            # "INSERT INTO todo_items (comment) VALUES (?)", comment)
 
     return redirect(url_for('top'))
 
