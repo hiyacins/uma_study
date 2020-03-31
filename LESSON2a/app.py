@@ -342,25 +342,33 @@ class MySQLConnector:
     # db.insert(item)
     def insert(self, t: DBTable):
 
-        # insert対象のカラム取得
-        insert_colum = t.orm_insert_colum
-
-        # insert対象の値（"?"で表す）を取得
-        insert_value = t.orm_insert_value
-
         # primary_key を取得
         primary_key = t.orm_primary_key
 
+        # insertカラム取得
+        insert_statements = t.sql_select_statement
+
         insert_param = []
-        for member_name in t.orm_column_names:
+
+        # 取得したupdateカラムはstr型なので、list型に変換して要素をmember_nameに詰め替える。
+        for member_name in insert_statements.split(','):
 
             # primary_key は update 対象にしない。
             if member_name != primary_key:
 
-                # 最終的には tuple にしたいが、値の変更ができる list にまず入れる。
+                # updateしたいカラムを取り出す。
+                insert_str = ''.join(member_name)
+
+                # updateしたいカラムを"?"で置換する。
+                insert_value = member_name.replace(member_name, "?")
+
+                # updateしたいカラムの値をlistで取り出す。
                 insert_param.append(getattr(t, member_name))
 
-        return self.execute(power_join([f"INSERT INTO {t.table_name} ({insert_colum}) VALUES ({insert_value})"]), insert_param)
+        sql = [
+            f"INSERT INTO {t.table_name} ({insert_str}) VALUES ({insert_value})"]
+
+        return self.execute(power_join(sql), insert_param)
 
 
 app = FlaskBuilder(__name__)
@@ -481,34 +489,34 @@ def logout():
 # unittest.TestCaseの子クラス
 class App_Test(unittest.TestCase):
 
-    # # insert関数のunitテスト
-    # def test_insert(self):
-    #     # ここにテスト項目を書いていく。
-    #     with MySQLConnector() as db:
-
-    #         # testitems = TestTable2()
-    #         # testitems.id_name = 'tama'
-    #         # testitems.password = '0073735963'
-    #         testitems = TestTable()
-    #         testitems.comment = 'さんすう_'
-
-    #         # コメントをDBに登録する。
-    #         db.insert(testitems)
-
-    # update関数のunitテスト
-    def test_update(self):
+    # insert関数のunitテスト
+    def test_insert(self):
         # ここにテスト項目を書いていく。
-        #test_table = ('算数', 1)
-
         with MySQLConnector() as db:
 
-            testitem = db.select_one(TestTable, "WHERE id = ?", 1)
-            print(testitem)
-            testitem.comment = '国語'
-            # testitem.id_name = 'umauma'
-            # testitem.password = 'affili777'
+            # testitems = TestTable2()
+            # testitems.id_name = 'tama'
+            # testitems.password = '0073735963'
+            testitems = TestTable()
+            testitems.comment = 'かりんとう'
 
-            db.update(testitem)
+            # コメントをDBに登録する。
+            db.insert(testitems)
+
+    # # update関数のunitテスト
+    # def test_update(self):
+    #     # ここにテスト項目を書いていく。
+    #     #test_table = ('算数', 1)
+
+    #     with MySQLConnector() as db:
+
+    #         testitem = db.select_one(TestTable, "WHERE id = ?", 1)
+    #         print(testitem)
+    #         testitem.comment = '国語'
+    #         # testitem.id_name = 'umauma'
+    #         # testitem.password = 'affili777'
+
+    #         db.update(testitem)
 
 
 if __name__ == "__main__":
