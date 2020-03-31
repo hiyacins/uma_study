@@ -123,18 +123,6 @@ class TestTable(DBTable):
     # TEST_TABLEのprimary key設定
     orm_primary_key = "id"
 
-    # # TEST_TABLEのupdateカラムを設定
-    # orm_update_str = "comment=?"
-
-    # # TEST_TABLEのinsertカラムの値を設定
-    # orm_insert_value = "?"
-
-    # # TEST_TABLEのカラム名を設定
-    # orm_insert_colum = "comment"
-
-    # # TEST_TABLEのカラム名をlistで設定
-    # orm_column_names = ["id", "comment"]
-
     def __init__(self):
 
         # auto_increment , primary
@@ -156,18 +144,6 @@ class TestTable2(DBTable):
 
     # TEST_TABLEのprimary key設定
     orm_primary_key = "id"
-
-    # # TEST_TABLEのupdateカラムを設定
-    # orm_update_str = "id_name=?,password=?"
-
-    # # TEST_TABLEのinsertカラムの値を設定
-    # orm_insert_value = "?,?"
-
-    # # TEST_TABLEのカラム名をlistで設定
-    # orm_insert_colum = "id_name, password"
-
-    # # TEST_TABLEのカラム名をlistで設定
-    # orm_column_names = ["id", "id_name", "password"]
 
     def __init__(self):
 
@@ -498,10 +474,15 @@ class App_Test(unittest.TestCase):
             # testitems.id_name = 'tama'
             # testitems.password = '0073735963'
             testitems = TestTable()
-            testitems.comment = 'かりんとう'
+            testitems.comment = 'かりんとう2'
 
             # コメントをDBに登録する。
             db.insert(testitems)
+            print(testitems.id)
+            testitems.comment = '国語'
+            print(testitems.id)
+
+            db.update(testitems)
 
     # # update関数のunitテスト
     # def test_update(self):
