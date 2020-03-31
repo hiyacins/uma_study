@@ -245,7 +245,7 @@ class MySQLConnector:
     def execute(self, sql: str, param=()):
 
         # param が tuple以外のstr,intなどのとき、paramをtupleでくるむ(tupleの１つ目の要素がparamであるtuple化する)。
-        if not type(param) is tuple:
+        if not ((type(param) is tuple) or (type(param) is list) or (type(param) is dict)):
             param = (param,)
 
         return self.mysql_cursor.execute(sql, param)
@@ -353,7 +353,7 @@ class MySQLConnector:
                 # 最終的には tuple にしたいが、値の変更ができる list にまず入れる。
                 insert_param.append(getattr(t, member_name))
 
-        return self.execute(power_join([f"INSERT INTO {t.table_name} ({insert_colum}) VALUES ({insert_value})"]), tuple(insert_param))
+        return self.execute(power_join([f"INSERT INTO {t.table_name} ({insert_colum}) VALUES ({insert_value})"]), insert_param)
 
 
 app = FlaskBuilder(__name__)
@@ -498,13 +498,13 @@ class App_Test(unittest.TestCase):
             # testitems.id_name = 'tama'
             # testitems.password = '0073735963'
             testitems = TestTable()
-            testitems.comment = 'さんすう'
+            testitems.comment = 'さんすう_'
 
             # コメントをDBに登録する。
             db.insert(testitems)
 
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    #    app.run(port=5000, debug=True)
     #    app.run(host="0.0.0.0", port=80, debug=False)
-    #    unittest.main()
+    unittest.main()
