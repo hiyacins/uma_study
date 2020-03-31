@@ -59,8 +59,8 @@ class ToDoItem(DBTable):
     # TODO_ITEMSテーブルのinsertカラムの値を設定
     orm_insert_value = "?"
 
-    # TODO_ITEMSテーブルのカラム名をlist設定
-    orm_insert_colum = "id, comment"
+    # TODO_ITEMSテーブルのカラム名を設定
+    orm_insert_colum = "comment"
 
     # TODO_ITEMSテーブルのカラム名をlistで設定
     orm_column_names = ["id", "comment"]
@@ -129,8 +129,8 @@ class TestTable(DBTable):
     # TEST_TABLEのinsertカラムの値を設定
     orm_insert_value = "?"
 
-    # TEST_TABLEのカラム名をlistで設定
-    orm_insert_colum = "id, comment"
+    # TEST_TABLEのカラム名を設定
+    orm_insert_colum = "comment"
 
     # TEST_TABLEのカラム名をlistで設定
     orm_column_names = ["id", "comment"]
@@ -251,7 +251,6 @@ class MySQLConnector:
         return self.mysql_cursor.execute(sql, param)
 
     # SQLを実行してfetchall()した結果である List[DBTable]型 が返る。
-    # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
     # sql_where：条件部分のみの SQL を入れる。デフォルトは""。
     # （例）"WHERE id = ?"
@@ -266,7 +265,6 @@ class MySQLConnector:
         return t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
 
     # SQLを実行して fetchone() した結果である tuple型 が返る。
-    # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
     # sql_where：条件部分のみの SQL を入れる。デフォルトは "" 。
     # param：paramには、sql として渡したSQL文の "?" に入るそれぞれの値を tuple にして渡す。
@@ -280,7 +278,6 @@ class MySQLConnector:
         return t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
 
     # DELETEを実行する関数
-    # 該当レコードがない場合は None が返る。
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
     # 　 または、クラスのオブジェクト DBTable を入れる。
     # （使用例）
@@ -302,13 +299,12 @@ class MySQLConnector:
         return self.execute(power_join([f"DELETE FROM {t.table_name}", f"WHERE {primary_key} = ?"]), getattr(t, primary_key))
 
     # UPDATEを実行する関数
-    # 該当レコードがない場合は None が返る。
-    # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
-    # param：paramには、sql として渡したSQL文の "?" に入るそれぞれの値を tuple にして渡す。
-    #        ※更新データの書き方として最後にprimary keyの値を書くこと。
+    # t：クラスのオブジェクト DBTable を入れる。
     # （使用例）
-    # db.update(ToDoItem, ('数学', 1))
-    def update(self, t: type, param: tuple):
+    # items = select_one(ToDoItem, ...)
+    # items.comment='国語'
+    # db.update(items)
+    def update(self, t: DBTable):
 
         # updateカラム取得
         update_strs = t.orm_update_str
@@ -316,15 +312,28 @@ class MySQLConnector:
         # primary_key を取得
         primary_key = t.orm_primary_key
 
-        return self.execute(power_join([f"UPDATE {t.table_name} SET {update_strs} WHERE {primary_key} = ?"]), tuple(param))
+        update_param = []
+        for member_name in t.orm_column_names:
+
+            # primary_key は update 対象にしない。
+            if member_name != primary_key:
+
+                # 最終的には tuple にしたいが、値の変更ができる list にまず入れる。
+                update_param.append(getattr(t, member_name))
+
+        # 最後にprimary_key を追加する。
+        update_param.append(getattr(t, primary_key))
+
+        return self.execute(power_join([f"UPDATE {t.table_name} SET {update_strs} WHERE {primary_key} = ?"]), tuple(update_param))
 
     # INSERTを実行する関数
-    # 該当レコードがない場合は None が返る。
-    # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
-    # param：paramには、sql として渡したSQL文の VALUE(?) に入るそれぞれの値を tuple にして渡す。
+    # t：クラスのオブジェクト DBTable を入れる。
     # （使用例）
-    # db.insert(ToDoItem, '数学')
-    def insert(self, t: type, param: tuple):
+    # item = ToDoItem()
+    # item.id_name = 'hiya'
+    # item.password = 'uma3141592'
+    # db.insert(item)
+    def insert(self, t: DBTable):
 
         # insert対象のカラム取得
         insert_colum = t.orm_insert_colum
@@ -332,7 +341,19 @@ class MySQLConnector:
         # insert対象の値（"?"で表す）を取得
         insert_value = t.orm_insert_value
 
-        return self.execute(power_join([f"INSERT INTO {t.table_name} ({insert_colum}) VALUES ({insert_value})"]), param)
+        # primary_key を取得
+        primary_key = t.orm_primary_key
+
+        insert_param = []
+        for member_name in t.orm_column_names:
+
+            # primary_key は update 対象にしない。
+            if member_name != primary_key:
+
+                # 最終的には tuple にしたいが、値の変更ができる list にまず入れる。
+                insert_param.append(getattr(t, member_name))
+
+        return self.execute(power_join([f"INSERT INTO {t.table_name} ({insert_colum}) VALUES ({insert_value})"]), tuple(insert_param))
 
 
 app = FlaskBuilder(__name__)
@@ -343,16 +364,18 @@ app = FlaskBuilder(__name__)
 @login_required
 def add_todo_item():
 
+    todoitem = ToDoItem()
+
     # ToDoフォームのテキストボックスに入力されたテキストを取得する。
-    comment = request_form('comment')
+    todoitem.comment = request_form('comment')
 
     # コメント欄のテキストボックスが空でなければ、SQLを実行する。
     # コメント欄のテキストボックスが空なら何もしない。
-    if comment:
+    if todoitem.comment:
         with MySQLConnector() as db:
 
             # コメントをDBに登録する。
-            db.insert(ToDoItem, comment)
+            db.insert(todoitem)
 
     return redirect(url_for('top'))
 
@@ -451,25 +474,37 @@ def logout():
 # unittest.TestCaseの子クラス
 class App_Test(unittest.TestCase):
 
-    # update関数のunitテスト
-    def test_update(self):
-        # ここにテスト項目を書いていく。
-        test_table = ('算数', 1)
+    # # update関数のunitテスト
+    # def test_update(self):
+    #     # ここにテスト項目を書いていく。
+    #     #test_table = ('算数', 1)
 
-        with MySQLConnector() as db:
+    #     with MySQLConnector() as db:
 
-            db.update(TestTable, test_table)
+    #         testitem = db.select_one(TestTable2, "WHERE id = ?", 1)
+    #         print(testitem)
+    #         #testitem.comment = '国語'
+    #         testitem.id_name = 'umauma'
+    #         testitem.password = 'affili777'
+
+    #         db.update(testitem)
 
     # insert関数のunitテスト
     def test_insert(self):
         # ここにテスト項目を書いていく。
         with MySQLConnector() as db:
 
+            # testitems = TestTable2()
+            # testitems.id_name = 'tama'
+            # testitems.password = '0073735963'
+            testitems = TestTable()
+            testitems.comment = 'さんすう'
+
             # コメントをDBに登録する。
-            db.insert(TestTable2, ('yama', '838861'))
+            db.insert(testitems)
 
 
 if __name__ == "__main__":
-    #    app.run(port=5000, debug=True)
+    app.run(port=5000, debug=True)
     #    app.run(host="0.0.0.0", port=80, debug=False)
-    unittest.main()
+    #    unittest.main()
