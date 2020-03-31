@@ -308,7 +308,7 @@ class MySQLConnector:
     #        ※更新データの書き方として最後にprimary keyの値を書くこと。
     # （使用例）
     # db.update(ToDoItem, ('数学', 1))
-    def update(self, t: type, update_param: tuple):
+    def update(self, t: type, param: tuple):
 
         # updateカラム取得
         update_strs = t.orm_update_str
