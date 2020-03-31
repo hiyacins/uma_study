@@ -56,8 +56,11 @@ class ToDoItem(DBTable):
     # TODO_ITEMSテーブルのupdateカラムを設定
     orm_update_str = "comment=?"
 
-    # TEST_TABLEテーブルのinsertカラムを設定
-    orm_insert_param = "?"
+    # TODO_ITEMSテーブルのinsertカラムの値を設定
+    orm_insert_value = "?"
+
+    # TODO_ITEMSテーブルのカラム名をlist設定
+    orm_insert_colum = "id, comment"
 
     # TODO_ITEMSテーブルのカラム名をlistで設定
     orm_column_names = ["id", "comment"]
@@ -86,6 +89,12 @@ class SiteUser(DBTable):
     # SITE_USERSテーブルのupdateカラムを設定
     orm_update_str = "id_name=?,password=?"
 
+    # SITE_USERSテーブルのinsertカラムの値を設定
+    orm_insert_value = "?,?"
+
+    # SITE_USERSテーブルのinsertカラム名を設定
+    orm_insert_colum = "id_name, password"
+
     # SITE_USERSテーブルのカラム名をlistで設定
     orm_column_names = ["id", "id_name", "password"]
 
@@ -101,25 +110,29 @@ class SiteUser(DBTable):
         self.password = ""
 
 
-# DBのTEST_TABLEテーブルの一つのrecordを表現する構造体
+# unittest用テーブル
+# DBのTEST_TABLEの一つのrecordを表現する構造体
 class TestTable(DBTable):
 
-    # TEST_TABLEテーブルの名前
+    # TEST_TABLEの名前
     table_name = "test_tables"
 
-    # TEST_TABLEテーブルの各フィールド名
+    # TEST_TABLEの各フィールド名
     sql_select_statement = "id,comment"
 
-    # TEST_TABLEテーブルのprimary key設定
+    # TEST_TABLEのprimary key設定
     orm_primary_key = "id"
 
-    # TEST_TABLEテーブルのupdateカラムを設定
+    # TEST_TABLEのupdateカラムを設定
     orm_update_str = "comment=?"
 
-    # TEST_TABLEテーブルのinsertカラムを設定
-    orm_insert_param = "?"
+    # TEST_TABLEのinsertカラムの値を設定
+    orm_insert_value = "?"
 
-    # TEST_TABLEテーブルのカラム名をlistで設定
+    # TEST_TABLEのカラム名をlistで設定
+    orm_insert_colum = "id, comment"
+
+    # TEST_TABLEのカラム名をlistで設定
     orm_column_names = ["id", "comment"]
 
     def __init__(self):
@@ -130,31 +143,31 @@ class TestTable(DBTable):
         # ここにTestcommentの内容が入っている
         self.comment = ""
 
+
+# unittest用テーブル
 # DBのTEST_TABLEテーブルの一つのrecordを表現する構造体
-
-
 class TestTable2(DBTable):
 
-    # SITE_USERSテーブルの名前
+    # TEST_TABLEの名前
     table_name = "test_tables2"
 
-    # SITE_USERSテーブルの各フィールド名
+    # TEST_TABLEの各フィールド名
     sql_select_statement = "id,id_name,password"
 
-    # SITE_USERSテーブルのprimary key設定
+    # TEST_TABLEのprimary key設定
     orm_primary_key = "id"
 
-    # SITE_USERSテーブルのupdateカラムを設定
+    # TEST_TABLEのupdateカラムを設定
     orm_update_str = "id_name=?,password=?"
 
-    # TEST_TABLEテーブルのinsertカラムを設定
-    orm_insert_param = "?,?"
+    # TEST_TABLEのinsertカラムの値を設定
+    orm_insert_value = "?,?"
 
-    # SITE_USERSテーブルのカラム名をlistで設定
-    orm_column_names = ["id", "id_name", "password"]
-
-    # SITE_USERSテーブルのカラム名をlistで設定
+    # TEST_TABLEのカラム名をlistで設定
     orm_insert_colum = "id_name, password"
+
+    # TEST_TABLEのカラム名をlistで設定
+    orm_column_names = ["id", "id_name", "password"]
 
     def __init__(self):
 
@@ -292,9 +305,9 @@ class MySQLConnector:
     # 該当レコードがない場合は None が返る。
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
     # param：paramには、sql として渡したSQL文の "?" に入るそれぞれの値を tuple にして渡す。
-    # 返し値：
+    #        ※更新データの書き方として最後にprimary keyの値を書くこと。
     # （使用例）
-    # db.update(SiteUser)
+    # db.update(ToDoItem, ('数学', 1))
     def update(self, t: type, update_param: tuple):
 
         # updateカラム取得
@@ -303,47 +316,23 @@ class MySQLConnector:
         # primary_key を取得
         primary_key = t.orm_primary_key
 
-        # update_param = []
-        # for member_name in t.orm_column_names:
-
-        #     # primary_key は update 対象にしない。
-        #     if member_name != primary_key:
-
-        #         # 最終的には tuple にしたいが、値の変更ができる list にまず入れる。
-        #         update_param = member_name
-
-        return self.execute(power_join([f"UPDATE {t.table_name} SET {update_strs} WHERE {primary_key} = ?"]), tuple(update_param))
+        return self.execute(power_join([f"UPDATE {t.table_name} SET {update_strs} WHERE {primary_key} = ?"]), tuple(param))
 
     # INSERTを実行する関数
-    # 該当レコードがない場合は None が返る。[ToDo:ほんまか？]
+    # 該当レコードがない場合は None が返る。
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
-    # sql_where：条件部分のみの SQL を入れる。デフォルトは""。
-    # （例）"VALUES (?)"
-    # param：paramには、sql として渡したSQL文の "?" に入るそれぞれの値を tuple にして渡す。
-    # 返し値：
+    # param：paramには、sql として渡したSQL文の VALUE(?) に入るそれぞれの値を tuple にして渡す。
     # （使用例）
-    # db.insert(ToDoItem, comment)
+    # db.insert(ToDoItem, '数学')
     def insert(self, t: type, param: tuple):
 
-        # primary_key を取得
-        primary_key = t.orm_primary_key
-
+        # insert対象のカラム取得
         insert_colum = t.orm_insert_colum
 
-        insert_param = t.orm_insert_param
+        # insert対象の値（"?"で表す）を取得
+        insert_value = t.orm_insert_value
 
-        # insert_str = []
-        # for member_name in t.orm_column_names:
-
-        #     # primary_key は update 対象にしない。
-        #     if member_name != primary_key:
-
-        #         # 最終的には tuple にしたいが、値の変更ができる list にまず入れる。
-        #         insert_str.append(member_name)
-        sql = [
-            f"INSERT INTO {t.table_name} ({insert_colum}) VALUES ({insert_param})"]
-        print(sql)
-        return self.execute(power_join(sql), param)
+        return self.execute(power_join([f"INSERT INTO {t.table_name} ({insert_colum}) VALUES ({insert_value})"]), param)
 
 
 app = FlaskBuilder(__name__)
@@ -363,8 +352,6 @@ def add_todo_item():
         with MySQLConnector() as db:
 
             # コメントをDBに登録する。
-            # db.execute(
-            #     "INSERT INTO test_tables (comment) VALUES (?)", comment)
             db.insert(ToDoItem, comment)
 
     return redirect(url_for('top'))
