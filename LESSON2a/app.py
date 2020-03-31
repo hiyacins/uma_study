@@ -123,17 +123,17 @@ class TestTable(DBTable):
     # TEST_TABLEのprimary key設定
     orm_primary_key = "id"
 
-    # TEST_TABLEのupdateカラムを設定
-    orm_update_str = "comment=?"
+    # # TEST_TABLEのupdateカラムを設定
+    # orm_update_str = "comment=?"
 
-    # TEST_TABLEのinsertカラムの値を設定
-    orm_insert_value = "?"
+    # # TEST_TABLEのinsertカラムの値を設定
+    # orm_insert_value = "?"
 
-    # TEST_TABLEのカラム名を設定
-    orm_insert_colum = "comment"
+    # # TEST_TABLEのカラム名を設定
+    # orm_insert_colum = "comment"
 
-    # TEST_TABLEのカラム名をlistで設定
-    orm_column_names = ["id", "comment"]
+    # # TEST_TABLEのカラム名をlistで設定
+    # orm_column_names = ["id", "comment"]
 
     def __init__(self):
 
@@ -157,17 +157,17 @@ class TestTable2(DBTable):
     # TEST_TABLEのprimary key設定
     orm_primary_key = "id"
 
-    # TEST_TABLEのupdateカラムを設定
-    orm_update_str = "id_name=?,password=?"
+    # # TEST_TABLEのupdateカラムを設定
+    # orm_update_str = "id_name=?,password=?"
 
-    # TEST_TABLEのinsertカラムの値を設定
-    orm_insert_value = "?,?"
+    # # TEST_TABLEのinsertカラムの値を設定
+    # orm_insert_value = "?,?"
 
-    # TEST_TABLEのカラム名をlistで設定
-    orm_insert_colum = "id_name, password"
+    # # TEST_TABLEのカラム名をlistで設定
+    # orm_insert_colum = "id_name, password"
 
-    # TEST_TABLEのカラム名をlistで設定
-    orm_column_names = ["id", "id_name", "password"]
+    # # TEST_TABLEのカラム名をlistで設定
+    # orm_column_names = ["id", "id_name", "password"]
 
     def __init__(self):
 
@@ -306,25 +306,32 @@ class MySQLConnector:
     # db.update(items)
     def update(self, t: DBTable):
 
-        # updateカラム取得
-        update_strs = t.orm_update_str
-
         # primary_key を取得
         primary_key = t.orm_primary_key
 
+        # updateカラム取得
+        update_statements = t.sql_select_statement
+
         update_param = []
-        for member_name in t.orm_column_names:
+
+        # 取得したupdateカラムはstr型なので、list型に変換して要素をmember_nameに詰め替える。
+        for member_name in update_statements.split(','):
 
             # primary_key は update 対象にしない。
             if member_name != primary_key:
 
-                # 最終的には tuple にしたいが、値の変更ができる list にまず入れる。
+                # updateしたいカラムを取り出し、"=?"を付ける。
+                update_str = ''.join(member_name + "=?")
+
+                # updateしたいカラムの値をlistで取り出す。
                 update_param.append(getattr(t, member_name))
 
         # 最後にprimary_key を追加する。
         update_param.append(getattr(t, primary_key))
+        sql = [
+            f"UPDATE {t.table_name} SET {update_str} WHERE {primary_key} = ?"]
 
-        return self.execute(power_join([f"UPDATE {t.table_name} SET {update_strs} WHERE {primary_key} = ?"]), tuple(update_param))
+        return self.execute(power_join(sql), update_param)
 
     # INSERTを実行する関数
     # t：クラスのオブジェクト DBTable を入れる。
@@ -474,34 +481,34 @@ def logout():
 # unittest.TestCaseの子クラス
 class App_Test(unittest.TestCase):
 
-    # # update関数のunitテスト
-    # def test_update(self):
+    # # insert関数のunitテスト
+    # def test_insert(self):
     #     # ここにテスト項目を書いていく。
-    #     #test_table = ('算数', 1)
-
     #     with MySQLConnector() as db:
 
-    #         testitem = db.select_one(TestTable2, "WHERE id = ?", 1)
-    #         print(testitem)
-    #         #testitem.comment = '国語'
-    #         testitem.id_name = 'umauma'
-    #         testitem.password = 'affili777'
+    #         # testitems = TestTable2()
+    #         # testitems.id_name = 'tama'
+    #         # testitems.password = '0073735963'
+    #         testitems = TestTable()
+    #         testitems.comment = 'さんすう_'
 
-    #         db.update(testitem)
+    #         # コメントをDBに登録する。
+    #         db.insert(testitems)
 
-    # insert関数のunitテスト
-    def test_insert(self):
+    # update関数のunitテスト
+    def test_update(self):
         # ここにテスト項目を書いていく。
+        #test_table = ('算数', 1)
+
         with MySQLConnector() as db:
 
-            # testitems = TestTable2()
-            # testitems.id_name = 'tama'
-            # testitems.password = '0073735963'
-            testitems = TestTable()
-            testitems.comment = 'さんすう_'
+            testitem = db.select_one(TestTable, "WHERE id = ?", 1)
+            print(testitem)
+            testitem.comment = '国語'
+            # testitem.id_name = 'umauma'
+            # testitem.password = 'affili777'
 
-            # コメントをDBに登録する。
-            db.insert(testitems)
+            db.update(testitem)
 
 
 if __name__ == "__main__":
