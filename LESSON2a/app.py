@@ -478,9 +478,8 @@ class App_Test(unittest.TestCase):
 
             # コメントをDBに登録する。
             db.insert(testitems)
-            print(testitems.id)
+
             testitems.comment = '国語'
-            print(testitems.id)
 
             db.update(testitems)
 
