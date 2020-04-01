@@ -318,7 +318,7 @@ class MySQLConnector:
         update_param.append(getattr(t, primary_key))
         sql = [
             f"UPDATE {t.table_name} SET {update_str.rstrip(',')} WHERE {primary_key} = ?"]
-        print(sql)
+
         return self.execute(power_join(sql), update_param)
 
     # INSERTを実行する関数
@@ -357,7 +357,7 @@ class MySQLConnector:
 
         sql = [
             f"INSERT INTO {t.table_name} ({insert_str.rstrip(',')}) VALUES ({insert_value.rstrip(',')})"]
-        print(sql)
+
         return self.execute(power_join(sql), insert_param)
 
 
@@ -502,10 +502,9 @@ class App_Test(unittest.TestCase):
             # # commentをDBに登録する。
             # db.insert(testitems)
 
-            # # insert した auto_increment_id を取得する。execute
+            # # insert した auto_increment_id を取得する。
             # #auto_increment_id = db.select_ex(TestTable)
             # auto_increment_id = db.execute("SELECT LAST_INSERT_ID()")
-            # print(auto_increment_id)
             # testitems = db.select_one(
             #     TestTable, "WHERE id = ?", auto_increment_id)
             # testitems.comment = '国語'
@@ -522,7 +521,6 @@ class App_Test(unittest.TestCase):
     #         # update 基本 テスト
     #         ######################################
     #         testitem = db.select_one(TestTable2, "WHERE id = ?", 1)
-    #         print(testitem)
     #         # testitem.comment = '国語'
     #         testitem.id_name = 'umauma_'
     #         testitem.password = 'affili777_'
