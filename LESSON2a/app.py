@@ -253,6 +253,17 @@ class MySQLConnector:
             [f"SELECT {t.sql_select_statement} FROM {t.table_name}", sql_where]), param)
         return t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
 
+    # [ToDo]:テスト作成
+    # insert → update を行う時、insertで登録した、最後のidを取得する関数
+    # param：空タプルをデフォルトで入れている。
+    # 返し値：tuple型が返る。
+    # （使用例）
+    # id = db.select_ex()
+    def select_ex(self, param=()) -> tuple:
+
+        self.execute("SELECT LAST_INSERT_ID()", param)
+        return self.mysql_cursor.fetchone()
+
     # DELETEを実行する関数
     # t：取得したいデータがあるテーブルの一つのrecordを表現する構造体のクラス型を入れる。
     # 　 または、クラスのオブジェクト DBTable を入れる。
@@ -289,6 +300,7 @@ class MySQLConnector:
         update_statements = t.sql_select_statement
 
         update_param = []
+        update_str = ""
 
         # 取得したupdateカラムはstr型なので、list型に変換して要素をmember_nameに詰め替える。
         for member_name in update_statements.split(','):
@@ -296,8 +308,8 @@ class MySQLConnector:
             # primary_key は update 対象にしない。
             if member_name != primary_key:
 
-                # updateしたいカラムを取り出し、"=?"を付ける。
-                update_str = ''.join(member_name + "=?")
+                # updateしたいカラムを取り出し、"=?,"を付ける。
+                update_str += member_name + "=?,"
 
                 # updateしたいカラムの値をlistで取り出す。
                 update_param.append(getattr(t, member_name))
@@ -305,8 +317,8 @@ class MySQLConnector:
         # 最後にprimary_key を追加する。
         update_param.append(getattr(t, primary_key))
         sql = [
-            f"UPDATE {t.table_name} SET {update_str} WHERE {primary_key} = ?"]
-
+            f"UPDATE {t.table_name} SET {update_str.rstrip(',')} WHERE {primary_key} = ?"]
+        print(sql)
         return self.execute(power_join(sql), update_param)
 
     # INSERTを実行する関数
@@ -325,6 +337,8 @@ class MySQLConnector:
         insert_statements = t.sql_select_statement
 
         insert_param = []
+        insert_str = ''
+        insert_value = ''
 
         # 取得したupdateカラムはstr型なので、list型に変換して要素をmember_nameに詰め替える。
         for member_name in insert_statements.split(','):
@@ -332,18 +346,18 @@ class MySQLConnector:
             # primary_key は update 対象にしない。
             if member_name != primary_key:
 
-                # updateしたいカラムを取り出す。
-                insert_str = ''.join(member_name)
+                # updateしたいカラムを取り出す。[ToDo]：joinｲﾗﾝ
+                insert_str += member_name + ","
 
-                # updateしたいカラムを"?"で置換する。
-                insert_value = member_name.replace(member_name, "?")
+                # updateしたいカラムを"?"で置換する。[ToDo]：replaceｲﾗﾝ
+                insert_value += "?,"
 
                 # updateしたいカラムの値をlistで取り出す。
                 insert_param.append(getattr(t, member_name))
 
         sql = [
-            f"INSERT INTO {t.table_name} ({insert_str}) VALUES ({insert_value})"]
-
+            f"INSERT INTO {t.table_name} ({insert_str.rstrip(',')}) VALUES ({insert_value.rstrip(',')})"]
+        print(sql)
         return self.execute(power_join(sql), insert_param)
 
 
@@ -462,7 +476,9 @@ def logout():
     return redirect(url_for('login'))
 
 
+######################################
 # unittest.TestCaseの子クラス
+# -- unittestはここに書く
 class App_Test(unittest.TestCase):
 
     # insert関数のunitテスト
@@ -470,18 +486,30 @@ class App_Test(unittest.TestCase):
         # ここにテスト項目を書いていく。
         with MySQLConnector() as db:
 
-            # testitems = TestTable2()
-            # testitems.id_name = 'tama'
-            # testitems.password = '0073735963'
-            testitems = TestTable()
-            testitems.comment = 'かりんとう2'
-
-            # コメントをDBに登録する。
+            ######################################
+            # insert 基本 テスト
+            ######################################
+            testitems = TestTable2()
+            testitems.id_name = '-tama-'
+            testitems.password = '0073-735963'
             db.insert(testitems)
 
-            testitems.comment = '国語'
+            # ######################################
+            # # insert → update のテスト
+            # ######################################
+            # testitems = TestTable()
+            # testitems.comment = 'かり_んとう'
+            # # commentをDBに登録する。
+            # db.insert(testitems)
 
-            db.update(testitems)
+            # # insert した auto_increment_id を取得する。execute
+            # #auto_increment_id = db.select_ex(TestTable)
+            # auto_increment_id = db.execute("SELECT LAST_INSERT_ID()")
+            # print(auto_increment_id)
+            # testitems = db.select_one(
+            #     TestTable, "WHERE id = ?", auto_increment_id)
+            # testitems.comment = '国語'
+            # db.update(testitems)
 
     # # update関数のunitテスト
     # def test_update(self):
@@ -490,11 +518,14 @@ class App_Test(unittest.TestCase):
 
     #     with MySQLConnector() as db:
 
-    #         testitem = db.select_one(TestTable, "WHERE id = ?", 1)
+    #         ######################################
+    #         # update 基本 テスト
+    #         ######################################
+    #         testitem = db.select_one(TestTable2, "WHERE id = ?", 1)
     #         print(testitem)
-    #         testitem.comment = '国語'
-    #         # testitem.id_name = 'umauma'
-    #         # testitem.password = 'affili777'
+    #         # testitem.comment = '国語'
+    #         testitem.id_name = 'umauma_'
+    #         testitem.password = 'affili777_'
 
     #         db.update(testitem)
 
