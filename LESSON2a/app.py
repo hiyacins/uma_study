@@ -50,7 +50,7 @@ class ToDoItem(DBTable):
     # TODO_ITEMSテーブルの各フィールド名
     sql_select_statement = "id,comment"
 
-    # TODO_ITEMSテーブルのprimary key設定
+    # TODO_ITEMSテーブルのprimary key設定[ToDo:リスト化]
     orm_primary_key = "id"
 
     # TODO_ITEMSテーブルのupdateカラムを設定
@@ -83,7 +83,7 @@ class SiteUser(DBTable):
     # SITE_USERSテーブルの各フィールド名
     sql_select_statement = "id,id_name,password"
 
-    # SITE_USERSテーブルのprimary key設定
+    # SITE_USERSテーブルのprimary key設定[ToDo:リスト化]
     orm_primary_key = "id"
 
     # SITE_USERSテーブルのupdateカラムを設定
@@ -346,10 +346,10 @@ class MySQLConnector:
             # primary_key は update 対象にしない。
             if member_name != primary_key:
 
-                # updateしたいカラムを取り出す。[ToDo]：joinｲﾗﾝ
+                # updateしたいカラムを取り出す。
                 insert_str += member_name + ","
 
-                # updateしたいカラムを"?"で置換する。[ToDo]：replaceｲﾗﾝ
+                # updateしたいカラムを"?"で置換する。
                 insert_value += "?,"
 
                 # updateしたいカラムの値をlistで取り出す。
