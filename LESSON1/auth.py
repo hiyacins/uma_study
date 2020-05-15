@@ -126,7 +126,6 @@ def login():
         # ログインフォームに入力されたパスワードの取得
         password = request.form['password']
 
-
         # DBからid_nameに対応するpasswordを取得する。
         result = db.execute_fetchone(
             "SELECT password FROM site_users WHERE id_name = ?", (id_name, ))

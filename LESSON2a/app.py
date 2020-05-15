@@ -510,7 +510,7 @@ class App_Test(unittest.TestCase):
             # testitems.comment = '国語'
             # db.update(testitems)
 
-    # # update関数のunitテスト
+    # # update関数のunitテスト#
     # def test_update(self):
     #     # ここにテスト項目を書いていく。
     #     #test_table = ('算数', 1)
