@@ -3,7 +3,7 @@ import json
 
 app = Flask(__name__)
 
-number = {}
+number = []
 
 
 # クライアント側からPostされてくる
@@ -15,9 +15,11 @@ def get_incomes():
 # postされてきた情報を追加する。No Contentの場合のみ返す。
 @app.route('/incomes', methods=['POST'])
 def add_income():
-    number = request.get_json()
-    print(number)
-    x = number["1"] + number["2"]
+
+    number.append(request.get_json())
+    jsonDict = json.loads(number)
+    print(jsonDict)
+    x = int(jsonDict["1"]) + int(jsonDict["2"])
     print(x)
     return '', 204
 

@@ -15,6 +15,9 @@ def get_incomes():
 # postされてきた情報を追加する。No Contentの場合のみ返す。
 @app.route('/incomes', methods=['POST'])
 def add_income():
+    print('きた')
+
+    # number.append(request.get_json())
     number = request.get_json()
     print(number)
     x = number["1"] + number["2"]
