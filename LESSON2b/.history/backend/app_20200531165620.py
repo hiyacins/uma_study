@@ -361,7 +361,8 @@ class MySQLConnector:
         return self.execute(power_join(sql), insert_param)
 
 
-app = FlaskBuilder(__name__)
+app = FlaskBuilder(__name__, static_folder='../frontend/dist/static',
+                   template_folder='../frontend/dist')
 
 
 # ToDoリストで追加されたコメントをDBに登録する。
@@ -529,6 +530,6 @@ class App_Test(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    #    app.run(port=5000, debug=True)
-    #    app.run(host="0.0.0.0", port=80, debug=False)
-    unittest.main()
+    app.run(port=5000, debug=True)
+    # app.run(host="0.0.0.0", port=80, debug=False)
+    # unittest.main()

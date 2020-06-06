@@ -435,7 +435,7 @@ def top():
 def login_view():
 
     # ログイン画面に表示する。
-    return render_template('login.html')
+    return render_template('index.html')
 
 
 # ログイン処理
@@ -464,7 +464,7 @@ def login():
 
         # ログインに成功していれば、ログイン後のページへリダイレクトする。
         # ログインに失敗していれば、ログインページにリダイレクトする。(再度表示する)
-        return redirect(url_for('top' if LoginOk else 'login'))
+        return redirect(url_for('top' if LoginOk else 'index'))
 
 
 # ログアウト処理
