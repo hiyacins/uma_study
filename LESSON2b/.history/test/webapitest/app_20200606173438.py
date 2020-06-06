@@ -1,5 +1,4 @@
 from flask import Flask, jsonify, request
-import json
 
 app = Flask(__name__)
 
@@ -16,10 +15,16 @@ def get_incomes():
 @app.route('/incomes', methods=['POST'])
 def add_income():
     number.append(request.get_json())
-    print(number)
-    x = int(number["1"]) + int(number["2"])
-    print(x)
     return '', 204
+
+
+# jsonで取得したデータのvalueを足し算してクライアントに返す。
+@app.route('/incomes', methods=['POST'])
+def add_income():
+    x = json.loads(request.get_json())
+    z = x[0][0] + x[1][0]
+    print(z)
+    return jsonify(z)
 
 
 if __name__ == '__main__':
