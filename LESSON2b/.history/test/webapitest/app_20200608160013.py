@@ -20,7 +20,7 @@ def add_income():
     print(number)
     number["3"] = number["1"] + number["2"]
     print(number)
-    return jsonify(number["3"])
+    return jsonify(number["3"])　  # '', 204
 
 
 if __name__ == '__main__':

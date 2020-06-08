@@ -18,9 +18,9 @@ def get_incomes():
 def add_income():
     number = request.get_json()
     print(number)
-    number["3"] = number["1"] + number["2"]
-    print(number)
-    return jsonify(number["3"])
+    x = number["1"] + number["2"]
+    print(x)
+    return '', 204
 
 
 if __name__ == '__main__':
