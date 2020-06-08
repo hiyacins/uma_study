@@ -436,12 +436,10 @@ def top():
 
         print("きたよ")
         entries = db.select(ToDoItem)
-
-        print(entries)
         # json_entries = json.dumps(entries, default=ToDoItem)
-        # print("json:", json_entries.toJSON)
+        print("json:", entries.toJSON)
         # return jsonify(json_entries)
-        return render_template('index.html')  # , entries=entries)
+        return render_template('index.html', entries=json_entries)
 
 
 # ログイン前画面表示

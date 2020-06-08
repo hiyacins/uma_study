@@ -6,4 +6,3 @@ import mysql.connector
 from typing import Union, List, Tuple
 from flask_cors import CORS
 from flask_restful import Api, Resource, reqparse
-import json

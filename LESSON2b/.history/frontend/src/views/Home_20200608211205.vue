@@ -48,7 +48,7 @@ export default {
     return {
       // -- 使用するデータを書く
       // ToDoリストデータ用のカラ配列をdataオプションに登録する。
-      entries: [],
+      entries2: [],
       // ToDoリストのid初期化
       id: 1,
     };

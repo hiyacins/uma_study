@@ -48,9 +48,9 @@ export default {
     return {
       // -- 使用するデータを書く
       // ToDoリストデータ用のカラ配列をdataオプションに登録する。
-      entries: [],
+      entries2: [],
       // ToDoリストのid初期化
-      id: 1,
+      id: 1
     };
   },
   // created() {
@@ -73,11 +73,11 @@ export default {
       // 例：{ 新しいID, コメント }
       this.entries.push({
         id: this.id++,
-        comment: comment.value,
+        comment: comment.value
       });
       var posting = {
         id: this.id,
-        comment: this.comment,
+        comment: this.comment
       };
       axios.post("http://127.0.0.1:5000/add", posting).then(function(res) {
         // console.log(res.data.id);
@@ -92,7 +92,7 @@ export default {
       this.entries.splice(index, 1);
       var posting = {
         id: this.id,
-        comment: this.comment,
+        comment: this.comment
       };
       axios
         .post("http://127.0.0.1:5000/delete/<int:id>", posting)
@@ -100,8 +100,8 @@ export default {
           console.log(res.data.id);
           console.log(res.data.entries);
         });
-    },
-  },
+    }
+  }
 };
 </script>
 <style>

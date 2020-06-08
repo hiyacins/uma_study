@@ -418,12 +418,6 @@ def all_delete_todo_items():
 
     return redirect(url_for('top'))
 
-
-class Object:
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__,
-                          sort_keys=True, indent=4)
-
 # ログイン成功後の画面(ホーム画面)
 
 
@@ -436,12 +430,11 @@ def top():
 
         print("きたよ")
         entries = db.select(ToDoItem)
-
-        print(entries)
-        # json_entries = json.dumps(entries, default=ToDoItem)
-        # print("json:", json_entries.toJSON)
+        # print("DQ:", entries.id)
+        json_entries = json.dumps(entries)
+        # # print("json:", json_entries)
         # return jsonify(json_entries)
-        return render_template('index.html')  # , entries=entries)
+        return render_template('index.html', entries=json_entries)
 
 
 # ログイン前画面表示

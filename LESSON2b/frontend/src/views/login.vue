@@ -5,24 +5,39 @@
     <h2 class="login-header">Log in</h2>
 
     <form class="login-container">
-      <p><input type="email" placeholder="Email" v-model="mailaddress" /></p>
-      <p><input type="password" placeholder="Password" v-model="password" /></p>
-      <p><input type="submit" value="ログイン" @click="login" /></p>
+      <p><input v-model="id_name" type="text" placeholder="Email" /></p>
+      <p><input v-model="password" type="text" placeholder="Password" /></p>
+      <p><input @click="userLogin" type="submit" value="ログイン" /></p>
     </form>
   </div>
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "login",
   data() {
     return {
-      username: "",
+      id_name: "",
       password: "",
     };
   },
   methods: {
-    login: function() {
+    // login: function() {
+    //   this.$router.push("/");
+    // },
+    userLogin() {
+      var article = {
+        id_name: this.id_name,
+        password: this.password,
+      };
+      axios.post("http://127.0.0.1:5000/login", article).then(function(res) {
+        console.log(res.data.id_name);
+        console.log(res.data.password);
+        // location.href = "/home";
+      });
+      this.id_name = "";
+      this.password = "";
       this.$router.push("/");
     },
   },

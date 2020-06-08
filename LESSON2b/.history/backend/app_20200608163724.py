@@ -418,30 +418,20 @@ def all_delete_todo_items():
 
     return redirect(url_for('top'))
 
-
-class Object:
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__,
-                          sort_keys=True, indent=4)
-
 # ログイン成功後の画面(ホーム画面)
 
 
 @app.route('/')
 @login_required
 def top():
+    print("きたよ")
     flash('ログインを成功しました＼(^o^)／')
-    id = 0
+    # return render_template('index.html')
     with MySQLConnector() as db:
-
-        print("きたよ")
-        entries = db.select(ToDoItem)
-
-        print(entries)
-        # json_entries = json.dumps(entries, default=ToDoItem)
-        # print("json:", json_entries.toJSON)
-        # return jsonify(json_entries)
-        return render_template('index.html')  # , entries=entries)
+        print("はいったよ")
+        # entries = db.select(ToDoItem)
+        # return render_template('index.html', entries=jsonify({"1": "python"}))
+        return render_template('index.html', entries=db.select(ToDoItem))
 
 
 # ログイン前画面表示
@@ -461,6 +451,10 @@ def login():
         # ログインフォームに入力されたユーザーIDとパスワード取得
         id_name = request.json['id_name']
         password = request.json['password']
+        # id_name, password = request_form('id_name', 'password')
+        # print(id_name, password)
+        print(id_name)
+        print(password)
 
         # ログインフォームに入力されたユーザーIDをパラメーターに、select_one関数で
         # DBのテーブルクラスを入れ、fetchoneをして、値を抽出する。
@@ -474,6 +468,9 @@ def login():
             site_user.password, password)
         app.login(LoginOk)
 
+        # if LoginOk:
+        #     print("ログイン完了")
+
         if not LoginOk:
             flash('ログイン失敗：ユーザーIDもしくはパスワードが正しくありません。')
 
@@ -481,6 +478,7 @@ def login():
         # ログインに失敗していれば、ログインページにリダイレクトする。(再度表示する)
         # return redirect(url_for('top' if LoginOk else 'index'))
         return jsonify(LoginOk)
+        # return redirect(url_for('top' if LoginOk else 'index'))
 
 
 if __name__ == "__main__":

@@ -418,30 +418,23 @@ def all_delete_todo_items():
 
     return redirect(url_for('top'))
 
-
-class Object:
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__,
-                          sort_keys=True, indent=4)
-
 # ログイン成功後の画面(ホーム画面)
 
 
 @app.route('/')
 @login_required
 def top():
+    print("きたよ")
     flash('ログインを成功しました＼(^o^)／')
-    id = 0
+
     with MySQLConnector() as db:
 
-        print("きたよ")
         entries = db.select(ToDoItem)
-
-        print(entries)
-        # json_entries = json.dumps(entries, default=ToDoItem)
-        # print("json:", json_entries.toJSON)
-        # return jsonify(json_entries)
-        return render_template('index.html')  # , entries=entries)
+        print("DQ:", entries[0])
+        json_entries = json.dumps(entries)
+        print("json:", json_entries)
+        return jsonify(json_entries)
+    return render_template('index.html')
 
 
 # ログイン前画面表示
