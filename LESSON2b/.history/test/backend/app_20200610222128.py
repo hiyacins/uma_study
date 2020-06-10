@@ -391,7 +391,7 @@ def add_todo_item():
 @app.route('/delete/<int:id>', methods=['POST'])
 # @login_required
 def delete_todo_item(id: int):
-
+    print('DELL>>>>')
     with MySQLConnector() as db:
 
         todo_item = db.select_one(
@@ -409,6 +409,7 @@ def delete_todo_item(id: int):
 # @login_required
 def all_delete_todo_items():
 
+    print('ALL_DELL>>>>')
     with MySQLConnector() as db:
 
         # ToDoリストをすべて削除する。
@@ -436,19 +437,22 @@ def top():
 
 @app.route('/getjson', methods=['GET'])
 def get_info():
-    json_data = [
-        {'id': 239, 'comment': "www"},
-        {'id': 240, 'comment': "英語"},
-        {'id': 241, 'comment': "こくご"}
-    ]
+    # json_data = [
+    #     {'id': 239, 'comment': "www"},
+    #     {'id': 240, 'comment': "英語"},
+    #     {'id': 241, 'comment': "こくご"}
+    # ]
 
+    json_data = []
     with MySQLConnector() as db:
         dbdatas = db.select(ToDoItem)
 
-        # for result in dbdatas:
-        #     # print(json.dumps(result))
-        #     return jsonify(result)
-        return jsonify(json_data)
+        for result in dbdatas.keys():
+            json_data.append(result)
+        # rs = json.dumps(json_data.json)
+        print(json_data)
+
+    return jsonify(json_data)
 
 
 # ログイン前画面表示

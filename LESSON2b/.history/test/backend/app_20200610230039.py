@@ -391,7 +391,7 @@ def add_todo_item():
 @app.route('/delete/<int:id>', methods=['POST'])
 # @login_required
 def delete_todo_item(id: int):
-
+    print('DELL>>>>')
     with MySQLConnector() as db:
 
         todo_item = db.select_one(
@@ -409,6 +409,7 @@ def delete_todo_item(id: int):
 # @login_required
 def all_delete_todo_items():
 
+    print('ALL_DELL>>>>')
     with MySQLConnector() as db:
 
         # ToDoリストをすべて削除する。

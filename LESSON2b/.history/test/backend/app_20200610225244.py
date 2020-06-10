@@ -391,7 +391,7 @@ def add_todo_item():
 @app.route('/delete/<int:id>', methods=['POST'])
 # @login_required
 def delete_todo_item(id: int):
-
+    print('DELL>>>>')
     with MySQLConnector() as db:
 
         todo_item = db.select_one(
@@ -409,6 +409,7 @@ def delete_todo_item(id: int):
 # @login_required
 def all_delete_todo_items():
 
+    print('ALL_DELL>>>>')
     with MySQLConnector() as db:
 
         # ToDoリストをすべて削除する。
@@ -436,19 +437,18 @@ def top():
 
 @app.route('/getjson', methods=['GET'])
 def get_info():
-    json_data = [
-        {'id': 239, 'comment': "www"},
-        {'id': 240, 'comment': "英語"},
-        {'id': 241, 'comment': "こくご"}
-    ]
+    # json_data = [
+    #     {'id': 239, 'comment': "www"},
+    #     {'id': 240, 'comment': "英語"},
+    #     {'id': 241, 'comment': "こくご"}
+    # ]
 
     with MySQLConnector() as db:
         dbdatas = db.select(ToDoItem)
 
-        # for result in dbdatas:
-        #     # print(json.dumps(result))
-        #     return jsonify(result)
-        return jsonify(json_data)
+        for result in dbdatas:
+            # print(json.dumps(str(result)))
+            return jsonify(list(dict((result)))
 
 
 # ログイン前画面表示
@@ -466,8 +466,8 @@ def login():
     with MySQLConnector() as db:
 
         # ログインフォームに入力されたユーザーIDとパスワード取得
-        id_name = request.json['id_name']
-        password = request.json['password']
+        id_name=request.json['id_name']
+        password=request.json['password']
 
         print(id_name)
         print(password)
@@ -475,12 +475,12 @@ def login():
         # ログインフォームに入力されたユーザーIDをパラメーターに、select_one関数で
         # DBのテーブルクラスを入れ、fetchoneをして、値を抽出する。
         # ただし、ログインフォームに入力されたユーザーIDが空のときは、Noneを返す。
-        site_user = db.select_one(
+        site_user=db.select_one(
             SiteUser, "WHERE id_name = ?", id_name) if id_name else None
 
         # ユーザーIDがDB内に存在し、フォームから入力されたパスワードがDB内のものと一致すれば
         # セッションを登録する
-        LoginOk = site_user is not None and check_password_hash(
+        LoginOk=site_user is not None and check_password_hash(
             site_user.password, password)
         app.login(LoginOk)
 
