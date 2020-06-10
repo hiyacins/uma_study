@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+
+{% block script %}
+<!-- Vue.jsのJS読み込み -->
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!--<script src="https://unpkg.com/vue/dist/vue.js"></script>-->
+{% endblock %}
+
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert-info" role="alert">
+      {{ message }}
+</div>
+{% endfor %}
+<form action="{{url_for('logout')}}">
+      <input type="submit" value="ログアウト" />
+</form>
+
+<h1>ToDoリスト</h1>
+
+<div id='todoapp'>
+      <!--ここにテンプレートを書く-->
+      <table>
+            <!-- テーブルヘッダー -->
+            <thead>
+                  <tr>
+                        <th class="id">ID</th>
+                        <th class="comment">コメント</th>
+                        <th class="button">-</th>
+                  </tr>
+            </thead>
+            <tbody>
+                  <!-- ここに<tr>でToDoの要素を1行ずつ繰り返し表示したい-->
+                  {% for entry in entries %}
+                  <tr>
+                        <!-- 要素の情報 -->
+                        <th>{{entry.id}} </th>
+                        <td>{{entry.comment}}</td>
+                        <td class="button">
+                              <!-- 削除ボタン -->
+                              <form action="{{ url_for('delete_todo_item', id=entry.id) }}" method="POST">
+                                    <button type="submit">削除</button>
+                              </form>
+                        </td>
+                  </tr>
+                  {% endfor %}
+            </tbody>
+      </table>
+
+      <h2>新しい作業の追加</h2>
+      <form class="add-form" action="{{url_for('add_todo_item')}}" method="POST">
+            <!-- コメント入力フォーム -->
+            コメント <input type="text" name="comment" ref="comment">
+            <!-- 追加ボタン -->
+            <button type="submit">追加</button>
+      </form>
+      <br />
+      <form class="add-form" action="{{url_for('all_delete_todo_items')}}" method="POST">
+            <!-- 削除ボタン -->
+            <button type="submit">すべて削除</button>
+      </form>
+
+</div>
+<!-- 自作のJS読み込み -->
+<script src="/static/js/todo.js"></script>
+{% endblock %}
