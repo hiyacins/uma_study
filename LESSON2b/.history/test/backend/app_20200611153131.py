@@ -448,10 +448,9 @@ def add_income():
     return jsonify(z), 200
 
 
-# #
-# @app.route('/incomes')
-# def get_incomes():
-#     return jsonify(number)
+@app.route('/incomes')
+def get_incomes():
+    return jsonify(number)
 
 
 # ログイン前画面表示

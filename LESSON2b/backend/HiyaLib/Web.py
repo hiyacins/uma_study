@@ -21,6 +21,9 @@ def FlaskBuilder(name: str) -> Flask:
     app = Flask(name,
                 static_folder="../frontend/dist/static",
                 template_folder="../frontend/dist")
+    # app = Flask(name,
+    #             static_folder="../frontend/dist/static",
+    #             template_folder="../frontend/dist")
 
     # シークレットキーの設定のための関数
     with FileReader("exclude/secret_key.txt") as secret_key_file:

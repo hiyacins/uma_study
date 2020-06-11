@@ -29,7 +29,7 @@ class DBTable():
         return record
 
     # Tuple[tuple]型の値 を List[map]型の値に変換する。
-    # columns：Tuple[tuple]型の値（（例）((1,'abc),(2,'def)) ）を入れる。
+    # columns：Tuple[tuple]型の値（（例）((1,'abc'),(2,'def')) ）を入れる。
     # 返し値：Tuple[tuple]型 から List[map]型 に変換して返す。
     # （使用例）
     # t.from_tuple_of_tuples(self.mysql_cursor.fetchall())
@@ -367,10 +367,10 @@ app = FlaskBuilder(__name__)
 
 # ToDoリストで追加されたコメントをDBに登録する。
 @app.route('/add', methods=['POST'])
-@login_required
+# @login_required
 def add_todo_item():
     todoitem = ToDoItem()
-    print("add>>>>>>>>>>>>>>>>>>>")
+
     # ToDoフォームのテキストボックスに入力されたテキストを取得する。
     todoitem.comment = request.json['comment']
 
@@ -389,7 +389,7 @@ def add_todo_item():
 # id : int
 # 削除するコメントのid
 @app.route('/delete/<int:id>', methods=['POST'])
-@login_required
+# @login_required
 def delete_todo_item(id: int):
 
     with MySQLConnector() as db:
@@ -406,7 +406,7 @@ def delete_todo_item(id: int):
 
 # DB内のToDoリストをすべて削除する。
 @app.route('/all-delete', methods=['POST'])
-@login_required
+# @login_required
 def all_delete_todo_items():
 
     with MySQLConnector() as db:
@@ -418,36 +418,43 @@ def all_delete_todo_items():
 
     return redirect(url_for('top'))
 
-
-class Object:
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__,
-                          sort_keys=True, indent=4)
-
 # ログイン成功後の画面(ホーム画面)
 
 
 @app.route('/')
 @login_required
 def top():
+
     flash('ログインを成功しました＼(^o^)／')
     return render_template('index.html')
     # with MySQLConnector() as db:
+    #     print("はいったよ")
+    #     # entries = db.select(ToDoItem)
+    #     return render_template('index.html', entries=jsonify(info_bank))
+    #     # return render_template('index.html', entries=db.select(ToDoItem))
 
-    #     print("きたよ")
-    #     entries = db.select(ToDoItem)
 
-    #     print(entries)
-    #     # json_entries = json.dumps(entries, default=ToDoItem)
-    #     # print("json:", json_entries.toJSON)
-    #     # return jsonify(json_entries)
-    #     return render_template('index.html')  # , entries=entries)
+@app.route('/getjson', methods=['GET'])
+def get_info():
+    json_data = [
+        {'id': 239, 'comment': "www"},
+        {'id': 240, 'comment': "英語"},
+        {'id': 241, 'comment': "こくご"}
+    ]
+
+    with MySQLConnector() as db:
+        dbdatas = db.select(ToDoItem)
+
+        # for result in dbdatas:
+        #     # print(json.dumps(result))
+        #     return jsonify(result)
+        return jsonify(json_data)
 
 
 # ログイン前画面表示
 @app.route('/login', methods=['GET'])
 def login_view():
-    print("来たよ>>>>>>>>>>>>>>>>>>>>>>>>")
+
     # ログイン画面に表示する。
     return render_template('index.html')
 
@@ -461,6 +468,9 @@ def login():
         # ログインフォームに入力されたユーザーIDとパスワード取得
         id_name = request.json['id_name']
         password = request.json['password']
+
+        print(id_name)
+        print(password)
 
         # ログインフォームに入力されたユーザーIDをパラメーターに、select_one関数で
         # DBのテーブルクラスを入れ、fetchoneをして、値を抽出する。
@@ -480,6 +490,7 @@ def login():
         # ログインに成功していれば、ログイン後のページへリダイレクトする。
         # ログインに失敗していれば、ログインページにリダイレクトする。(再度表示する)
         # return redirect(url_for('top' if LoginOk else 'index'))
+
         return jsonify(LoginOk)
 
 

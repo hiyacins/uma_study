@@ -18,7 +18,7 @@
           <td>{{ entry.comment }}</td>
           <td class="button">
             <!-- 削除ボタン -->
-            <button v-on:click="doRemove(entry)">削除</button>
+            <button v-on:click="doRemove(entry.id)">削除</button>
           </td>
         </tr>
       </tbody>
@@ -35,7 +35,7 @@
     <br />
     <form class="add-form">
       <!-- 削除ボタン -->
-      <button v-on:click="doRemove(entries)">すべて削除</button>
+      <button v-on:click="doAllRemove(entries)">すべて削除</button>
     </form>
   </div>
 </template>
@@ -50,13 +50,13 @@ export default {
       // ToDoリストデータ用のカラ配列をdataオプションに登録する。
       entries: [],
       // ToDoリストのid初期化
-      id: 1
+      id: 241,
     };
   },
   created() {
-    axios.get("http://127.0.0.1:5000/").then(res => {
-      // this.entries2 = res.data.entries;
-      // console.log(res.data.entries);
+    axios.get("http://127.0.0.1:5000/getjson").then((res) => {
+      this.entries = res.data;
+      console.log(res.data);
     });
   },
   methods: {
@@ -73,11 +73,11 @@ export default {
       // 例：{ 新しいID, コメント }
       this.entries.push({
         id: this.id++,
-        comment: comment.value
+        comment: comment.value,
       });
       var posting = {
         id: this.id,
-        comment: this.comment
+        comment: this.comment,
       };
       axios.post("http://127.0.0.1:5000/add", posting).then(function(res) {
         // console.log(res.data.id);
@@ -92,16 +92,27 @@ export default {
       this.entries.splice(index, 1);
       var posting = {
         id: this.id,
-        comment: this.comment
       };
       axios
-        .post("http://127.0.0.1:5000/delete/<int:id>", posting)
+        .post("http://127.0.0.1:5000/delete/" + this.id, posting)
         .then(function(res) {
-          console.log(res.data.id);
-          console.log(res.data.entries);
+          console.log(res.data);
         });
-    }
-  }
+    },
+    // ToDoリスト削除の処理
+    doAllRemove(entry) {
+      var index = this.entries.indexOf(entry);
+      this.entries.splice(index, 1);
+      var posting = {
+        id: this.id,
+      };
+      axios
+        .post("http://127.0.0.1:5000/all-delete", posting)
+        .then(function(res) {
+          console.log(res.data);
+        });
+    },
+  },
 };
 </script>
 <style>

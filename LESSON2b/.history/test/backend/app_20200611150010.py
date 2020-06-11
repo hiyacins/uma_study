@@ -433,12 +433,15 @@ def top():
     #     return render_template('index.html', entries=jsonify(info_bank))
     #     # return render_template('index.html', entries=db.select(ToDoItem))
 
-
 #############################################################
 # POSTMANでWebAPIテスト
 # - 1+2 して 3返すWebAPI
 #############################################################
-# Postmanから値を受け取り、その値を足し算して答えを返す。
+# @app.route('/incomes')
+# def get_incomes():
+#     return jsonify(number)
+
+
 @app.route('/incomes', methods=['POST'])
 def add_income():
     y = request.get_json()
@@ -446,12 +449,6 @@ def add_income():
     z = int(y['1']) + int(y['2'])
     print(z)
     return jsonify(z), 200
-
-
-# #
-# @app.route('/incomes')
-# def get_incomes():
-#     return jsonify(number)
 
 
 # ログイン前画面表示

@@ -5,9 +5,15 @@
     <h2 class="login-header">Log in</h2>
 
     <form class="login-container">
-      <p><input v-model="id_name" type="text" placeholder="Email" /></p>
-      <p><input v-model="password" type="text" placeholder="Password" /></p>
-      <p><input @click="userLogin" type="submit" value="ログイン" /></p>
+      <p>
+        <input v-model="id_name" type="text" placeholder="Email" />
+      </p>
+      <p>
+        <input v-model="password" type="text" placeholder="Password" />
+      </p>
+      <p>
+        <input @click="userLogin" type="submit" value="ログイン" />
+      </p>
     </form>
   </div>
 </template>
@@ -19,35 +25,37 @@ export default {
   data() {
     return {
       id_name: "",
-      password: "",
+      password: ""
     };
   },
+  created() {
+    axios.get("http://127.0.0.1:5000/login").then(res => {
+      console.log(res.data.id_name);
+      console.log(res.data.password);
+    });
+    // this.$router.push("/");
+  },
   methods: {
-    // login: function() {
-    //   this.$router.push("/");
-    // },
     userLogin() {
       var article = {
         id_name: this.id_name,
-        password: this.password,
+        password: this.password
       };
       axios.post("http://127.0.0.1:5000/login", article).then(function(res) {
         console.log(res.data.id_name);
         console.log(res.data.password);
-        // location.href = "/home";
       });
       this.id_name = "";
       this.password = "";
-      this.$router.push("/");
-    },
-  },
+    }
+  }
 };
 </script>
 <style>
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400, 700);
 
 body {
-  background: #456;
+  background: rgb(255, 255, 255);
   font-family: "Open Sans", sans-serif;
 }
 
