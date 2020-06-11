@@ -418,14 +418,20 @@ def all_delete_todo_items():
 
     return redirect(url_for('top'))
 
-
 # ログイン成功後の画面(ホーム画面)
+
+
 @app.route('/')
 @login_required
 def top():
 
     flash('ログインを成功しました＼(^o^)／')
     return render_template('index.html')
+    # with MySQLConnector() as db:
+    #     print("はいったよ")
+    #     # entries = db.select(ToDoItem)
+    #     return render_template('index.html', entries=jsonify(info_bank))
+    #     # return render_template('index.html', entries=db.select(ToDoItem))
 
 
 @app.route('/getjson', methods=['GET'])
