@@ -1,0 +1,67 @@
+CMDにて、プロジェクトをインストールしたいディレクトリにする。
+例）cd Z:\pg_sample\flask_vuecli_test
+
+npm install
+
+vue create 【インストールしたいフォルダ名】
+例）vue create frontend
+
+Vue CLI v4.3.1
+? Please pick a preset: Manually select features
+? Check the features needed for your project: Babel, TS, Router, Linter
+? Use class-style component syntax? Yes
+? Use Babel alongside TypeScript (required for modern mode, auto-detected polyfills, transpiling JSX)? No
+? Use history mode for router? (Requires proper server setup for index fallback in production) Yes
+? Pick a linter / formatter config: Basic
+? Pick additional lint features: Lint on save
+? Where do you prefer placing config for Babel, ESLint, etc.? In package.json
+? Save this as a preset for future projects? No
+
+
+Vue CLI v3.11.0
+? Please pick a preset: Manually select features
+? Check the features needed for your project: Babel, Router, Linter
+? Use history mode for router? (Requires proper server setup for index fallback　in production) Yes
+? Pick a linter / formatter config: Basic
+? Pick additional lint features: (Press <space> to select, <a> to toggle all, <i> to invert selection)Lint on save
+?? Where do you prefer placing config for Babel, PostCSS, ESLint, etc.? In package.json
+? Save this as a preset for future projects? (y/N) N
+
+
+■起動時に下記のコマンド(開発時はこれで良し)
+npm run serve
+
+＞＞＞　個々の段階でvuejsCLIは起動できる。
+
+■起動時に下記の正式版はこちら
+npm run build
+
+
+
+■vuetifyをインストールする。
+vue add vuetify
+
+? Choose a preset: (Use arrow keys)
+❯ Default (recommended)
+  Prototype (rapid development)
+  Configure (advanced)
+※デフォルトにする。
+
+■axiosのインストール
+npm install axios --save 
+
+
+■axios/vue-routerインストール
+npm install --save axios vue-router
+
+
+
+＞＞　その他
+
+
+■QRcode生成
+https://qiita.com/de_teiu_tkg/items/ac9e6da77975b16169b9
+$ npm install @chenfengyuan/vue-qrcode vue
+
+
+
