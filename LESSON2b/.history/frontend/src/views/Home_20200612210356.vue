@@ -102,6 +102,17 @@ export default {
       } catch (e) {
         console.log(e);
       }
+
+      // var index = this.entries.indexOf(entry);
+      // this.entries.splice(index, 1);
+      // var posting = {
+      //   id: this.id
+      // };
+      // axios
+      //   .post("http://127.0.0.1:5000/all-delete", posting)
+      //   .then(function(res) {
+      //     console.log(res.data);
+      //   });
     }
   }
 };
