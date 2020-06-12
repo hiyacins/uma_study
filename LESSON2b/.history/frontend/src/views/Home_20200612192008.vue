@@ -49,7 +49,9 @@ export default {
       // -- 使用するデータを書く
       // ToDoリストデータ用のカラ配列をdataオプションに登録する。
       entries: [],
-      comment: "",
+      comment:'',
+      // ToDoリストのid初期化
+      id: 241,
       // ベースURLの設定
       baseUrl: "http://127.0.0.1:5000/"
     };
@@ -70,20 +72,20 @@ export default {
     },
     // Todoリスト追加の処理
     async doAdd() {
-      if (!this.comment) {
-        return;
-      }
-      try {
-        let params = {
-          // id: this.id,
-          comment: this.comment
-        };
-        await axios.post(this.baseUrl + "add", params); //JSON.stringify(params));
-        this.getTodo();
-        this.comment = "";
-      } catch (error) {
-        console.log(error);
-      }
+        if (!this.inputField) {
+          return
+        }
+        try {
+          let params = {
+            'text': this.inputField,
+            'status': 1
+          }
+          await axios.post(this.baseUrl + 'todo', JSON.stringify(params))
+          this.getTodo()
+          this.inputField = ''
+        } catch (error) {
+          console.lo
+
 
       // // ref で名前を付けておいた要素を参照
       // var comment = this.$refs.comment;

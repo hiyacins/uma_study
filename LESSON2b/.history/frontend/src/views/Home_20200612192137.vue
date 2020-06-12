@@ -50,6 +50,8 @@ export default {
       // ToDoリストデータ用のカラ配列をdataオプションに登録する。
       entries: [],
       comment: "",
+      // ToDoリストのid初期化
+      id: 241,
       // ベースURLの設定
       baseUrl: "http://127.0.0.1:5000/"
     };
@@ -75,10 +77,10 @@ export default {
       }
       try {
         let params = {
-          // id: this.id,
+          id: 1,
           comment: this.comment
         };
-        await axios.post(this.baseUrl + "add", params); //JSON.stringify(params));
+        await axios.post(this.baseUrl + "getjson", JSON.stringify(params));
         this.getTodo();
         this.comment = "";
       } catch (error) {

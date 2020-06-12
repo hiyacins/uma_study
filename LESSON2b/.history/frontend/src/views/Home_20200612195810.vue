@@ -75,10 +75,10 @@ export default {
       }
       try {
         let params = {
-          // id: this.id,
+          id: 1,
           comment: this.comment
         };
-        await axios.post(this.baseUrl + "add", params); //JSON.stringify(params));
+        await axios.post(this.baseUrl + "getjson", JSON.stringify(params));
         this.getTodo();
         this.comment = "";
       } catch (error) {

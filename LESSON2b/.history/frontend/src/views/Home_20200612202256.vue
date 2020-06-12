@@ -78,7 +78,7 @@ export default {
           // id: this.id,
           comment: this.comment
         };
-        await axios.post(this.baseUrl + "add", params); //JSON.stringify(params));
+        await axios.post(this.baseUrl + "add", JSON.stringify(params));
         this.getTodo();
         this.comment = "";
       } catch (error) {

@@ -48,63 +48,41 @@ export default {
     return {
       // -- 使用するデータを書く
       // ToDoリストデータ用のカラ配列をdataオプションに登録する。
-      entries: [],
-      comment: "",
-      // ベースURLの設定
-      baseUrl: "http://127.0.0.1:5000/"
+      entries: []
+      // ToDoリストのid初期化
+      // id: 241,
     };
   },
   created() {
-    this.getTodo();
+    axios.get("http://127.0.0.1:5000/getjson").then(res => {
+      this.entries = res.data;
+      console.log(res.data);
+    });
   },
   methods: {
-    // -- 使用するメソッドはここへ -- //
-    // データベースからTodoリスト一覧を呼んでくる。
-    async getTodo() {
-      try {
-        let response = await axios.get(this.baseUrl + "getjson");
-        this.entries = response.data;
-      } catch (e) {
-        console.log(e);
-      }
-    },
-    // Todoリスト追加の処理
-    async doAdd() {
-      if (!this.comment) {
+    // -- 使用するメソッドはここへ
+    // ToDoリスト追加の処理
+    doAdd(event, value) {
+      // ref で名前を付けておいた要素を参照
+      var comment = this.$refs.comment;
+      // 入力がなければ何もしないで return
+      if (!comment.value.length) {
         return;
       }
-      try {
-        let params = {
-          // id: this.id,
-          comment: this.comment
-        };
-        await axios.post(this.baseUrl + "add", params); //JSON.stringify(params));
-        this.getTodo();
-        this.comment = "";
-      } catch (error) {
-        console.log(error);
-      }
-
-      // // ref で名前を付けておいた要素を参照
-      // var comment = this.$refs.comment;
-      // // 入力がなければ何もしないで return
-      // if (!comment.value.length) {
-      //   return;
-      // }
-      // this.entries.push({
-      //   id: this.id++,
-      //   comment: comment.value
-      // });
-      // var posting = {
-      //   id: this.id,
-      //   comment: this.comment
-      // };
-      // axios.post("http://127.0.0.1:5000/add", posting).then(function(res) {
-      //   // フォーム要素を空にする
-      //   comment.value = "";
-      //   // todos リストへ pushする。
-      //   // 例：{ 新しいID, コメント }
-      // });
+      var posting = {
+        id: entry.id,
+        comment: this.comment
+      };
+      axios.post("http://127.0.0.1:5000/add", posting).then(function(res) {
+        // フォーム要素を空にする
+        comment.value = "";
+        // todos リストへ pushする。
+        // 例：{ 新しいID, コメント }
+        this.entries.push({
+          id: id.value,
+          comment: comment.value
+        });
+      });
     },
     // ToDoリスト削除の処理
     doRemove(entry) {
