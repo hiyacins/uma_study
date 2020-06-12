@@ -24,7 +24,7 @@ export default {
   name: "login",
   data() {
     return {
-      authinfo:[],
+      logindata:[],
       id_name: "",
       password: "",
       baseUrl: "http://127.0.0.1:5000/"
@@ -39,42 +39,22 @@ export default {
     // this.$router.push("/");
   },
   methods: {
-    // ログイン認証の結果を受け取る。
     async getLoginOk(){
       try{
-        let response = await axios.get(this.baseUrl + "login");
-        this.authinfo = response.data;
-      } catch(error) {
-        console.log(error);
+        let response=await axios.get(this.baseUrl + "login");
       }
     }
-    async userLogin() {
-      if (!this.id_name || !this.password){
-        return;
-      }
-      try{
-        let params = {
-          id_name: this.id_name,
-          password: this.password
-        };
-        await axios.post(this.baseUrl + "login", params);
-        this.getLoginOk();
-        this.id_name = "";
-        this.password = "";
-      } catch(error) {
-        console.log(error);
-      }
-
-      // var article = {
-      //   id_name: this.id_name,
-      //   password: this.password
-      // };
-      // axios.post("http://127.0.0.1:5000/login", article).then(function(res) {
-      //   console.log(res.data.id_name);
-      //   console.log(res.data.password);
-      // });
-      // this.id_name = "";
-      // this.password = "";
+    userLogin() {
+      var article = {
+        id_name: this.id_name,
+        password: this.password
+      };
+      axios.post("http://127.0.0.1:5000/login", article).then(function(res) {
+        console.log(res.data.id_name);
+        console.log(res.data.password);
+      });
+      this.id_name = "";
+      this.password = "";
     }
   }
 };

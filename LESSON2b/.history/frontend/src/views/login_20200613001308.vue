@@ -44,37 +44,21 @@ export default {
       try{
         let response = await axios.get(this.baseUrl + "login");
         this.authinfo = response.data;
-      } catch(error) {
-        console.log(error);
+      }catch(e){
+        console.log(e);
       }
     }
     async userLogin() {
-      if (!this.id_name || !this.password){
-        return;
-      }
-      try{
-        let params = {
-          id_name: this.id_name,
-          password: this.password
-        };
-        await axios.post(this.baseUrl + "login", params);
-        this.getLoginOk();
-        this.id_name = "";
-        this.password = "";
-      } catch(error) {
-        console.log(error);
-      }
-
-      // var article = {
-      //   id_name: this.id_name,
-      //   password: this.password
-      // };
-      // axios.post("http://127.0.0.1:5000/login", article).then(function(res) {
-      //   console.log(res.data.id_name);
-      //   console.log(res.data.password);
-      // });
-      // this.id_name = "";
-      // this.password = "";
+      var article = {
+        id_name: this.id_name,
+        password: this.password
+      };
+      axios.post("http://127.0.0.1:5000/login", article).then(function(res) {
+        console.log(res.data.id_name);
+        console.log(res.data.password);
+      });
+      this.id_name = "";
+      this.password = "";
     }
   }
 };
