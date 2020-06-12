@@ -85,26 +85,20 @@ export default {
         console.log(error);
       }
     },
-    // Todoリスト削除の処理
-    async doRemove(delete_id) {
-      try {
-        await axios.post(this.baseUrl + "delete/" + delete_id);
-        this.getTodo();
-      } catch (e) {
-        console.log(e);
-      }
-      // var index = this.entries.indexOf(entry);
-      // this.entries.splice(index, 1);
-      // var posting = {
-      //   id: this.id
-      // };
-      // axios
-      //   .post("http://127.0.0.1:5000/delete/" + this.id, posting)
-      //   .then(function(res) {
-      //     console.log(res.data);
-      //   });
+    // ToDoリスト削除の処理
+    doRemove(entry) {
+      var index = this.entries.indexOf(entry);
+      this.entries.splice(index, 1);
+      var posting = {
+        id: this.id
+      };
+      axios
+        .post("http://127.0.0.1:5000/delete/" + this.id, posting)
+        .then(function(res) {
+          console.log(res.data);
+        });
     },
-    // Todoリスト全削除の処理
+    // ToDoリスト削除の処理
     doAllRemove(entry) {
       var index = this.entries.indexOf(entry);
       this.entries.splice(index, 1);

@@ -86,9 +86,9 @@ export default {
       }
     },
     // Todoリスト削除の処理
-    async doRemove(delete_id) {
+    async doRemove(entry) {
       try {
-        await axios.post(this.baseUrl + "delete/" + delete_id);
+        await axios.delete(this.baseUrl + "todo/" + todo.ID);
         this.getTodo();
       } catch (e) {
         console.log(e);
