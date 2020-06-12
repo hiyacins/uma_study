@@ -438,12 +438,12 @@ def top():
 def get_info():
     # json_data = []
     with MySQLConnector() as db:
-        db_datas = db.select(ToDoItem)
+        dbdatas = db.select(ToDoItem)
 
         # for e in dbdatas:
         #     json_data.append({"id": e.id, "comment": e.comment})
 
-        return jsonify([e.serialize() for e in db_datas])
+        return jsonify([e.serialize() for e in dbdatas])
 
 
 # ログイン前画面表示
