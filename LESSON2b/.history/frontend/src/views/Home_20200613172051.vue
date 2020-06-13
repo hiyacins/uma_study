@@ -59,14 +59,6 @@ export default {
   },
   methods: {
     // -- 使用するメソッドはここへ -- //
-    getIndex(value, arr, prop) {
-      for (var i = 0; i < arr.length; i++) {
-        if (arr[i][prop] === value) {
-          return i;
-        }
-      }
-      return -1; //値が存在しなかったとき
-    },
     // データベースからTodoリスト一覧を呼んでくる。
     async getTodo() {
       try {
@@ -90,7 +82,7 @@ export default {
         // this.getTodo();
 
         this.entries.push({
-          id: this.id,
+          id: this.entries.id,
           comment: this.comment
         });
         this.comment = "";
@@ -102,7 +94,10 @@ export default {
     async doDelete(delete_id) {
       try {
         await axios.post(this.baseUrl + "delete/" + delete_id);
-        var index = this.getIndex(delete_id, this.entries, "id");
+        // this.getTodo();
+
+        var index = this.entries.indexOf(delete_id);
+        console.log(index);
         this.entries.splice(index, 1);
       } catch (error) {
         console.log(error);

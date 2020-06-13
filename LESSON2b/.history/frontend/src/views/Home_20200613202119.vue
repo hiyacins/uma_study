@@ -103,6 +103,7 @@ export default {
       try {
         await axios.post(this.baseUrl + "delete/" + delete_id);
         var index = this.getIndex(delete_id, this.entries, "id");
+        console.log(index);
         this.entries.splice(index, 1);
       } catch (error) {
         console.log(error);

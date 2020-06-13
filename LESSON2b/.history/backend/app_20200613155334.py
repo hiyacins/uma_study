@@ -476,7 +476,7 @@ def login():
         # ログインに失敗していれば、ログインページにリダイレクトする。(再度表示する)
         # return redirect(url_for('top' if LoginOk else 'index'))
 
-        return jsonify(LoginOk), 200
+        return jsonify(LoginOk)
 
 
 if __name__ == "__main__":

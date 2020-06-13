@@ -415,7 +415,7 @@ def delete_todo_item(id: int):
 
         db.delete(todo_item)
 
-    return jsonify(id), 200
+    return '', 200
 
 
 # DB内のToDoリストをすべて削除する。
@@ -428,7 +428,7 @@ def all_delete_todo_items():
         # ToDoリストをすべて削除する。
         db.delete(ToDoItem)
 
-    return jsonify(''), 200
+    return '', 200
 
 
 # ログイン成功後の画面(ホーム画面)
@@ -476,7 +476,7 @@ def login():
         # ログインに失敗していれば、ログインページにリダイレクトする。(再度表示する)
         # return redirect(url_for('top' if LoginOk else 'index'))
 
-        return jsonify(LoginOk), 200
+        return jsonify(LoginOk)
 
 
 if __name__ == "__main__":

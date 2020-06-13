@@ -59,7 +59,7 @@ export default {
   },
   methods: {
     // -- 使用するメソッドはここへ -- //
-    getIndex(value, arr, prop) {
+    getIndex: function(value, arr, prop) {
       for (var i = 0; i < arr.length; i++) {
         if (arr[i][prop] === value) {
           return i;
@@ -102,7 +102,11 @@ export default {
     async doDelete(delete_id) {
       try {
         await axios.post(this.baseUrl + "delete/" + delete_id);
-        var index = this.getIndex(delete_id, this.entries, "id");
+        // this.getTodo();
+
+        // var index = this.entries.indexOf({ id: delete_id });
+        var index = this.getIndex(delete_id, entries, "id");
+        console.log(index);
         this.entries.splice(index, 1);
       } catch (error) {
         console.log(error);
