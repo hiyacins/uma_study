@@ -80,10 +80,6 @@ export default {
         };
         await axios.post(this.baseUrl + "add", params);
         // this.getTodo();
-        this.entries.push({
-          id: this.entries.id++,
-          comment: this.comment
-        });
         this.comment = "";
       } catch (error) {
         console.log(error);

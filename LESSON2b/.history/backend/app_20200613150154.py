@@ -371,17 +371,6 @@ class MySQLConnector:
 app = FlaskBuilder(__name__)
 
 
-# ---webapi
-# Todoリストを全件取得する。
-@app.route('/get_all_todos', methods=['GET'])
-def get_all_todos():
-
-    with MySQLConnector() as db:
-        db_datas = db.select(ToDoItem)
-
-        return jsonify([e.serialize() for e in db_datas])
-
-
 # ToDoリストで追加されたコメントをDBに登録する。
 @app.route('/add', methods=['POST'])
 # @login_required
@@ -400,6 +389,7 @@ def add_todo_item():
             db.insert(todoitem)
 
     return '', 200
+    # return redirect(url_for('top'))
 
 
 # ToDoリストに追加されたコメントをDBから1件だけ削除する。
@@ -415,7 +405,9 @@ def delete_todo_item(id: int):
 
         db.delete(todo_item)
 
-    return '', 200
+    flash('削除しました＼(^o^)／')
+
+    return redirect(url_for('top'))
 
 
 # DB内のToDoリストをすべて削除する。
@@ -428,7 +420,9 @@ def all_delete_todo_items():
         # ToDoリストをすべて削除する。
         db.delete(ToDoItem)
 
-    return '', 200
+    flash('全部削除しました＼(^o^)／ｵﾜｯﾀ')
+
+    return redirect(url_for('top'))
 
 
 # ログイン成功後の画面(ホーム画面)
@@ -436,7 +430,17 @@ def all_delete_todo_items():
 @login_required
 def top():
 
+    flash('ログインを成功しました＼(^o^)／')
     return render_template('index.html')
+
+
+@app.route('/getjson', methods=['GET'])
+def get_info():
+    # json_data = []
+    with MySQLConnector() as db:
+        db_datas = db.select(ToDoItem)
+
+        return jsonify([e.serialize() for e in db_datas])
 
 
 # ログイン前画面表示

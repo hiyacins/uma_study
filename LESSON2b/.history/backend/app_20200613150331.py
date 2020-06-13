@@ -371,17 +371,6 @@ class MySQLConnector:
 app = FlaskBuilder(__name__)
 
 
-# ---webapi
-# Todoリストを全件取得する。
-@app.route('/get_all_todos', methods=['GET'])
-def get_all_todos():
-
-    with MySQLConnector() as db:
-        db_datas = db.select(ToDoItem)
-
-        return jsonify([e.serialize() for e in db_datas])
-
-
 # ToDoリストで追加されたコメントをDBに登録する。
 @app.route('/add', methods=['POST'])
 # @login_required
@@ -437,6 +426,15 @@ def all_delete_todo_items():
 def top():
 
     return render_template('index.html')
+
+
+@app.route('/getjson', methods=['GET'])
+def get_info():
+
+    with MySQLConnector() as db:
+        db_datas = db.select(ToDoItem)
+
+        return jsonify([e.serialize() for e in db_datas])
 
 
 # ログイン前画面表示
