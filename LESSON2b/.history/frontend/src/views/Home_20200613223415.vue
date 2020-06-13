@@ -89,9 +89,12 @@ export default {
           comment: this.comment
         };
         await axios.post(this.baseUrl + "add", params);
+        // this.getTodo();
         let length = Object.keys(this.entries).length;
+        console.log(length);
+        console.log(this.entries[length - 1].id);
         this.entries.push({
-          id: this.entries[length - 1].id + 1,
+          id: this.id,
           comment: this.comment
         });
         this.comment = "";
