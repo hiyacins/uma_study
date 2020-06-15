@@ -414,26 +414,26 @@ def delete_todo_item(id: int):
             ToDoItem, "WHERE id = ?", id) if id else None
 
         db.delete(todo_item)
+
     return jsonify(''), 200
 
 
 # DB内のToDoリストをすべて削除する。
-@app.route('/all_delete', methods=['GET', 'POST'])
+@app.route('/all-delete', methods=['POST'])
 # @login_required
 def all_delete_todo_items():
-    with MySQLConnector() as db:
-        # Todoリストを全件取得する。
-        db_datas = db.select(ToDoItem)
 
-        # Todoリストをすべて削除する。
+    with MySQLConnector() as db:
+
+        # ToDoリストをすべて削除する。
         db.delete(ToDoItem)
 
-    return jsonify([e.serialize() for e in db_datas]), 200
+    return jsonify(''), 200
 
 
 # ログイン成功後の画面(ホーム画面)
 @app.route('/')
-# @login_required
+@login_required
 def top():
 
     return render_template('index.html')

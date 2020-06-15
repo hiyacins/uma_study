@@ -35,7 +35,7 @@
     <br />
     <form class="add-form">
       <!-- 削除ボタン -->
-      <button v-on:click="doAllDelete()">すべて削除</button>
+      <button v-on:click="doAllDelete(entries)">すべて削除</button>
     </form>
   </div>
 </template>
@@ -49,7 +49,6 @@ export default {
       // -- 使用するデータを書く
       // Todoリストデータ用のカラ配列をdataオプションに登録する。
       entries: [],
-      all_delete_entries: [],
       comment: "",
       id: -1,
       // ベースURLの設定
@@ -110,21 +109,22 @@ export default {
         console.log(error);
       }
     },
-    // Todoリスト全件削除データ受け取り
-    async getAllDelete() {
+    // Todoリスト全件削除json受け取り
+    getAllDelete(entries) {
       try {
-        let response = await axios.get(this.baseUrl + "all_delete");
-        this.all_delete_entries = response.data;
-        this.all_delete_entries.splice(0, this.all_delete_entries.length);
+        // let response = await axios.get(this.baseUrl + "all_delete");
+        // this.entries = response.data;
+        console.log("ALL_DELETE");
+        this.entries.splice(0, this.entries.length);
       } catch (error) {
         console.log(error);
       }
     },
     // Todoリスト全削除の処理
-    async doAllDelete() {
+    async doAllDelete(entries) {
       try {
-        await axios.post(this.baseUrl + "all_delete");
-        this.getAllDelete();
+        // await axios.post(this.baseUrl + "all_delete");
+        this.getAllDelete(entries);
       } catch (error) {
         console.log(error);
       }

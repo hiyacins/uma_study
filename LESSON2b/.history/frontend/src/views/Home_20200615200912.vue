@@ -49,7 +49,6 @@ export default {
       // -- 使用するデータを書く
       // Todoリストデータ用のカラ配列をdataオプションに登録する。
       entries: [],
-      all_delete_entries: [],
       comment: "",
       id: -1,
       // ベースURLの設定
@@ -110,21 +109,17 @@ export default {
         console.log(error);
       }
     },
-    // Todoリスト全件削除データ受け取り
-    async getAllDelete() {
+    // Todoリスト全削除の処理
+    async doDeleteAll() {
       try {
-        let response = await axios.get(this.baseUrl + "all_delete");
-        this.all_delete_entries = response.data;
-        this.all_delete_entries.splice(0, this.all_delete_entries.length);
+        await axios.post(this.baseUrl + "all_delete");
       } catch (error) {
         console.log(error);
       }
-    },
-    // Todoリスト全削除の処理
-    async doAllDelete() {
       try {
-        await axios.post(this.baseUrl + "all_delete");
-        this.getAllDelete();
+        let response = await axios.get(this.baseUrl + "all_delete");
+        this.entries = response.data;
+        this.entries.splice(0, this.entries.length - 1);
       } catch (error) {
         console.log(error);
       }

@@ -426,14 +426,14 @@ def all_delete_todo_items():
         db_datas = db.select(ToDoItem)
 
         # Todoリストをすべて削除する。
-        db.delete(ToDoItem)
+        # db.delete(ToDoItem)
 
     return jsonify([e.serialize() for e in db_datas]), 200
 
 
 # ログイン成功後の画面(ホーム画面)
 @app.route('/')
-# @login_required
+@login_required
 def top():
 
     return render_template('index.html')

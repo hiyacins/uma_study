@@ -433,7 +433,7 @@ def all_delete_todo_items():
 
 # ログイン成功後の画面(ホーム画面)
 @app.route('/')
-# @login_required
+@login_required
 def top():
 
     return render_template('index.html')

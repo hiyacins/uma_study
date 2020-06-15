@@ -399,7 +399,7 @@ def add_todo_item():
             # コメントをDBに登録する。
             db.insert(todoitem)
 
-    return jsonify(''), 200
+    return jsonify(todoitem.comment), 200
 
 
 # ToDoリストに追加されたコメントをDBから1件だけ削除する。
@@ -433,7 +433,7 @@ def all_delete_todo_items():
 
 # ログイン成功後の画面(ホーム画面)
 @app.route('/')
-# @login_required
+@login_required
 def top():
 
     return render_template('index.html')

@@ -399,7 +399,7 @@ def add_todo_item():
             # コメントをDBに登録する。
             db.insert(todoitem)
 
-    return jsonify(''), 200
+    return jsonify(todoitem.comment), 200
 
 
 # ToDoリストに追加されたコメントをDBから1件だけ削除する。
@@ -414,26 +414,26 @@ def delete_todo_item(id: int):
             ToDoItem, "WHERE id = ?", id) if id else None
 
         db.delete(todo_item)
-    return jsonify(''), 200
+
+    return jsonify(todo_item), 200
 
 
 # DB内のToDoリストをすべて削除する。
-@app.route('/all_delete', methods=['GET', 'POST'])
+@app.route('/all_delete', methods=['POST'])
 # @login_required
 def all_delete_todo_items():
-    with MySQLConnector() as db:
-        # Todoリストを全件取得する。
-        db_datas = db.select(ToDoItem)
 
-        # Todoリストをすべて削除する。
+    with MySQLConnector() as db:
+
+        # ToDoリストをすべて削除する。
         db.delete(ToDoItem)
 
-    return jsonify([e.serialize() for e in db_datas]), 200
+    return jsonify(ToDoItem), 200
 
 
 # ログイン成功後の画面(ホーム画面)
 @app.route('/')
-# @login_required
+@login_required
 def top():
 
     return render_template('index.html')
