@@ -104,16 +104,13 @@ export default {
     },
     // Todoリスト削除の処理
     async getDelete(delete_id) {
-      axios
-        .get(this.baseUrl + "delete/" + delete_id)
-        .then(response => {
-          var index = this.getIndex(response.data, this.entries, "id");
-          // var index = this.getIndex(delete_id, this.entries, "id");
-          this.entries.splice(index, 1);
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      try {
+        await axios.get(this.baseUrl + "delete/" + delete_id);
+        var index = this.getIndex(delete_id, this.entries, "id");
+        this.entries.splice(index, 1);
+      } catch (error) {
+        console.log(error);
+      }
     },
     // Todoリスト削除の処理
     doDelete(delete_id) {

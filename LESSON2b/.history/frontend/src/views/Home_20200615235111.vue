@@ -107,7 +107,7 @@ export default {
       axios
         .get(this.baseUrl + "delete/" + delete_id)
         .then(response => {
-          var index = this.getIndex(response.data, this.entries, "id");
+          var index = this.getIndex(delete_id, response.data, "id");
           // var index = this.getIndex(delete_id, this.entries, "id");
           this.entries.splice(index, 1);
         })

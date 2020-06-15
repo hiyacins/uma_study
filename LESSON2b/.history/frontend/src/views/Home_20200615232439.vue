@@ -71,15 +71,13 @@ export default {
       return -1; //値が存在しなかったとき
     },
     // データベースからTodoリスト一覧を呼んでくる。
-    getTodo() {
-      axios
-        .get(this.baseUrl + "get_all_todos")
-        .then(response => {
-          this.entries = response.data;
-        })
-        .catch(error => {
-          console.log(error);
-        });
+    async getTodo() {
+      try {
+        let response = await axios.get(this.baseUrl + "get_all_todos");
+        this.entries = response.data;
+      } catch (error) {
+        console.log(error);
+      }
     },
     // Todoリスト追加の処理
     async doAdd() {
@@ -104,46 +102,41 @@ export default {
     },
     // Todoリスト削除の処理
     async getDelete(delete_id) {
-      axios
-        .get(this.baseUrl + "delete/" + delete_id)
-        .then(response => {
-          var index = this.getIndex(response.data, this.entries, "id");
-          // var index = this.getIndex(delete_id, this.entries, "id");
-          this.entries.splice(index, 1);
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      try {
+        await axios.get(this.baseUrl + "delete/" + delete_id);
+        var index = this.getIndex(delete_id, this.entries, "id");
+        this.entries.splice(index, 1);
+      } catch (error) {
+        console.log(error);
+      }
     },
     // Todoリスト削除の処理
-    doDelete(delete_id) {
-      axios
-        .post(this.baseUrl + "delete/" + delete_id)
-        .then(this.getDelete(delete_id))
-        .catch(error => {
-          console.log(error);
-        });
+    async doDelete(delete_id) {
+      try {
+        await axios.post(this.baseUrl + "delete/" + delete_id);
+        this.getDelete(delete_id);
+      } catch (error) {
+        console.log(error);
+      }
     },
     // Todoリスト全件削除データ受け取り
-    getAllDelete() {
-      axios
-        .get(this.baseUrl + "all_delete")
-        .then(response => {
-          this.all_delete_entries = response.data;
-          this.all_delete_entries.splice(0, this.all_delete_entries.length);
-        })
-        .catch(error => {
-          console.log(error);
-        });
+    async getAllDelete() {
+      try {
+        let response = await axios.get(this.baseUrl + "all_delete");
+        this.all_delete_entries = response.data;
+        this.all_delete_entries.splice(0, this.all_delete_entries.length);
+      } catch (error) {
+        console.log(error);
+      }
     },
     // Todoリスト全削除の処理
-    doAllDelete() {
-      axios
-        .post(this.baseUrl + "all_delete")
-        .then(this.getAllDelete())
-        .catch(error => {
-          console.log(error);
-        });
+    async doAllDelete() {
+      try {
+        await axios.post(this.baseUrl + "all_delete");
+        this.getAllDelete();
+      } catch (error) {
+        console.log(error);
+      }
     }
   }
 };

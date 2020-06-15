@@ -405,7 +405,7 @@ def add_todo_item():
 # ToDoリストに追加されたコメントをDBから1件だけ削除する。
 # id : int
 # 削除するコメントのid
-@app.route('/delete/<int:id>', methods=['GET', 'POST'])
+@app.route('/delete/<int:id>', methods=['POST'])
 # @login_required
 def delete_todo_item(id: int):
     with MySQLConnector() as db:
