@@ -383,7 +383,7 @@ def get_all_todos():
 
 
 # ToDoリストで追加されたコメントをDBに登録する。
-@app.route('/add', methods=['POST'])
+@app.route('/add', methods=['GET', 'POST'])
 # @login_required
 def add_todo_item():
     todoitem = ToDoItem()
@@ -392,6 +392,7 @@ def add_todo_item():
         # ToDoフォームのテキストボックスに入力されたテキストを取得する。
         todoitem.comment = request.json['comment']
 
+    print(todoitem.comment)
     # コメント欄のテキストボックスが空でなければ、SQLを実行する。
     # コメント欄のテキストボックスが空なら何もしない。
     if todoitem.comment:

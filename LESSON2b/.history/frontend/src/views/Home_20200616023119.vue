@@ -115,7 +115,7 @@ export default {
           console.log(response.data);
           this.entries.push({
             id: this.entries[length - 1].id + 1,
-            comment: response.data.comment
+            comment: response.data
           });
           this.comment = "";
         })

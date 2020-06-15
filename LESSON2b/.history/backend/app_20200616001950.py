@@ -388,9 +388,8 @@ def get_all_todos():
 def add_todo_item():
     todoitem = ToDoItem()
 
-    if request.method == 'POST':
-        # ToDoフォームのテキストボックスに入力されたテキストを取得する。
-        todoitem.comment = request.json['comment']
+    # ToDoフォームのテキストボックスに入力されたテキストを取得する。
+    todoitem.comment = request.json['comment']
 
     # コメント欄のテキストボックスが空でなければ、SQLを実行する。
     # コメント欄のテキストボックスが空なら何もしない。
@@ -400,7 +399,7 @@ def add_todo_item():
             # コメントをDBに登録する。
             db.insert(todoitem)
 
-    return jsonify({"comment": todoitem.comment}), 200
+    return jsonify(''), 200
 
 
 # ToDoリストに追加されたコメントをDBから1件だけ削除する。
@@ -426,6 +425,7 @@ def all_delete_todo_items():
 
         # Todoリストをすべて削除する。
         db.delete(ToDoItem)
+
     return jsonify(''), 200
 
 

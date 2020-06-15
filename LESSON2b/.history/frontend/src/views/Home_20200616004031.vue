@@ -87,10 +87,9 @@ export default {
         .get(this.baseUrl + "add")
         .then(response => {
           let length = Object.keys(this.entries).length;
-          console.log(response.data);
           this.entries.push({
             id: this.entries[length - 1].id + 1,
-            comment: this.comment
+            comment: response.data
           });
           this.comment = "";
         })
@@ -110,15 +109,7 @@ export default {
       };
       axios
         .post(this.baseUrl + "add", params)
-        .then(response => {
-          let length = Object.keys(this.entries).length;
-          console.log(response.data);
-          this.entries.push({
-            id: this.entries[length - 1].id + 1,
-            comment: response.data.comment
-          });
-          this.comment = "";
-        })
+        .then(this.getAdd())
         .catch(error => {
           console.log(error);
         });

@@ -86,8 +86,7 @@ export default {
       axios
         .get(this.baseUrl + "add")
         .then(response => {
-          let length = Object.keys(this.entries).length;
-          console.log(response.data);
+          let length = Object.keys(response.data).length;
           this.entries.push({
             id: this.entries[length - 1].id + 1,
             comment: this.comment
@@ -104,24 +103,14 @@ export default {
       if (!this.comment) {
         return;
       }
+      try {
+        let params = {
+          comment: this.comment
+        };
+        axios.post(this.baseUrl + "add", params)
+        .then(this.getAdd())
+        .catch(error=>{console.log(error);});
 
-      let params = {
-        comment: this.comment
-      };
-      axios
-        .post(this.baseUrl + "add", params)
-        .then(response => {
-          let length = Object.keys(this.entries).length;
-          console.log(response.data);
-          this.entries.push({
-            id: this.entries[length - 1].id + 1,
-            comment: response.data.comment
-          });
-          this.comment = "";
-        })
-        .catch(error => {
-          console.log(error);
-        });
     },
     // Todoリスト削除の処理
     async getDelete(delete_id) {

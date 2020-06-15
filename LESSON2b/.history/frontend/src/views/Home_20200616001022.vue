@@ -82,46 +82,25 @@ export default {
         });
     },
     // Todoリスト追加の処理
-    getAdd() {
-      axios
-        .get(this.baseUrl + "add")
-        .then(response => {
-          let length = Object.keys(this.entries).length;
-          console.log(response.data);
-          this.entries.push({
-            id: this.entries[length - 1].id + 1,
-            comment: this.comment
-          });
-          this.comment = "";
-        })
-        .catch(error => {
-          console.log(error);
-        });
-    },
-    // Todoリスト追加の処理
-    doAdd() {
+    async doAdd() {
       // コメント入力が空なら何もしない。
       if (!this.comment) {
         return;
       }
-
-      let params = {
-        comment: this.comment
-      };
-      axios
-        .post(this.baseUrl + "add", params)
-        .then(response => {
-          let length = Object.keys(this.entries).length;
-          console.log(response.data);
-          this.entries.push({
-            id: this.entries[length - 1].id + 1,
-            comment: response.data.comment
-          });
-          this.comment = "";
-        })
-        .catch(error => {
-          console.log(error);
+      try {
+        let params = {
+          comment: this.comment
+        };
+        await axios.post(this.baseUrl + "add", params);
+        let length = Object.keys(this.entries).length;
+        this.entries.push({
+          id: this.entries[length - 1].id + 1,
+          comment: this.comment
         });
+        this.comment = "";
+      } catch (error) {
+        console.log(error);
+      }
     },
     // Todoリスト削除の処理
     async getDelete(delete_id) {
@@ -144,11 +123,24 @@ export default {
           console.log(error);
         });
     },
+    // Todoリスト全件削除データ受け取り
+    getAllDelete() {
+      axios
+        .get(this.baseUrl + "all_delete")
+        .then(response => {
+          this.all_delete_entries = response.data;
+          this.all_delete_entries.splice(0, this.all_delete_entries.length);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
     // Todoリスト全削除の処理
     doAllDelete() {
       axios
         .post(this.baseUrl + "all_delete")
         .then(this.entries.splice(0, this.entries.length))
+        // .then(this.getAllDelete())
         .catch(error => {
           console.log(error);
         });

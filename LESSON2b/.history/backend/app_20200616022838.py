@@ -383,7 +383,7 @@ def get_all_todos():
 
 
 # ToDoリストで追加されたコメントをDBに登録する。
-@app.route('/add', methods=['POST'])
+@app.route('/add', methods=['GET', 'POST'])
 # @login_required
 def add_todo_item():
     todoitem = ToDoItem()
