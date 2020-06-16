@@ -50,7 +50,7 @@ export default {
       // Todoリストデータ用のカラ配列をdataオプションに登録する。
       entries: [],
       comment: "",
-      // id: -1,
+      id: -1,
       // ベースURLの設定
       baseUrl: "http://127.0.0.1:5000/"
     };

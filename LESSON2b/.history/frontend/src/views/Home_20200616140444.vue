@@ -50,7 +50,7 @@ export default {
       // Todoリストデータ用のカラ配列をdataオプションに登録する。
       entries: [],
       comment: "",
-      // id: -1,
+      id: -1,
       // ベースURLの設定
       baseUrl: "http://127.0.0.1:5000/"
     };
@@ -86,12 +86,12 @@ export default {
         .get(this.baseUrl + "add")
         .then(response => {
           let length = Object.keys(this.entries).length;
-          console.log(response.data);
           this.entries.push({
             id: this.entries[length - 1].id + 1,
             comment: this.comment
           });
           this.comment = "";
+          this.id = this.entries[length - 1].id + 1;
         })
         .catch(error => {
           console.log(error);
@@ -110,8 +110,10 @@ export default {
       axios
         .post(this.baseUrl + "add", params)
         .then(response => {
+          let length = Object.keys(this.entries).length;
+
           this.entries.push({
-            id: response.data.id,
+            id: this.entries[length - 1].id + 1,
             comment: response.data.comment
           });
           this.comment = "";

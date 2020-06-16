@@ -397,9 +397,9 @@ def add_todo_item():
 
             # コメントをDBに登録する。
             db.insert(todoitem)
-            # auto_incrementされたidを取得する。
-            last_id = db.select_last_id()
-
+            last_id = db.select_ex()
+            # last_id = db.mysql_cursor.lastrowid
+            print(last_id)
         return jsonify({"id": last_id, "comment": todoitem.comment}), 200
 
 

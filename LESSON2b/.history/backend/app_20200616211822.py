@@ -262,11 +262,13 @@ class MySQLConnector:
 
     # [ToDo]:テスト作成
     # insert → update を行う時、insertで登録した、最後のidを取得する関数
-    # 返し値：int型が返る。
+    # 返し値：tuple型が返る。
     # （使用例）
-    # id = db.select_last_id()
-    def select_last_id(self) -> int:
+    # id = db.select_ex()
+    def select_ex(self) -> int:
 
+        # self.execute("SELECT LAST_INSERT_ID()", param)
+        # return self.mysql_cursor.fetchone()
         return self.mysql_cursor.lastrowid
 
     # DELETEを実行する関数
@@ -397,9 +399,9 @@ def add_todo_item():
 
             # コメントをDBに登録する。
             db.insert(todoitem)
-            # auto_incrementされたidを取得する。
-            last_id = db.select_last_id()
-
+            last_id = db.select_ex()
+            # last_id = db.mysql_cursor.lastrowid
+            print(last_id)
         return jsonify({"id": last_id, "comment": todoitem.comment}), 200
 
 
