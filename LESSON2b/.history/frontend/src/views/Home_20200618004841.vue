@@ -97,9 +97,7 @@ export default {
         .post(this.baseUrl + "delete/" + delete_id)
         .then((response) => {
           let index = this.entries.find((v) => v.id === delete_id);
-          if (index > 0) {
-            this.entries.splice(index, 1);
-          }
+          this.entries.splice(index, 1);
         })
         .catch((error) => {
           console.log(error);

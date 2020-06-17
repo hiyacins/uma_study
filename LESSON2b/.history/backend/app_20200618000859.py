@@ -74,8 +74,6 @@ class ToDoItem(DBTable):
         # ここにToDoの内容が入っている
         self.comment = ""
 
-    # このオブジェクトをserializeする
-    # (このオブジェクトをdict化して返す)
     def serialize(self):
         return {
             "id": self.id,
@@ -118,8 +116,6 @@ class SiteUser(DBTable):
         # ここにパスワードの内容が入っている
         self.password = ""
 
-    # このオブジェクトをserializeする
-    # (このオブジェクトをdict化して返す)
     def serialize(self):
         return {
             "id": self.id,
@@ -379,6 +375,65 @@ class MySQLConnector:
 app = FlaskBuilder(__name__)
 
 
+# ---webapi
+# Todoリストを全件取得する。
+@app.route('/get_all_todos', methods=['GET'])
+def get_all_todos():
+
+    with MySQLConnector() as db:
+        db_datas = db.select(ToDoItem)
+
+        return jsonify([e.serialize() for e in db_datas])
+
+
+# ToDoリストに1件追加する。
+@app.route('/add', methods=['POST'])
+# @login_required
+def add_todo_item():
+    todoitem = ToDoItem()
+
+    # ToDoフォームのテキストボックスに入力されたテキストを取得する。
+    todoitem.comment = request.json['comment']
+
+    # コメント欄のテキストボックスが空でなければ、SQLを実行する。
+    # コメント欄のテキストボックスが空なら何もしない。
+    if todoitem.comment:
+        with MySQLConnector() as db:
+
+            # コメントをDBに登録する。
+            db.insert(todoitem)
+            # auto_incrementされたidを取得する。
+            todoitem.id = db.select_last_id()
+
+        return jsonify(todoitem.serialize()), 200
+
+
+# ToDoリストに追加されたコメントをDBから1件だけ削除する。
+# id : int
+# 削除するコメントのid
+@app.route('/delete/<int:id>', methods=['POST'])
+# @login_required
+def delete_todo_item(id: int):
+    with MySQLConnector() as db:
+
+        todo_item = db.select_one(
+            ToDoItem, "WHERE id = ?", id)
+
+        db.delete(todo_item)
+    return jsonify(''), 200
+
+
+# DB内のToDoリストをすべて削除する。
+@app.route('/all_delete', methods=['POST'])
+# @login_required
+def all_delete_todo_items():
+    with MySQLConnector() as db:
+
+        # Todoリストをすべて削除する。
+        db.delete(ToDoItem)
+    return jsonify(''), 200
+
+
 # ログイン成功後の画面(ホーム画面)
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -425,72 +480,6 @@ def login():
         # return redirect(url_for('top' if LoginOk else 'index'))
 
         return jsonify(LognOk), 200
-
-
-# ===================
-#    Web API
-# ===================
-# Todoリストを全件取得する。
-@app.route('/get_all_todos', methods=['GET'])
-def get_all_todos():
-
-    with MySQLConnector() as db:
-        db_datas = db.select(ToDoItem)
-
-        return jsonify([e.serialize() for e in db_datas])
-
-
-# ToDoリストに1件追加する。
-# param) 追加するToDo 1件
-# return) 追加されたToDo
-@app.route('/add', methods=['POST'])
-# @login_required
-def add_todo_item():
-    todoitem = ToDoItem()
-
-    # ToDoフォームのテキストボックスに入力されたテキストを取得する。
-    todoitem.comment = request.json['comment']
-
-    # コメント欄のテキストボックスが空でなければ、SQLを実行する。
-    # コメント欄のテキストボックスが空なら何もしない。
-    if todoitem.comment:
-        with MySQLConnector() as db:
-
-            # コメントをDBに登録する。
-            db.insert(todoitem)
-            # ToDo: insertでincrementされたidを返す。
-            # auto_incrementされたidを取得する。
-            todoitem.id = db.select_last_id()
-
-        return jsonify(todoitem.serialize()), 200
-
-
-# ToDoリストに追加されたコメントをDBから1件だけ削除する。
-# id : int
-# 削除するコメントのid
-@app.route('/delete/<int:id>', methods=['POST'])
-# @login_required
-def delete_todo_item(id: int):
-    with MySQLConnector() as db:
-
-        todo_item = db.select_one(
-            ToDoItem, "WHERE id = ?", id)
-
-        db.delete(todo_item)
-    # ToDo: http statusコードを返す
-    return jsonify(''), 200
-
-
-# DB内のToDoリストをすべて削除する。
-@app.route('/all_delete', methods=['POST'])
-# @login_required
-def all_delete_todo_items():
-    with MySQLConnector() as db:
-
-        # Todoリストをすべて削除する。
-        db.delete(ToDoItem)
-    # ToDo: http statusコードを返す
-    return jsonify(''), 200
 
 
 if __name__ == "__main__":

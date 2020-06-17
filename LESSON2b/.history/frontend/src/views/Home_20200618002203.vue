@@ -97,9 +97,7 @@ export default {
         .post(this.baseUrl + "delete/" + delete_id)
         .then((response) => {
           let index = this.entries.find((v) => v.id === delete_id);
-          if (index > 0) {
-            this.entries.splice(index, 1);
-          }
+          this.entries.splice(index, 1);
         })
         .catch((error) => {
           console.log(error);
@@ -109,7 +107,6 @@ export default {
     doAllDelete() {
       axios
         .post(this.baseUrl + "all_delete")
-        // .then((this.entries.length = 0))
         .then(this.entries.splice(0, this.entries.length))
         .catch((error) => {
           console.log(error);

@@ -427,10 +427,15 @@ def login():
         return jsonify(LognOk), 200
 
 
+if __name__ == "__main__":
+    app.run(port=5000, debug=True)
+
 # ===================
 #    Web API
 # ===================
 # Todoリストを全件取得する。
+
+
 @app.route('/get_all_todos', methods=['GET'])
 def get_all_todos():
 
@@ -458,7 +463,6 @@ def add_todo_item():
 
             # コメントをDBに登録する。
             db.insert(todoitem)
-            # ToDo: insertでincrementされたidを返す。
             # auto_incrementされたidを取得する。
             todoitem.id = db.select_last_id()
 
@@ -477,7 +481,6 @@ def delete_todo_item(id: int):
             ToDoItem, "WHERE id = ?", id)
 
         db.delete(todo_item)
-    # ToDo: http statusコードを返す
     return jsonify(''), 200
 
 
@@ -489,9 +492,4 @@ def all_delete_todo_items():
 
         # Todoリストをすべて削除する。
         db.delete(ToDoItem)
-    # ToDo: http statusコードを返す
     return jsonify(''), 200
-
-
-if __name__ == "__main__":
-    app.run(port=5000, debug=True)

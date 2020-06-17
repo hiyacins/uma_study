@@ -59,6 +59,15 @@ export default {
   },
   methods: {
     // -- 使用するメソッドはここへ -- //
+    // 連想配列から該当する要素のindexを取得する。
+    getIndex(value, array, prop) {
+      for (let i = 0; i < array.length; i++) {
+        if (array[i][prop] === value) {
+          return i;
+        }
+      }
+      return -1; //値が存在しなかったとき
+    },
     // データベースからTodoリスト一覧を呼んでくる。
     getTodo() {
       axios
@@ -96,10 +105,8 @@ export default {
       axios
         .post(this.baseUrl + "delete/" + delete_id)
         .then((response) => {
-          let index = this.entries.find((v) => v.id === delete_id);
-          if (index > 0) {
-            this.entries.splice(index, 1);
-          }
+          var index = this.getIndex(delete_id, this.entries, "id");
+          this.entries.splice(index, 1);
         })
         .catch((error) => {
           console.log(error);
@@ -109,7 +116,6 @@ export default {
     doAllDelete() {
       axios
         .post(this.baseUrl + "all_delete")
-        // .then((this.entries.length = 0))
         .then(this.entries.splice(0, this.entries.length))
         .catch((error) => {
           console.log(error);

@@ -50,6 +50,7 @@ export default {
       // Todoリストデータ用のカラ配列をdataオプションに登録する。
       entries: [],
       comment: "",
+      // id: -1,
       // ベースURLの設定
       baseUrl: "http://127.0.0.1:5000/",
     };
@@ -59,6 +60,15 @@ export default {
   },
   methods: {
     // -- 使用するメソッドはここへ -- //
+    // 連想配列から該当する要素のindexを取得する。
+    getIndex(value, array, prop) {
+      for (let i = 0; i < array.length; i++) {
+        if (array[i][prop] === value) {
+          return i;
+        }
+      }
+      return -1; //値が存在しなかったとき
+    },
     // データベースからTodoリスト一覧を呼んでくる。
     getTodo() {
       axios
@@ -77,14 +87,15 @@ export default {
         return;
       }
 
-      let comment = this.comment;
-
+      let params = {
+        comment: this.comment,
+      };
       axios
-        .post(this.baseUrl + "add", { comment: this.comment })
+        .post(this.baseUrl + "add", params)
         .then((response) => {
           this.entries.push({
             id: response.data.id,
-            comment: comment,
+            comment: response.data.comment,
           });
           this.comment = "";
         })
@@ -92,15 +103,23 @@ export default {
           console.log(error);
         });
     },
+    // Todoリスト削除の処理
+    async getDelete(delete_id) {
+      axios
+        .get(this.baseUrl + "delete/" + delete_id)
+        .then((response) => {
+          var index = this.getIndex(response.data, this.entries, "id");
+          this.entries.splice(index, 1);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    // Todoリスト削除の処理
     doDelete(delete_id) {
       axios
         .post(this.baseUrl + "delete/" + delete_id)
-        .then((response) => {
-          let index = this.entries.find((v) => v.id === delete_id);
-          if (index > 0) {
-            this.entries.splice(index, 1);
-          }
-        })
+        .then(this.getDelete(delete_id))
         .catch((error) => {
           console.log(error);
         });
@@ -109,7 +128,6 @@ export default {
     doAllDelete() {
       axios
         .post(this.baseUrl + "all_delete")
-        // .then((this.entries.length = 0))
         .then(this.entries.splice(0, this.entries.length))
         .catch((error) => {
           console.log(error);
