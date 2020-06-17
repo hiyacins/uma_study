@@ -267,6 +267,7 @@ class MySQLConnector:
             [f"SELECT {t.sql_select_statement} FROM {t.table_name}", sql_where]), param)
         return t.from_tuple(self.mysql_cursor.fetchone(), t.sql_select_statement.split(","))
 
+    # [ToDo]:テスト作成
     # insert → update を行う時、insertで登録した、最後のidを取得する関数
     # 返し値：int型が返る。
     # （使用例）
@@ -435,10 +436,9 @@ def all_delete_todo_items():
 
 
 # ログイン成功後の画面(ホーム画面)
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-# @login_required
-def top(path):
+@app.route('/')
+@login_required
+def top():
 
     return render_template('index.html')
 
@@ -479,7 +479,7 @@ def login():
         # ログインに失敗していれば、ログインページにリダイレクトする。(再度表示する)
         # return redirect(url_for('top' if LoginOk else 'index'))
 
-        return jsonify(LognOk), 200
+        return jsonify(LoginOk), 200
 
 
 if __name__ == "__main__":

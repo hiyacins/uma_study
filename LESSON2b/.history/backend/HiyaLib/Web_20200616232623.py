@@ -19,8 +19,8 @@ def FlaskBuilder(name: str) -> Flask:
     # Flaskクラスのインスタンスを作成する。
     # app = Flask(name)
     app = Flask(name,
-                static_folder="../frontend/dist/static",
-                template_folder="../frontend/dist")
+                static_folder="./frontend/dist/static",
+                template_folder="./frontend/dist")
     # app = Flask(name,
     #             static_folder="../dist/static",
     #             template_folder="../dist")
